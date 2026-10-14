@@ -12,5 +12,14 @@
   "env": {
     "browser": true
   },
-  "ignorePatterns": ["src/routeTree.gen.ts"]
+  "ignorePatterns": ["src/routeTree.gen.ts"],
+  "overrides": [
+    {
+      "files": ["src/components/ui/**"],
+      "rules": {
+        "jsx-a11y/label-has-associated-control": "off",
+        "jsx-a11y/prefer-tag-over-role": "off"
+      }
+    }
+  ]
 }
