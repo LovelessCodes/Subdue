@@ -119,6 +119,8 @@ One volume (`/data`) holds the SQLite database — WAL mode, so the `-wal` and `
 git tag v0.1.0 && git push origin v0.1.0   # builds amd64 + arm64, writes release notes
 ```
 
+The workflow can also be run manually from the Actions tab — manual runs build without pushing anything, so the pipeline is verifiable without cutting a release. One gotcha after the first release: a fresh GHCR package starts **private**, so either flip it to public in the package settings or `docker login ghcr.io` before pulling.
+
 Nothing needs configuring for a LAN deploy: the auth secret is generated into the data volume on first boot, and the base URL is derived from each request, so localhost, LAN names and IPs all work. Four settings are worth knowing:
 
 - `BETTER_AUTH_SECRET` — set it only if you want to control it. The generated secret lives beside the database (`/data/secret`); keep the two together. Changing the secret no longer breaks stored signing keys (they are written unencrypted at rest — the database itself is the sensitive file — and key rows from older versions are repaired on boot); existing sessions do log out.
