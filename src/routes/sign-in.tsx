@@ -4,10 +4,7 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { getAuthProviders } from '@/lib/app.functions'
 import { authClient } from '@/lib/auth-client'
-import {
-  socialProviderLabels,
-  type SocialProviderName,
-} from '@/lib/social-providers'
+import { socialProviderLabel } from '@/lib/social-providers'
 import {
   Card,
   CardContent,
@@ -30,10 +27,13 @@ function SignIn() {
   const [error, setError] = useState<string | null>(null)
   const [pending, setPending] = useState(false)
 
-  async function signInWith(provider: SocialProviderName) {
+  async function signInWith(provider: string) {
     setError(null)
     try {
-      await authClient.signIn.social({ provider, callbackURL: '/' })
+      await authClient.signIn.social({
+        provider,
+        callbackURL: '/',
+      } as Parameters<typeof authClient.signIn.social>[0])
     } catch {
       setError('Social sign-in failed to start.')
     }
@@ -93,11 +93,9 @@ function SignIn() {
                   key={provider}
                   type="button"
                   variant="outline"
-                  onClick={() => signInWith(provider as SocialProviderName)}
+                  onClick={() => signInWith(provider)}
                 >
-                  Continue with{' '}
-                  {socialProviderLabels[provider as SocialProviderName] ??
-                    provider}
+                  Continue with {socialProviderLabel(provider)}
                 </Button>
               ))}
               <p className="text-center text-xs text-muted-foreground">or</p>

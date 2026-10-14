@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
 import { AppHeader } from '@/components/app-header'
+import { SocialProviderForm } from '@/components/social-provider-form'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -10,20 +11,12 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { Field, FieldDescription, FieldLabel } from '@/components/ui/field'
-import { Input } from '@/components/ui/input'
-import {
-  getSetupStatus,
-  listSocialProviders,
-  removeSocialProvider,
-  saveSocialProvider,
-} from '@/lib/app.functions'
+import { getSetupStatus, listSocialProviders } from '@/lib/app.functions'
 import { getSession } from '@/lib/auth.functions'
 import {
-  socialProviderLabels,
-  socialProviderNames,
+  socialProviders,
+  type SocialProviderDefinition,
 } from '@/lib/social-providers'
-import type { SocialProviderView } from '@/server/services/social-auth'
 
 export const Route = createFileRoute('/admin')({
   beforeLoad: async () => {
@@ -46,17 +39,8 @@ export const Route = createFileRoute('/admin')({
 function AdminPage() {
   const { status, social } = Route.useLoaderData()
   const router = useRouter()
-  const [origin, setOrigin] = useState('')
-  const [error, setError] = useState<string | null>(null)
-  const [pending, setPending] = useState<string | null>(null)
-  const [confirmRemove, setConfirmRemove] = useState<string | null>(null)
-  const [drafts, setDrafts] = useState<
-    Record<string, { clientId: string; clientSecret: string }>
-  >({})
-
-  useEffect(() => {
-    setOrigin(window.location.origin)
-  }, [])
+  const [open, setOpen] = useState(false)
+  const [editing, setEditing] = useState<SocialProviderDefinition | null>(null)
 
   if (!status.isAdmin || !social) {
     return (
@@ -91,46 +75,7 @@ function AdminPage() {
   const configured = new Map(
     social.items.map((item) => [item.provider, item] as const),
   )
-
-  function draftFor(provider: string, item?: SocialProviderView) {
-    return (
-      drafts[provider] ?? {
-        clientId: item?.clientId ?? '',
-        clientSecret: '',
-      }
-    )
-  }
-
-  function setDraft(
-    provider: string,
-    patch: Partial<{ clientId: string; clientSecret: string }>,
-  ) {
-    setDrafts((current) => ({
-      ...current,
-      [provider]: {
-        ...(current[provider] ?? { clientId: '', clientSecret: '' }),
-        ...patch,
-      },
-    }))
-  }
-
-  async function run(provider: string, action: () => Promise<unknown>) {
-    setPending(provider)
-    setError(null)
-    try {
-      await action()
-      await router.invalidate()
-    } catch (caught) {
-      const message = caught instanceof Error ? caught.message : 'Save failed.'
-      setError(
-        message.includes('SOCIAL_SECRET_REQUIRED')
-          ? 'A client ID and secret are both needed before a provider can be enabled.'
-          : message,
-      )
-    } finally {
-      setPending(null)
-    }
-  }
+  const envProviders = new Set(social.env)
 
   return (
     <div className="min-h-svh">
@@ -140,141 +85,53 @@ function AdminPage() {
           <CardHeader>
             <CardTitle>Social sign-in</CardTitle>
             <CardDescription>
-              Paste the client credentials from each provider's developer
-              console. The callback URL to register there is shown per provider.
-              Changes apply after restarting Subdue.
+              Paste the client credentials from each provider's console. Changes
+              from this page apply after restarting Subdue; providers configured
+              through environment variables win over these rows.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {error ? (
-              <p role="alert" className="mb-3 text-sm text-destructive">
-                {error}
-              </p>
-            ) : null}
             <ul className="flex flex-col divide-y">
-              {socialProviderNames.map((provider) => {
-                const item = configured.get(provider)
-                const draft = draftFor(provider, item)
-                const active = social.active.includes(provider)
-                const callbackUrl = origin
-                  ? `${origin}/api/auth/callback/${provider}`
-                  : `/api/auth/callback/${provider}`
+              {socialProviders.map((provider) => {
+                const item = configured.get(provider.id)
+                const active = social.active.includes(provider.id)
+                const fromEnv = envProviders.has(provider.id)
 
                 return (
-                  <li key={provider} className="flex flex-col gap-3 py-4">
+                  <li
+                    key={provider.id}
+                    className="flex flex-wrap items-center justify-between gap-3 py-3"
+                  >
                     <div className="flex flex-wrap items-center gap-2">
-                      <p className="text-sm font-medium">
-                        {socialProviderLabels[provider]}
-                      </p>
+                      <p className="text-sm font-medium">{provider.label}</p>
+                      {fromEnv ? (
+                        <Badge variant="secondary">from environment</Badge>
+                      ) : null}
                       {active ? (
                         <Badge variant="secondary">active</Badge>
                       ) : item ? (
                         <Badge variant="outline">restart to apply</Badge>
-                      ) : (
+                      ) : null}
+                      {!fromEnv && !active && !item ? (
                         <Badge variant="outline">not configured</Badge>
-                      )}
-                    </div>
-
-                    <div className="grid gap-3 sm:grid-cols-2">
-                      <Field>
-                        <FieldLabel htmlFor={`client-id-${provider}`}>
-                          Client ID
-                        </FieldLabel>
-                        <Input
-                          id={`client-id-${provider}`}
-                          value={draft.clientId}
-                          onChange={(event) =>
-                            setDraft(provider, { clientId: event.target.value })
-                          }
-                        />
-                      </Field>
-                      <Field>
-                        <FieldLabel htmlFor={`client-secret-${provider}`}>
-                          Client secret
-                        </FieldLabel>
-                        <Input
-                          id={`client-secret-${provider}`}
-                          type="password"
-                          value={draft.clientSecret}
-                          onChange={(event) =>
-                            setDraft(provider, {
-                              clientSecret: event.target.value,
-                            })
-                          }
-                          placeholder={
-                            item?.clientSecretSet
-                              ? 'Set — type to replace'
-                              : 'Paste the secret'
-                          }
-                        />
-                      </Field>
-                    </div>
-
-                    <FieldDescription>
-                      Callback URL: <code>{callbackUrl}</code>
-                    </FieldDescription>
-
-                    <div className="flex flex-wrap gap-2">
-                      <Button
-                        size="sm"
-                        disabled={
-                          pending === provider || !draft.clientId.trim()
-                        }
-                        onClick={() =>
-                          run(provider, async () => {
-                            await saveSocialProvider({
-                              data: {
-                                provider,
-                                clientId: draft.clientId.trim(),
-                                clientSecret: draft.clientSecret.trim()
-                                  ? draft.clientSecret.trim()
-                                  : undefined,
-                                enabled: true,
-                              },
-                            })
-                            setDraft(provider, { clientSecret: '' })
-                          })
-                        }
-                      >
-                        Save
-                      </Button>
-                      {item ? (
-                        confirmRemove === provider ? (
-                          <>
-                            <Button
-                              variant="destructive"
-                              size="sm"
-                              disabled={pending === provider}
-                              onClick={() =>
-                                run(provider, async () => {
-                                  await removeSocialProvider({
-                                    data: { provider },
-                                  })
-                                  setConfirmRemove(null)
-                                })
-                              }
-                            >
-                              Confirm remove
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => setConfirmRemove(null)}
-                            >
-                              Keep
-                            </Button>
-                          </>
-                        ) : (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setConfirmRemove(provider)}
-                          >
-                            Remove
-                          </Button>
-                        )
                       ) : null}
                     </div>
+                    {fromEnv ? (
+                      <span className="text-xs text-muted-foreground">
+                        Remove the environment variables to manage it here.
+                      </span>
+                    ) : (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setEditing(provider)
+                          setOpen(true)
+                        }}
+                      >
+                        {item ? 'Edit' : 'Configure'}
+                      </Button>
+                    )}
                   </li>
                 )
               })}
@@ -282,6 +139,13 @@ function AdminPage() {
           </CardContent>
         </Card>
       </main>
+
+      <SocialProviderForm
+        open={open}
+        onOpenChange={setOpen}
+        provider={editing}
+        item={editing ? configured.get(editing.id) : undefined}
+      />
     </div>
   )
 }

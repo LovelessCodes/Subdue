@@ -73,3 +73,36 @@ describe('social provider config', () => {
     expect(await removeSocialProvider(db, 'microsoft')).toBe(false)
   })
 })
+
+describe('social provider extras', () => {
+  it('keeps only the catalog fields for the provider, coercing strings', async () => {
+    const { db } = createTestDb()
+
+    const created = await upsertSocialProvider(db, {
+      provider: 'microsoft',
+      clientId: 'id',
+      clientSecret: 'secret',
+      extra: { tenantId: 'contoso', authority: '', scopes: 'openid, profile' },
+    })
+
+    expect(created.row?.extra).toEqual({ tenantId: 'contoso' })
+  })
+
+  it('combines discord permission bits and keeps them across updates', async () => {
+    const { db } = createTestDb()
+
+    await upsertSocialProvider(db, {
+      provider: 'discord',
+      clientId: 'id',
+      clientSecret: 'secret',
+      extra: { permissions: '8,2048' },
+    })
+
+    const updated = await upsertSocialProvider(db, {
+      provider: 'discord',
+      clientId: 'new-id',
+    })
+
+    expect(updated.row?.extra).toEqual({ permissions: 2056 })
+  })
+})

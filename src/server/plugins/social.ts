@@ -31,6 +31,7 @@ export const socialPlugin = () =>
           clientId: { type: 'string', required: true },
           clientSecret: { type: 'string', required: true },
           enabled: { type: 'boolean', required: true, defaultValue: true },
+          extra: { type: 'string', required: false },
           createdAt: { type: 'date', required: true },
           updatedAt: { type: 'date', required: true },
         },

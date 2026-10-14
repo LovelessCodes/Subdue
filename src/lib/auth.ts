@@ -21,49 +21,52 @@ import { subscriptionsPlugin } from '../server/plugins/subscriptions'
 import * as schema from './auth-schema'
 import { db, sqlite } from './db'
 import { resolveAuthSecret } from './secret'
+import { loadSocialProvidersFromEnv } from './social-config'
 
 const envBaseUrl = process.env.BETTER_AUTH_URL?.trim()
 const envTrustedOrigins = process.env.TRUSTED_ORIGINS?.split(',')
   .map((origin) => origin.trim())
   .filter(Boolean)
 
-type SocialProviderKey = 'google' | 'github' | 'microsoft' | 'discord'
-
-const SOCIAL_PROVIDER_KEYS: SocialProviderKey[] = [
-  'google',
-  'github',
-  'microsoft',
-  'discord',
-]
-
 /**
- * Social providers are configured by the administrator at runtime and stored
- * in the database; this module reads them at boot. Raw SQL (rather than the
- * drizzle table) keeps schema generation working before the table exists.
+ * Social providers come from two places: environment variables (deployment
+ * configuration, and the winner when both exist) and the administrator's
+ * database rows. Raw SQL keeps schema generation working before the table
+ * exists.
  */
-function loadSocialProviders(): Partial<
-  Record<SocialProviderKey, { clientId: string; clientSecret: string }>
+function loadSocialProvidersFromDatabase(): Record<
+  string,
+  Record<string, unknown>
 > {
   try {
     const rows = sqlite
       .prepare(
-        'SELECT provider, client_id AS clientId, client_secret AS clientSecret FROM social_provider WHERE enabled = 1',
+        'SELECT provider, client_id AS clientId, client_secret AS clientSecret, extra FROM social_provider WHERE enabled = 1',
       )
-      .all() as { provider: string; clientId: string; clientSecret: string }[]
+      .all() as {
+      provider: string
+      clientId: string
+      clientSecret: string
+      extra: string | null
+    }[]
 
-    const providers: Partial<
-      Record<SocialProviderKey, { clientId: string; clientSecret: string }>
-    > = {}
+    const providers: Record<string, Record<string, unknown>> = {}
     for (const row of rows) {
-      if (
-        (SOCIAL_PROVIDER_KEYS as string[]).includes(row.provider) &&
-        row.clientId &&
-        row.clientSecret
-      ) {
-        providers[row.provider as SocialProviderKey] = {
-          clientId: row.clientId,
-          clientSecret: row.clientSecret,
-        }
+      if (!row.clientId || !row.clientSecret) {
+        continue
+      }
+      let extra: Record<string, unknown> = {}
+      try {
+        extra = row.extra
+          ? (JSON.parse(row.extra) as Record<string, unknown>)
+          : {}
+      } catch {
+        extra = {}
+      }
+      providers[row.provider] = {
+        ...extra,
+        clientId: row.clientId,
+        clientSecret: row.clientSecret,
       }
     }
     return providers
@@ -71,6 +74,11 @@ function loadSocialProviders(): Partial<
     // first boot before migrations, or schema generation: no providers yet
     return {}
   }
+}
+
+const socialProvidersConfig: Record<string, Record<string, unknown>> = {
+  ...loadSocialProvidersFromDatabase(),
+  ...loadSocialProvidersFromEnv(),
 }
 
 export const mcpResource =
@@ -100,7 +108,9 @@ export const auth = betterAuth({
       joins: true,
     },
   },
-  socialProviders: loadSocialProviders(),
+  socialProviders: socialProvidersConfig as Parameters<
+    typeof betterAuth
+  >[0]['socialProviders'],
   plugins: [
     admin(),
     apiKey({

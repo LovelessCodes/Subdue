@@ -301,6 +301,7 @@ export const socialProvider = sqliteTable('social_provider', {
   clientId: text('client_id').notNull(),
   clientSecret: text('client_secret').notNull(),
   enabled: integer('enabled', { mode: 'boolean' }).default(true).notNull(),
+  extra: text('extra'),
   createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
   updatedAt: integer('updated_at', { mode: 'timestamp_ms' }).notNull(),
 })

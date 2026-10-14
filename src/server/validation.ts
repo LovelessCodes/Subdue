@@ -1,9 +1,6 @@
 import * as z from 'zod'
 import type { Database } from '../lib/db'
-import {
-  socialProviderNames,
-  type SocialProviderName,
-} from '../lib/social-providers'
+import { socialProviderIds } from '../lib/social-providers'
 import { logoExists } from './logos'
 import { channelTypes } from './services/channels'
 import { getPaymentMethod } from './services/payment-methods'
@@ -41,13 +38,20 @@ export const subscriptionBodySchema = z.object({
   logo: z.string().trim().max(255).nullish(),
 })
 
-export { socialProviderNames, type SocialProviderName }
+export { socialProviderIds }
+export type SocialProviderName = string
+
+export const socialExtraSchema = z.record(
+  z.string(),
+  z.union([z.string(), z.number(), z.boolean(), z.array(z.string())]),
+)
 
 export const socialProviderUpdateSchema = z.object({
-  provider: z.enum(socialProviderNames),
+  provider: z.enum(socialProviderIds),
   clientId: z.string().trim().min(1).max(500),
   clientSecret: z.string().trim().min(1).max(500).optional(),
   enabled: z.boolean().optional(),
+  extra: socialExtraSchema.optional(),
 })
 
 export const channelBodySchema = z.object({

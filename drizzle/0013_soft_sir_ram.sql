@@ -1,0 +1,1 @@
+ALTER TABLE `social_provider` ADD `extra` text;

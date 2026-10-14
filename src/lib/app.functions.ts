@@ -3,7 +3,8 @@ import { getRequestHeaders } from '@tanstack/react-start/server'
 import { eq } from 'drizzle-orm'
 import * as z from 'zod'
 import { user } from '../lib/auth-schema'
-import { socialProviderNames } from '../lib/social-providers'
+import { socialProviderIds } from '../lib/social-providers'
+import { envConfiguredProviderIds } from '../lib/social-config'
 import { getBudgetStatus } from '../server/services/budget'
 import { getCalendarMonth } from '../server/services/calendar'
 import { listCategories } from '../server/services/categories'
@@ -430,6 +431,7 @@ export const listSocialProviders = createServerFn({ method: 'GET' }).handler(
     return {
       items,
       active: Object.keys(providers).filter((name) => Boolean(providers[name])),
+      env: envConfiguredProviderIds(),
     }
   },
 )
@@ -447,7 +449,7 @@ export const saveSocialProvider = createServerFn({ method: 'POST' })
 
 export const removeSocialProvider = createServerFn({ method: 'POST' })
   .validator((input: { provider: string }) => ({
-    provider: z.enum(socialProviderNames).parse(input.provider),
+    provider: z.enum(socialProviderIds).parse(input.provider),
   }))
   .handler(async ({ data }) => {
     await requireAdminUserId()

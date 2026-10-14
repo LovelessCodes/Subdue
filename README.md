@@ -196,7 +196,21 @@ Subdue is a PWA: it installs from any modern browser (manifest, icons, theme col
 
 ## Social sign-in
 
-An administrator can enable Google, GitHub, Microsoft or Discord sign-in from `/admin`: paste the client credentials from the provider's console, register the callback URL shown on the page, and restart Subdue. Credentials live in the database and are never returned by the API — the secret field only accepts replacements. The sign-in and sign-up pages grow the matching buttons automatically, and the provider list is visible to admins as active or "restart to apply".
+Two first-class ways to configure providers — the environment wins when they overlap:
+
+**In the browser:** an administrator opens `/admin`, picks from 32 providers, pastes the credentials plus any provider-specific fields (Microsoft tenant, Cognito domain/region/pool, Discord permissions, Facebook scopes, …), registers the callback URL shown, and restarts Subdue. Secrets live in the database and are never returned by the API.
+
+**In the container:** environment variables follow `${PROVIDER}_CLIENT_ID` / `${PROVIDER}_CLIENT_SECRET`, with extras as `${PROVIDER}_${KEY}`:
+
+```bash
+docker run … \
+  -e GOOGLE_CLIENT_ID=… -e GOOGLE_CLIENT_SECRET=… \
+  -e MICROSOFT_TENANT_ID=contoso \
+  -e COGNITO_REGION=eu-west-1 -e COGNITO_USERPOOL_ID=eu-west-1_abc \
+  -e DISCORD_PERMISSIONS=8,2048
+```
+
+Providers configured by environment show as "from environment" on the admin page and stay read-only there until the variables are removed. The sign-in and sign-up pages grow the matching buttons automatically. `twitter` and `vk` are not available in the current better-auth version; everything else from Atlassian to Zoom is.
 
 ## Contributing
 
