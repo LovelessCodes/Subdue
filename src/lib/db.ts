@@ -2,6 +2,7 @@ import { mkdirSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import Database from 'better-sqlite3'
 import { drizzle } from 'drizzle-orm/better-sqlite3'
+import { migrate } from 'drizzle-orm/better-sqlite3/migrator'
 import * as schema from './auth-schema'
 
 const databasePath = resolve(process.env.DATABASE_PATH ?? './data/subdue.db')
@@ -14,5 +15,9 @@ sqlite.pragma('busy_timeout = 5000')
 sqlite.pragma('foreign_keys = ON')
 
 export const db = drizzle(sqlite, { schema })
+
+migrate(db, {
+  migrationsFolder: resolve(process.env.MIGRATIONS_PATH ?? './drizzle'),
+})
 
 export type Database = typeof db
