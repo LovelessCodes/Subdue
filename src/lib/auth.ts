@@ -19,15 +19,31 @@ import { settingsPlugin } from '../server/plugins/settings'
 import { subscriptionsPlugin } from '../server/plugins/subscriptions'
 import * as schema from './auth-schema'
 import { db, sqlite } from './db'
+import { resolveAuthSecret } from './secret'
+
+const envBaseUrl = process.env.BETTER_AUTH_URL?.trim()
+const envTrustedOrigins = process.env.TRUSTED_ORIGINS?.split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean)
 
 export const mcpResource =
-  process.env.MCP_RESOURCE_URL ?? 'http://localhost:3000/api/mcp'
+  process.env.MCP_RESOURCE_URL?.trim() ||
+  (envBaseUrl
+    ? `${envBaseUrl.replace(/\/+$/, '')}/api/mcp`
+    : 'http://localhost:3000/api/mcp')
 
 export const auth = betterAuth({
   appName: 'Subdue',
-  // Without a base URL the OAuth-provider plugin cannot build its issuer.
-  // Set BETTER_AUTH_URL to the URL you actually browse in production.
-  baseURL: process.env.BETTER_AUTH_URL ?? 'http://localhost:3000',
+  secret: resolveAuthSecret(),
+  // Explicit when configured; otherwise every request's host is used, with
+  // '*' allowing any of them (self-hosted instances get reached by many names).
+  baseURL: envBaseUrl ? envBaseUrl : { allowedHosts: ['*'] },
+  // Self-hosted default: any origin. Narrow via TRUSTED_ORIGINS when the
+  // instance is reachable beyond your own network.
+  trustedOrigins:
+    envTrustedOrigins && envTrustedOrigins.length > 0
+      ? envTrustedOrigins
+      : ['*'],
   database: drizzleAdapter(db, { provider: 'sqlite', schema }),
   emailAndPassword: {
     enabled: true,

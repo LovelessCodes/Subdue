@@ -85,7 +85,7 @@ Directions, not promises. Each milestone should end in something usable and test
 
 Needs [Bun](https://bun.sh) (preferred) or a recent Node.
 
-First run: `cp .env.example .env` and set `BETTER_AUTH_SECRET` (`openssl rand -base64 32`).
+First run: `cp .env.example .env`. Everything in it is optional — the auth secret is generated on first boot (stored next to the database) and the base URL is derived from requests.
 
 ```bash
 bun install                # dependencies
@@ -108,13 +108,10 @@ UI components are copy-in files in `src/components/ui` (shadcn/ui on Base UI —
 
 ```bash
 docker build -t subdue .
-docker run -d --name subdue -p 3000:3000 \
-  -e BETTER_AUTH_SECRET="$(openssl rand -base64 32)" \
-  -v ./data:/data \
-  subdue
+docker run -d --name subdue -p 3000:3000 -v ./data:/data subdue
 ```
 
-**Docker Compose:** copy `.env.example` to `.env`, set `BETTER_AUTH_SECRET` (compose refuses to start without it), then `docker compose up -d`.
+**Docker Compose:** copy `.env.example` to `.env` (all values optional) and `docker compose up -d`.
 
 One volume (`/data`) holds the SQLite database — WAL mode, so the `-wal` and `-shm` files travel with it — and migrations run automatically on every boot: upgrading is pulling a new image. Tagged releases publish a multi-arch image to `ghcr.io/lovelesscodes/subdue`:
 
