@@ -6,6 +6,7 @@ import {
   useRouter,
 } from '@tanstack/react-router'
 import { AppHeader } from '@/components/app-header'
+import { TwoFactorCard } from '@/components/two-factor-card'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -295,6 +296,8 @@ function SettingsPage() {
             </Field>
           </CardContent>
         </Card>
+
+        <TwoFactorCard />
 
         {error ? (
           <p role="alert" className="text-sm text-destructive">

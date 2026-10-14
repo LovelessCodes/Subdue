@@ -7,6 +7,7 @@ import { betterAuth } from 'better-auth'
 import { openAPI } from 'better-auth/plugins'
 import { admin } from 'better-auth/plugins/admin'
 import { jwt } from 'better-auth/plugins/jwt'
+import { twoFactor } from 'better-auth/plugins/two-factor'
 import { tanstackStartCookies } from 'better-auth/tanstack-start'
 import { categoriesPlugin } from '../server/plugins/categories'
 import { channelsPlugin } from '../server/plugins/channels'
@@ -92,7 +93,14 @@ export const auth = betterAuth({
   secret: resolveAuthSecret(),
   // Explicit when configured; otherwise every request's host is used, with
   // '*' allowing any of them (self-hosted instances get reached by many names).
-  baseURL: envBaseUrl ? envBaseUrl : { allowedHosts: ['*'] },
+  baseURL: envBaseUrl
+    ? envBaseUrl
+    : {
+        allowedHosts: ['*'],
+        // Direct auth.api calls without a request (tests, scripts) have no
+        // host to resolve; fall back instead of throwing.
+        fallback: 'http://localhost:3000',
+      },
   // Self-hosted default: any origin. Narrow via TRUSTED_ORIGINS when the
   // instance is reachable beyond your own network.
   trustedOrigins:
@@ -130,6 +138,9 @@ export const auth = betterAuth({
       jwks: { disablePrivateKeyEncryption: true },
     }),
     openAPI(),
+    twoFactor({
+      issuer: 'Subdue',
+    }),
     categoriesPlugin(),
     channelsPlugin(),
     currenciesPlugin(),

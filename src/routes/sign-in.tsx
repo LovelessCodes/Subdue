@@ -61,10 +61,16 @@ function SignIn() {
       const data = (await response.json()) as {
         url?: string
         message?: string
+        twoFactorRedirect?: boolean
       }
 
       if (!response.ok) {
         setError(data.message ?? 'Sign-in failed')
+        return
+      }
+
+      if (data.twoFactorRedirect) {
+        window.location.assign('/two-factor')
         return
       }
 

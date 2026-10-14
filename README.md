@@ -194,6 +194,10 @@ Add `http://localhost:3000/api/ical/<token>` as a calendar subscription in anyth
 
 Subdue is a PWA: it installs from any modern browser (manifest, icons, theme color). Pages are cached network-first, so whenever the server is reachable the data is fresh; when it is not, the last-rendered copy appears with a banner naming the cache time. API calls are never cached. The reasoning and its trade-offs live in [docs/adr/0001-offline-behaviour.md](./docs/adr/0001-offline-behaviour.md).
 
+## Two-factor authentication
+
+TOTP two-factor is per account: **Settings → Two-factor authentication**. Enabling asks for your password, shows a QR code plus the secret for manual entry, and issues ten single-use backup codes — the account is only protected once you verify the first code, which is better-auth's rule and a good one. Sign-in then asks for a code, backup codes work as recovery, and turning two-factor off revokes remembered verification. Nothing to configure on the server side.
+
 ## Social sign-in
 
 Two first-class ways to configure providers — the environment wins when they overlap:

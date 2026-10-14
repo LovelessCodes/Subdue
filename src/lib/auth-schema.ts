@@ -26,6 +26,9 @@ export const user = sqliteTable('user', {
   banned: integer('banned', { mode: 'boolean' }).default(false),
   banReason: text('ban_reason'),
   banExpires: integer('ban_expires', { mode: 'timestamp_ms' }),
+  twoFactorEnabled: integer('two_factor_enabled', { mode: 'boolean' }).default(
+    false,
+  ),
 })
 
 export const session = sqliteTable(
@@ -142,6 +145,25 @@ export const jwks = sqliteTable('jwks', {
   alg: text('alg'),
   crv: text('crv'),
 })
+
+export const twoFactor = sqliteTable(
+  'two_factor',
+  {
+    id: text('id').primaryKey(),
+    secret: text('secret').notNull(),
+    backupCodes: text('backup_codes').notNull(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    verified: integer('verified', { mode: 'boolean' }).default(true),
+    failedVerificationCount: integer('failed_verification_count').default(0),
+    lockedUntil: integer('locked_until', { mode: 'timestamp_ms' }),
+  },
+  (table) => [
+    index('twoFactor_secret_idx').on(table.secret),
+    index('twoFactor_userId_idx').on(table.userId),
+  ],
+)
 
 export const category = sqliteTable(
   'category',
@@ -546,6 +568,7 @@ export const oauthClientAssertion = sqliteTable('oauth_client_assertion', {
 export const userRelations = relations(user, ({ one, many }) => ({
   sessions: many(session),
   accounts: many(account),
+  twoFactors: many(twoFactor),
   categorys: many(category),
   channels: many(channel),
   notificationDeliverys: many(notificationDelivery),
@@ -572,6 +595,13 @@ export const sessionRelations = relations(session, ({ one, many }) => ({
 export const accountRelations = relations(account, ({ one }) => ({
   user: one(user, {
     fields: [account.userId],
+    references: [user.id],
+  }),
+}))
+
+export const twoFactorRelations = relations(twoFactor, ({ one }) => ({
+  user: one(user, {
+    fields: [twoFactor.userId],
     references: [user.id],
   }),
 }))

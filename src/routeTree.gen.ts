@@ -21,6 +21,7 @@ import { Route as SetupRouteImport } from './routes/setup'
 import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as SignUpRouteImport } from './routes/sign-up'
 import { Route as SubscriptionsRouteImport } from './routes/subscriptions'
+import { Route as TwoFactorRouteImport } from './routes/two-factor'
 import { Route as DotwellKnownSplatRouteImport } from './routes/[.]well-known/$'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as ApiLogosRouteImport } from './routes/api/logos'
@@ -92,6 +93,11 @@ const SignUpRoute = SignUpRouteImport.update({
 const SubscriptionsRoute = SubscriptionsRouteImport.update({
   id: '/subscriptions',
   path: '/subscriptions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TwoFactorRoute = TwoFactorRouteImport.update({
+  id: '/two-factor',
+  path: '/two-factor',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DotwellKnownSplatRoute = DotwellKnownSplatRouteImport.update({
@@ -168,6 +174,7 @@ export interface FileRoutesByFullPath {
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
   '/subscriptions': typeof SubscriptionsRoute
+  '/two-factor': typeof TwoFactorRoute
   '/.well-known/$': typeof DotwellKnownSplatRoute
   '/api/health': typeof ApiHealthRoute
   '/api/logos': typeof ApiLogosRouteWithChildren
@@ -194,6 +201,7 @@ export interface FileRoutesByTo {
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
   '/subscriptions': typeof SubscriptionsRoute
+  '/two-factor': typeof TwoFactorRoute
   '/.well-known/$': typeof DotwellKnownSplatRoute
   '/api/health': typeof ApiHealthRoute
   '/api/logos': typeof ApiLogosRouteWithChildren
@@ -221,6 +229,7 @@ export interface FileRoutesById {
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
   '/subscriptions': typeof SubscriptionsRoute
+  '/two-factor': typeof TwoFactorRoute
   '/.well-known/$': typeof DotwellKnownSplatRoute
   '/api/health': typeof ApiHealthRoute
   '/api/logos': typeof ApiLogosRouteWithChildren
@@ -249,6 +258,7 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/sign-up'
     | '/subscriptions'
+    | '/two-factor'
     | '/.well-known/$'
     | '/api/health'
     | '/api/logos'
@@ -275,6 +285,7 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/sign-up'
     | '/subscriptions'
+    | '/two-factor'
     | '/.well-known/$'
     | '/api/health'
     | '/api/logos'
@@ -301,6 +312,7 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/sign-up'
     | '/subscriptions'
+    | '/two-factor'
     | '/.well-known/$'
     | '/api/health'
     | '/api/logos'
@@ -328,6 +340,7 @@ export interface RootRouteChildren {
   SignInRoute: typeof SignInRoute
   SignUpRoute: typeof SignUpRoute
   SubscriptionsRoute: typeof SubscriptionsRoute
+  TwoFactorRoute: typeof TwoFactorRoute
   DotwellKnownSplatRoute: typeof DotwellKnownSplatRoute
   ApiHealthRoute: typeof ApiHealthRoute
   ApiLogosRoute: typeof ApiLogosRouteWithChildren
@@ -425,6 +438,13 @@ declare module '@tanstack/react-router' {
       path: '/subscriptions'
       fullPath: '/subscriptions'
       preLoaderRoute: typeof SubscriptionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/two-factor': {
+      id: '/two-factor'
+      path: '/two-factor'
+      fullPath: '/two-factor'
+      preLoaderRoute: typeof TwoFactorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/.well-known/$': {
@@ -539,6 +559,7 @@ const rootRouteChildren: RootRouteChildren = {
   SignInRoute: SignInRoute,
   SignUpRoute: SignUpRoute,
   SubscriptionsRoute: SubscriptionsRoute,
+  TwoFactorRoute: TwoFactorRoute,
   DotwellKnownSplatRoute: DotwellKnownSplatRoute,
   ApiHealthRoute: ApiHealthRoute,
   ApiLogosRoute: ApiLogosRouteWithChildren,
