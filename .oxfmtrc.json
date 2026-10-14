@@ -2,5 +2,5 @@
   "printWidth": 80,
   "singleQuote": true,
   "semi": false,
-  "ignorePatterns": ["src/routeTree.gen.ts", "src/styles.css"]
+  "ignorePatterns": ["src/routeTree.gen.ts", "src/styles.css", "openapi.json"]
 }

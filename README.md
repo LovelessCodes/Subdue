@@ -102,7 +102,11 @@ bun run test               # vitest
 
 UI components are copy-in files in `src/components/ui` (shadcn/ui on Base UI — add more with `bunx --bun shadcn@latest add <name>`). The theme lives in `src/styles.css`, and scroll containers can use the shipped `scroll-fade` utility: `<ScrollArea viewportClassName="scroll-fade">`.
 
-MCP: the app serves an MCP endpoint at `/api/mcp`, protected by OAuth (dynamic client registration, CIMD, PKCE). Point an MCP client at `http://localhost:3000/api/mcp` — it discovers the authorization server, and you approve access on the consent page.
+## API & docs
+
+- **Interactive reference** (Scalar): `/api/auth/reference` on a running instance — covers every endpoint, including the plugin ones.
+- **Machine-readable spec**: [`openapi.json`](./openapi.json); regenerate with `bun run openapi` after endpoint changes.
+- **MCP**: the app serves an MCP endpoint at `/api/mcp`, protected by OAuth (dynamic client registration, CIMD, PKCE). Point an MCP client at `http://localhost:3000/api/mcp` — it discovers the authorization server, and you approve access on the consent page.
 
 ## Contributing
 
