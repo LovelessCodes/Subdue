@@ -12,6 +12,7 @@ import { categoriesPlugin } from '../server/plugins/categories'
 import { channelsPlugin } from '../server/plugins/channels'
 import { currenciesPlugin } from '../server/plugins/currencies'
 import { dashboardPlugin } from '../server/plugins/dashboard'
+import { icalPlugin } from '../server/plugins/ical'
 import { notificationsPlugin } from '../server/plugins/notifications'
 import { paymentMethodsPlugin } from '../server/plugins/payment-methods'
 import { settingsPlugin } from '../server/plugins/settings'
@@ -50,13 +51,24 @@ export const auth = betterAuth({
   },
   plugins: [
     admin(),
-    apiKey(),
+    apiKey({
+      // API keys act as full sessions so scripts can call the same REST
+      // endpoints the browser does. Keys are per-user and revocable; the
+      // rate limit keeps a leaked key from hammering the instance.
+      enableSessionForAPIKeys: true,
+      rateLimit: {
+        enabled: true,
+        timeWindow: 60 * 60 * 1000,
+        maxRequests: 600,
+      },
+    }),
     jwt(),
     openAPI(),
     categoriesPlugin(),
     channelsPlugin(),
     currenciesPlugin(),
     dashboardPlugin(),
+    icalPlugin(),
     notificationsPlugin(),
     paymentMethodsPlugin(),
     settingsPlugin(),

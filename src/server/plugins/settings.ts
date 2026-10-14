@@ -17,6 +17,7 @@ export const settingsPlugin = () =>
           budgetAmountMinor: { type: 'number', required: false },
           payAnchorDay: { type: 'number', required: false },
           remindDaysBefore: { type: 'number', required: false },
+          icalToken: { type: 'string', required: false },
           userId: {
             type: 'string',
             required: true,
@@ -25,6 +26,7 @@ export const settingsPlugin = () =>
           },
           createdAt: { type: 'date', required: false },
         },
+        indexes: [{ fields: ['icalToken'] }],
       },
     },
     endpoints: {

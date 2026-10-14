@@ -115,8 +115,8 @@ export const apikey = sqliteTable(
     rateLimitEnabled: integer('rate_limit_enabled', {
       mode: 'boolean',
     }).default(true),
-    rateLimitTimeWindow: integer('rate_limit_time_window').default(86400000),
-    rateLimitMax: integer('rate_limit_max').default(10),
+    rateLimitTimeWindow: integer('rate_limit_time_window').default(3600000),
+    rateLimitMax: integer('rate_limit_max').default(600),
     requestCount: integer('request_count').default(0),
     remaining: integer('remaining'),
     lastRequest: integer('last_request', { mode: 'timestamp_ms' }),
@@ -274,21 +274,26 @@ export const paymentMethod = sqliteTable(
   (table) => [index('paymentMethod_userId_idx').on(table.userId)],
 )
 
-export const userSetting = sqliteTable('user_setting', {
-  id: text('id').primaryKey(),
-  currency: text('currency'),
-  locale: text('locale'),
-  weekStart: text('week_start'),
-  theme: text('theme'),
-  budgetAmountMinor: integer('budget_amount_minor'),
-  payAnchorDay: integer('pay_anchor_day'),
-  remindDaysBefore: integer('remind_days_before'),
-  userId: text('user_id')
-    .notNull()
-    .unique()
-    .references(() => user.id, { onDelete: 'cascade' }),
-  createdAt: integer('created_at', { mode: 'timestamp_ms' }),
-})
+export const userSetting = sqliteTable(
+  'user_setting',
+  {
+    id: text('id').primaryKey(),
+    currency: text('currency'),
+    locale: text('locale'),
+    weekStart: text('week_start'),
+    theme: text('theme'),
+    budgetAmountMinor: integer('budget_amount_minor'),
+    payAnchorDay: integer('pay_anchor_day'),
+    remindDaysBefore: integer('remind_days_before'),
+    icalToken: text('ical_token'),
+    userId: text('user_id')
+      .notNull()
+      .unique()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    createdAt: integer('created_at', { mode: 'timestamp_ms' }),
+  },
+  (table) => [index('userSetting_icalToken_idx').on(table.icalToken)],
+)
 
 export const subscription = sqliteTable(
   'subscription',

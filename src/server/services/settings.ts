@@ -16,6 +16,7 @@ export type Settings = {
   budgetAmountMinor: number | null
   payAnchorDay: number | null
   remindDaysBefore: number
+  icalToken: string | null
 }
 
 export type SettingsPatch = {
@@ -30,6 +31,7 @@ export const defaultSettings: Settings = {
   budgetAmountMinor: null,
   payAnchorDay: null,
   remindDaysBefore: 3,
+  icalToken: null,
 }
 
 export async function getSettings(
@@ -55,6 +57,7 @@ export async function getSettings(
     budgetAmountMinor: row.budgetAmountMinor ?? null,
     payAnchorDay: row.payAnchorDay ?? null,
     remindDaysBefore: row.remindDaysBefore ?? defaultSettings.remindDaysBefore,
+    icalToken: row.icalToken ?? null,
   }
 }
 
@@ -83,6 +86,7 @@ export async function updateSettings(
     ...(patch.remindDaysBefore !== undefined && {
       remindDaysBefore: patch.remindDaysBefore,
     }),
+    ...(patch.icalToken !== undefined && { icalToken: patch.icalToken }),
   }
 
   if (rows[0]) {

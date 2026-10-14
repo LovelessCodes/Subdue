@@ -21,6 +21,7 @@ import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiExportBackupRouteImport } from './routes/api/export/backup'
 import { Route as ApiExportCsvRouteImport } from './routes/api/export/csv'
 import { Route as ApiExportJsonRouteImport } from './routes/api/export/json'
+import { Route as ApiIcalTokenRouteImport } from './routes/api/ical/$token'
 import { Route as ApiImportCsvRouteImport } from './routes/api/import/csv'
 import { Route as ApiImportWallosRouteImport } from './routes/api/import/wallos'
 
@@ -84,6 +85,11 @@ const ApiExportJsonRoute = ApiExportJsonRouteImport.update({
   path: '/api/export/json',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiIcalTokenRoute = ApiIcalTokenRouteImport.update({
+  id: '/api/ical/$token',
+  path: '/api/ical/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiImportCsvRoute = ApiImportCsvRouteImport.update({
   id: '/api/import/csv',
   path: '/api/import/csv',
@@ -108,6 +114,7 @@ export interface FileRoutesByFullPath {
   '/api/export/backup': typeof ApiExportBackupRoute
   '/api/export/csv': typeof ApiExportCsvRoute
   '/api/export/json': typeof ApiExportJsonRoute
+  '/api/ical/$token': typeof ApiIcalTokenRoute
   '/api/import/csv': typeof ApiImportCsvRoute
   '/api/import/wallos': typeof ApiImportWallosRoute
 }
@@ -124,6 +131,7 @@ export interface FileRoutesByTo {
   '/api/export/backup': typeof ApiExportBackupRoute
   '/api/export/csv': typeof ApiExportCsvRoute
   '/api/export/json': typeof ApiExportJsonRoute
+  '/api/ical/$token': typeof ApiIcalTokenRoute
   '/api/import/csv': typeof ApiImportCsvRoute
   '/api/import/wallos': typeof ApiImportWallosRoute
 }
@@ -141,6 +149,7 @@ export interface FileRoutesById {
   '/api/export/backup': typeof ApiExportBackupRoute
   '/api/export/csv': typeof ApiExportCsvRoute
   '/api/export/json': typeof ApiExportJsonRoute
+  '/api/ical/$token': typeof ApiIcalTokenRoute
   '/api/import/csv': typeof ApiImportCsvRoute
   '/api/import/wallos': typeof ApiImportWallosRoute
 }
@@ -159,6 +168,7 @@ export interface FileRouteTypes {
     | '/api/export/backup'
     | '/api/export/csv'
     | '/api/export/json'
+    | '/api/ical/$token'
     | '/api/import/csv'
     | '/api/import/wallos'
   fileRoutesByTo: FileRoutesByTo
@@ -175,6 +185,7 @@ export interface FileRouteTypes {
     | '/api/export/backup'
     | '/api/export/csv'
     | '/api/export/json'
+    | '/api/ical/$token'
     | '/api/import/csv'
     | '/api/import/wallos'
   id:
@@ -191,6 +202,7 @@ export interface FileRouteTypes {
     | '/api/export/backup'
     | '/api/export/csv'
     | '/api/export/json'
+    | '/api/ical/$token'
     | '/api/import/csv'
     | '/api/import/wallos'
   fileRoutesById: FileRoutesById
@@ -208,6 +220,7 @@ export interface RootRouteChildren {
   ApiExportBackupRoute: typeof ApiExportBackupRoute
   ApiExportCsvRoute: typeof ApiExportCsvRoute
   ApiExportJsonRoute: typeof ApiExportJsonRoute
+  ApiIcalTokenRoute: typeof ApiIcalTokenRoute
   ApiImportCsvRoute: typeof ApiImportCsvRoute
   ApiImportWallosRoute: typeof ApiImportWallosRoute
 }
@@ -298,6 +311,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiExportJsonRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/ical/$token': {
+      id: '/api/ical/$token'
+      path: '/api/ical/$token'
+      fullPath: '/api/ical/$token'
+      preLoaderRoute: typeof ApiIcalTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/import/csv': {
       id: '/api/import/csv'
       path: '/api/import/csv'
@@ -328,6 +348,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiExportBackupRoute: ApiExportBackupRoute,
   ApiExportCsvRoute: ApiExportCsvRoute,
   ApiExportJsonRoute: ApiExportJsonRoute,
+  ApiIcalTokenRoute: ApiIcalTokenRoute,
   ApiImportCsvRoute: ApiImportCsvRoute,
   ApiImportWallosRoute: ApiImportWallosRoute,
 }

@@ -30,6 +30,7 @@ describe('settings service', () => {
       budgetAmountMinor: null,
       payAnchorDay: null,
       remindDaysBefore: defaultSettings.remindDaysBefore,
+      icalToken: null,
     })
 
     const patched = await updateSettings(db, 'u1', { locale: 'da' })

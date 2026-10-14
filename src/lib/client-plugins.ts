@@ -2,6 +2,7 @@ import type { BetterAuthClientPlugin } from 'better-auth/client'
 import type { categoriesPlugin } from '@/server/plugins/categories'
 import type { channelsPlugin } from '@/server/plugins/channels'
 import type { currenciesPlugin } from '@/server/plugins/currencies'
+import type { icalPlugin } from '@/server/plugins/ical'
 import type { notificationsPlugin } from '@/server/plugins/notifications'
 import type { paymentMethodsPlugin } from '@/server/plugins/payment-methods'
 import type { settingsPlugin } from '@/server/plugins/settings'
@@ -20,6 +21,11 @@ export const channelsClient = {
 export const currenciesClient = {
   id: 'currencies',
   $InferServerPlugin: {} as ReturnType<typeof currenciesPlugin>,
+} satisfies BetterAuthClientPlugin
+
+export const icalClient = {
+  id: 'ical',
+  $InferServerPlugin: {} as ReturnType<typeof icalPlugin>,
 } satisfies BetterAuthClientPlugin
 
 export const notificationsClient = {

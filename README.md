@@ -64,10 +64,10 @@ Directions, not promises. Each milestone should end in something usable and test
 
 - [x] Import from Wallos backups and CSV
 - [x] Export: JSON/CSV and a one-file backup
-- [ ] iCal feed
-- [ ] REST API (API keys) — for scripts, dashboards, and MCP servers
+- [x] iCal feed
+- [x] REST API (API keys) — for scripts, dashboards, and MCP servers
 - [x] MCP server — OAuth-protected tools for MCP clients (read-only for now)
-- [ ] PWA
+- [x] PWA (installable; offline behaviour is [#8](https://github.com/LovelessCodes/Subdue/issues/8))
 
 ### M5 — Ship it properly
 
@@ -106,6 +106,7 @@ UI components are copy-in files in `src/components/ui` (shadcn/ui on Base UI —
 - **Interactive reference** (Scalar): `/api/auth/reference` on a running instance — covers every endpoint, including the plugin ones.
 - **Machine-readable spec**: [`openapi.json`](./openapi.json); regenerate with `bun run openapi` after endpoint changes.
 - **MCP**: the app serves an MCP endpoint at `/api/mcp`, protected by OAuth (dynamic client registration, CIMD, PKCE). Point an MCP client at `http://localhost:3000/api/mcp` — it discovers the authorization server, and you approve access on the consent page.
+- **Scripts & API keys**: `POST /api/auth/api-key/create` returns a key (shown once). Call any endpoint with `x-api-key: <key>` instead of a session cookie — keys are full-access per user, rate-limited (600 requests/hour), and revocable through the same API. A management UI is [#7](https://github.com/LovelessCodes/Subdue/issues/7).
 
 ## Notifications
 
@@ -148,6 +149,21 @@ curl -b cookies.txt -X POST 'http://localhost:3000/api/import/csv?dryRun=1' \
 ```
 
 The Wallos importer reads the raw `wallos.db` inside a backup zip (a bare `.db` works too) and follows Wallos semantics: cycle days plus frequency become Subdue cycles, decimal prices become minor units, and per-subscription reminder overrides carry over. Duplicate names are skipped; inactive subscriptions and one-time payments are reported rather than imported.
+
+## Calendar feed
+
+Subscribe your calendar to Subdue — every payment in the next 12 months, expanded by the same recurrence engine that powers the app, with an alarm set from each subscription's reminder days (per-subscription overrides included):
+
+```bash
+curl -b cookies.txt -X POST http://localhost:3000/api/auth/ical/enable
+# → { "token": "...", "path": "/api/ical/<token>" }
+```
+
+Add `http://localhost:3000/api/ical/<token>` as a calendar subscription in anything that speaks iCal (Google Calendar, Apple Calendar, Fastmail…). Rotate with `/api/auth/ical/rotate`, revoke with `/api/auth/ical/disable`. The URL is a bearer credential — treat it like a password.
+
+## Install it
+
+Subdue is a PWA: it installs from any modern browser (manifest, icons, theme color). The service worker is deliberately non-caching — a stale due date is worse than an offline screen — so "offline support" is honest for now: the app needs its server. Making offline real is [#8](https://github.com/LovelessCodes/Subdue/issues/8).
 
 ## Contributing
 

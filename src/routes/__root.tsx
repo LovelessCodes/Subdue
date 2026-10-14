@@ -17,11 +17,32 @@ export const Route = createRootRoute({
       {
         title: 'Subdue',
       },
+      {
+        name: 'theme-color',
+        content: '#18181b',
+      },
+      {
+        name: 'apple-mobile-web-app-title',
+        content: 'Subdue',
+      },
     ],
     links: [
       {
         rel: 'stylesheet',
         href: appCss,
+      },
+      {
+        rel: 'manifest',
+        href: '/manifest.webmanifest',
+      },
+      {
+        rel: 'icon',
+        href: '/icons/icon-32.png',
+        type: 'image/png',
+      },
+      {
+        rel: 'apple-touch-icon',
+        href: '/icons/icon-180.png',
       },
     ],
   }),
@@ -46,6 +67,12 @@ function RootDocument({ children }: { children: React.ReactNode }) {
               render: <TanStackRouterDevtoolsPanel />,
             },
           ]}
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "if ('serviceWorker' in navigator) { window.addEventListener('load', function () { navigator.serviceWorker.register('/sw.js').catch(function () {}) }) }",
+          }}
         />
         <Scripts />
       </body>

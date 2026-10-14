@@ -71,6 +71,13 @@
       "when": 1792008603181,
       "tag": "0009_bored_lorna_dane",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1792009505024,
+      "tag": "0010_happy_whistler",
+      "breakpoints": true
     }
   ]
 }
