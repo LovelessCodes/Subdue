@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CalendarRouteImport } from './routes/calendar'
+import { Route as ChannelsRouteImport } from './routes/channels'
 import { Route as ConsentRouteImport } from './routes/consent'
 import { Route as InboxRouteImport } from './routes/inbox'
 import { Route as IntegrationsRouteImport } from './routes/integrations'
@@ -38,6 +39,11 @@ const IndexRoute = IndexRouteImport.update({
 const CalendarRoute = CalendarRouteImport.update({
   id: '/calendar',
   path: '/calendar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChannelsRoute = ChannelsRouteImport.update({
+  id: '/channels',
+  path: '/channels',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ConsentRoute = ConsentRouteImport.update({
@@ -134,6 +140,7 @@ const ApiLogosFileRoute = ApiLogosFileRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/calendar': typeof CalendarRoute
+  '/channels': typeof ChannelsRoute
   '/consent': typeof ConsentRoute
   '/inbox': typeof InboxRoute
   '/integrations': typeof IntegrationsRoute
@@ -156,6 +163,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/calendar': typeof CalendarRoute
+  '/channels': typeof ChannelsRoute
   '/consent': typeof ConsentRoute
   '/inbox': typeof InboxRoute
   '/integrations': typeof IntegrationsRoute
@@ -179,6 +187,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/calendar': typeof CalendarRoute
+  '/channels': typeof ChannelsRoute
   '/consent': typeof ConsentRoute
   '/inbox': typeof InboxRoute
   '/integrations': typeof IntegrationsRoute
@@ -203,6 +212,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/calendar'
+    | '/channels'
     | '/consent'
     | '/inbox'
     | '/integrations'
@@ -225,6 +235,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/calendar'
+    | '/channels'
     | '/consent'
     | '/inbox'
     | '/integrations'
@@ -247,6 +258,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/calendar'
+    | '/channels'
     | '/consent'
     | '/inbox'
     | '/integrations'
@@ -270,6 +282,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CalendarRoute: typeof CalendarRoute
+  ChannelsRoute: typeof ChannelsRoute
   ConsentRoute: typeof ConsentRoute
   InboxRoute: typeof InboxRoute
   IntegrationsRoute: typeof IntegrationsRoute
@@ -303,6 +316,13 @@ declare module '@tanstack/react-router' {
       path: '/calendar'
       fullPath: '/calendar'
       preLoaderRoute: typeof CalendarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/channels': {
+      id: '/channels'
+      path: '/channels'
+      fullPath: '/channels'
+      preLoaderRoute: typeof ChannelsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/consent': {
@@ -449,6 +469,7 @@ const ApiLogosRouteWithChildren = ApiLogosRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CalendarRoute: CalendarRoute,
+  ChannelsRoute: ChannelsRoute,
   ConsentRoute: ConsentRoute,
   InboxRoute: InboxRoute,
   IntegrationsRoute: IntegrationsRoute,

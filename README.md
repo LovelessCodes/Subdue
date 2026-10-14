@@ -137,7 +137,7 @@ Nothing needs configuring for a LAN deploy: the auth secret is generated into th
 
 ## Notifications
 
-Reminders deliver through any combination of channels — configured per user via the API for now (the settings page covers everything else):
+Reminders deliver through any combination of channels — configure them on the Channels page (endpoints remain for scripts):
 
 | Type       | Config                                                   |
 | ---------- | -------------------------------------------------------- |
@@ -154,7 +154,7 @@ curl -X POST http://localhost:3000/api/auth/channels/create \
   -d '{"type":"ntfy","name":"Phone","config":{"topic":"my-subs"}}'
 ```
 
-Every send is queued and retried up to three times; `/api/auth/channels/deliveries` shows what was sent, and `/api/auth/channels/test` fires a test message through one channel. The reminder tick runs in-process every five minutes — no cron to configure.
+Every send is queued and retried up to three times — the Channels page shows recent deliveries with their last error and can test any channel with one click. The reminder tick runs in-process every five minutes — no cron to configure.
 
 ## Moving your data
 

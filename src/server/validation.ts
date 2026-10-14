@@ -1,6 +1,7 @@
 import * as z from 'zod'
 import type { Database } from '../lib/db'
 import { logoExists } from './logos'
+import { channelTypes } from './services/channels'
 import { getPaymentMethod } from './services/payment-methods'
 import { cycleUnits } from './services/recurrence'
 import { themes, weekStarts } from './services/settings'
@@ -34,6 +35,20 @@ export const subscriptionBodySchema = z.object({
   autoRenew: z.boolean().optional(),
   cancelledAt: z.coerce.date().nullish(),
   logo: z.string().trim().max(255).nullish(),
+})
+
+export const channelBodySchema = z.object({
+  type: z.enum(channelTypes),
+  name: z.string().trim().min(1).max(100),
+  config: z.unknown(),
+  enabled: z.boolean().optional(),
+})
+
+export const channelPatchSchema = z.object({
+  id: z.string(),
+  name: z.string().trim().min(1).max(100).optional(),
+  config: z.unknown().optional(),
+  enabled: z.boolean().optional(),
 })
 
 export const settingsPatchSchema = z.object({

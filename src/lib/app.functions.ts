@@ -4,6 +4,8 @@ import * as z from 'zod'
 import { getBudgetStatus } from '../server/services/budget'
 import { getCalendarMonth } from '../server/services/calendar'
 import { listCategories } from '../server/services/categories'
+import * as channels from '../server/services/channels'
+import * as deliveries from '../server/services/deliveries'
 import { getDashboardSummary } from '../server/services/dashboard'
 import * as ical from '../server/services/ical'
 import { listPaymentMethods } from '../server/services/payment-methods'
@@ -16,6 +18,8 @@ import {
 import { getSettings, updateSettings } from '../server/services/settings'
 import * as subscriptions from '../server/services/subscriptions'
 import {
+  channelBodySchema,
+  channelPatchSchema,
   checkSubscriptionReferences,
   settingsPatchSchema,
   subscriptionBodySchema,
@@ -273,3 +277,95 @@ export const revokeMyApiKey = createServerFn({ method: 'POST' })
     })
     return { success: true }
   })
+export const listMyChannels = createServerFn({ method: 'GET' }).handler(
+  async () => {
+    const userId = await requireUserId()
+    const rows = await channels.listChannels(db, userId)
+    return rows.map(channels.channelView)
+  },
+)
+
+export const createMyChannel = createServerFn({ method: 'POST' })
+  .validator((input: unknown) => channelBodySchema.parse(input))
+  .handler(async ({ data }) => {
+    const userId = await requireUserId()
+    let config: channels.ChannelConfig
+    try {
+      config = channels.parseChannelConfig(data.type, data.config)
+    } catch {
+      throw new Error('CHANNEL_CONFIG_INVALID')
+    }
+    const row = await channels.createChannel(db, userId, {
+      type: data.type,
+      name: data.name,
+      config,
+      enabled: data.enabled,
+    })
+    return channels.channelView(row)
+  })
+
+export const updateMyChannel = createServerFn({ method: 'POST' })
+  .validator((input: unknown) => channelPatchSchema.parse(input))
+  .handler(async ({ data }) => {
+    const userId = await requireUserId()
+    const { id, ...patch } = data
+    let row: channels.Channel | null
+    try {
+      row = await channels.updateChannel(db, userId, id, patch)
+    } catch {
+      throw new Error('CHANNEL_CONFIG_INVALID')
+    }
+    if (!row) {
+      throw new Error('CHANNEL_NOT_FOUND')
+    }
+    return channels.channelView(row)
+  })
+
+export const deleteMyChannel = createServerFn({ method: 'POST' })
+  .validator((input: { id: string }) => input)
+  .handler(async ({ data }) => {
+    const userId = await requireUserId()
+    const deleted = await channels.deleteChannel(db, userId, data.id)
+    if (!deleted) {
+      throw new Error('CHANNEL_NOT_FOUND')
+    }
+    return { success: true }
+  })
+
+export const testMyChannel = createServerFn({ method: 'POST' })
+  .validator((input: { id: string }) => input)
+  .handler(async ({ data }) => {
+    const userId = await requireUserId()
+    const target = await channels.getChannel(db, userId, data.id)
+    if (!target) {
+      throw new Error('CHANNEL_NOT_FOUND')
+    }
+    const { senders } = await import('../server/senders')
+    const type = target.type as channels.ChannelType
+    const sender = senders[type]
+    if (!sender) {
+      return { ok: false, error: `Unknown channel type ${type}` }
+    }
+    try {
+      await sender(
+        {
+          title: 'Subdue test notification',
+          body: `This is a test from Subdue. If you can read this, "${target.name}" works.`,
+        },
+        channels.decodeChannelConfig(type, target.config),
+      )
+      return { ok: true, error: null }
+    } catch (error) {
+      return {
+        ok: false,
+        error: error instanceof Error ? error.message : String(error),
+      }
+    }
+  })
+
+export const listMyDeliveries = createServerFn({ method: 'GET' }).handler(
+  async () => {
+    const userId = await requireUserId()
+    return deliveries.listDeliveries(db, userId, 20)
+  },
+)

@@ -60,6 +60,13 @@ export function AppHeader() {
           >
             Integrations
           </Link>
+          <Link
+            to="/channels"
+            className={linkClass}
+            activeProps={{ className: activeClass }}
+          >
+            Channels
+          </Link>
           <Button variant="ghost" size="sm" onClick={signOut}>
             Sign out
           </Button>

@@ -95,8 +95,12 @@ export type ChannelPatch = {
   enabled?: boolean
 }
 
-export function channelView(row: Channel) {
-  let config: unknown = row.config
+export type ChannelView = Omit<Channel, 'config'> & {
+  config: ChannelConfig | string
+}
+
+export function channelView(row: Channel): ChannelView {
+  let config: ChannelConfig | string = row.config
   try {
     config = decodeChannelConfig(row.type as ChannelType, row.config)
   } catch {

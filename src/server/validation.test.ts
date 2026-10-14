@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  channelBodySchema,
   checkSubscriptionReferences,
   subscriptionBodySchema,
 } from '@/server/validation'
@@ -64,5 +65,26 @@ describe('subscription validation', () => {
         paymentMethodId: method!.id,
       }),
     ).toBeNull()
+  })
+})
+
+describe('channel validation', () => {
+  it('accepts a webhook channel body', () => {
+    const parsed = channelBodySchema.parse({
+      type: 'webhook',
+      name: 'Hook',
+      config: { url: 'https://example.com/hook' },
+    })
+    expect(parsed.type).toBe('webhook')
+  })
+
+  it('rejects unknown channel types', () => {
+    expect(() =>
+      channelBodySchema.parse({
+        type: 'carrier-pigeon',
+        name: 'Bird',
+        config: {},
+      }),
+    ).toThrow()
   })
 })

@@ -8,8 +8,7 @@ import * as z from 'zod'
 import { db } from '../../lib/db'
 import * as channels from '../services/channels'
 import * as deliveries from '../services/deliveries'
-
-const channelTypeSchema = z.enum(channels.channelTypes)
+import { channelBodySchema, channelPatchSchema } from '../validation'
 
 export const channelsPlugin = () =>
   ({
@@ -84,12 +83,7 @@ export const channelsPlugin = () =>
         '/channels/create',
         {
           method: 'POST',
-          body: z.object({
-            type: channelTypeSchema,
-            name: z.string().min(1).max(100),
-            config: z.unknown(),
-            enabled: z.boolean().optional(),
-          }),
+          body: channelBodySchema,
           use: [sessionMiddleware],
         },
         async (ctx) => {
@@ -118,12 +112,7 @@ export const channelsPlugin = () =>
         '/channels/update',
         {
           method: 'POST',
-          body: z.object({
-            id: z.string(),
-            name: z.string().min(1).max(100).optional(),
-            config: z.unknown().optional(),
-            enabled: z.boolean().optional(),
-          }),
+          body: channelPatchSchema,
           use: [sessionMiddleware],
         },
         async (ctx) => {
