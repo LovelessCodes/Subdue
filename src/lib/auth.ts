@@ -1,13 +1,20 @@
 import { apiKey } from '@better-auth/api-key'
+import { cimd } from '@better-auth/cimd'
+import { fetchClientMetadataResource } from '@better-auth/cimd/node'
 import { drizzleAdapter } from '@better-auth/drizzle-adapter'
+import { mcp } from '@better-auth/mcp'
 import { betterAuth } from 'better-auth'
 import { openAPI } from 'better-auth/plugins'
 import { admin } from 'better-auth/plugins/admin'
+import { jwt } from 'better-auth/plugins/jwt'
 import { tanstackStartCookies } from 'better-auth/tanstack-start'
 import { categoriesPlugin } from '../server/plugins/categories'
 import { subscriptionsPlugin } from '../server/plugins/subscriptions'
 import * as schema from './auth-schema'
 import { db, sqlite } from './db'
+
+export const mcpResource =
+  process.env.MCP_RESOURCE_URL ?? 'http://localhost:3000/api/mcp'
 
 export const auth = betterAuth({
   appName: 'Subdue',
@@ -38,9 +45,23 @@ export const auth = betterAuth({
   plugins: [
     admin(),
     apiKey(),
+    jwt(),
     openAPI(),
     categoriesPlugin(),
     subscriptionsPlugin(),
+    mcp({
+      loginPage: '/sign-in',
+      consentPage: '/consent',
+      resource: mcpResource,
+      scopes: ['openid', 'profile', 'offline_access', 'mcp:read'],
+      allowDynamicClientRegistration: true,
+      allowUnauthenticatedClientRegistration: true,
+      clientRegistrationDefaultApplicationType: 'infer',
+    }),
+    cimd({
+      fetchClientMetadataResource,
+      metadataProfile: 'mcp-2026-07-28',
+    }),
     tanstackStartCookies(),
   ],
 })

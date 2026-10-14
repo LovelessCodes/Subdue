@@ -15,6 +15,13 @@
       "when": 1792005793804,
       "tag": "0001_tiresome_rattler",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1792006037462,
+      "tag": "0002_silly_echo",
+      "breakpoints": true
     }
   ]
 }
