@@ -6,6 +6,7 @@ import {
 } from 'better-auth/api'
 import * as z from 'zod'
 import { db } from '../../lib/db'
+import * as settings from '../services/settings'
 import * as subscriptions from '../services/subscriptions'
 
 const cycleUnitSchema = z.enum(subscriptions.cycleUnits)
@@ -16,7 +17,7 @@ const subscriptionBody = z.object({
   currency: z
     .string()
     .regex(/^[A-Z]{3}$/)
-    .default('DKK'),
+    .optional(),
   cycleUnit: cycleUnitSchema,
   cycleCount: z.number().int().min(1).max(365),
   categoryId: z.string().nullish(),
@@ -110,10 +111,14 @@ export const subscriptionsPlugin = () =>
         },
         async (ctx) => {
           const userId = ctx.context.session.user.id
+          const userSettings = await settings.getSettings(db, userId)
           const subscription = await subscriptions.createSubscription(
             db,
             userId,
-            ctx.body,
+            {
+              ...ctx.body,
+              currency: ctx.body.currency ?? userSettings.currency,
+            },
           )
           if (!subscription) {
             throw new APIError('INTERNAL_SERVER_ERROR', {

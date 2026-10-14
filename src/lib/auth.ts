@@ -9,6 +9,7 @@ import { admin } from 'better-auth/plugins/admin'
 import { jwt } from 'better-auth/plugins/jwt'
 import { tanstackStartCookies } from 'better-auth/tanstack-start'
 import { categoriesPlugin } from '../server/plugins/categories'
+import { settingsPlugin } from '../server/plugins/settings'
 import { subscriptionsPlugin } from '../server/plugins/subscriptions'
 import * as schema from './auth-schema'
 import { db, sqlite } from './db'
@@ -48,6 +49,7 @@ export const auth = betterAuth({
     jwt(),
     openAPI(),
     categoriesPlugin(),
+    settingsPlugin(),
     subscriptionsPlugin(),
     mcp({
       loginPage: '/sign-in',

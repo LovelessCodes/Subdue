@@ -157,6 +157,19 @@ export const category = sqliteTable(
   (table) => [index('category_userId_idx').on(table.userId)],
 )
 
+export const userSetting = sqliteTable('user_setting', {
+  id: text('id').primaryKey(),
+  currency: text('currency'),
+  locale: text('locale'),
+  weekStart: text('week_start'),
+  theme: text('theme'),
+  userId: text('user_id')
+    .notNull()
+    .unique()
+    .references(() => user.id, { onDelete: 'cascade' }),
+  createdAt: integer('created_at', { mode: 'timestamp_ms' }),
+})
+
 export const subscription = sqliteTable(
   'subscription',
   {
@@ -384,10 +397,11 @@ export const oauthClientAssertion = sqliteTable('oauth_client_assertion', {
   expiresAt: integer('expires_at', { mode: 'timestamp_ms' }).notNull(),
 })
 
-export const userRelations = relations(user, ({ many }) => ({
+export const userRelations = relations(user, ({ one, many }) => ({
   sessions: many(session),
   accounts: many(account),
   categorys: many(category),
+  userSetting: one(userSetting),
   subscriptions: many(subscription),
   oauthClients: many(oauthClient),
   oauthRefreshTokens: many(oauthRefreshToken),
@@ -417,6 +431,13 @@ export const categoryRelations = relations(category, ({ one, many }) => ({
     references: [user.id],
   }),
   subscriptions: many(subscription),
+}))
+
+export const userSettingRelations = relations(userSetting, ({ one }) => ({
+  user: one(user, {
+    fields: [userSetting.userId],
+    references: [user.id],
+  }),
 }))
 
 export const subscriptionRelations = relations(subscription, ({ one }) => ({

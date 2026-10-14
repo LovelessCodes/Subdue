@@ -40,7 +40,7 @@ Directions, not promises. Each milestone should end in something usable and test
 - [x] SQLite with WAL and a sane busy timeout, from the first migration
 - [x] Drizzle schema + migrations that run on boot
 - [x] Single-user login (multi-user designed in, not bolted on later)
-- [ ] Instance settings (currency, locale, week start, theme)
+- [x] User settings (currency, locale, week start, theme)
 
 ### M1 — Track
 
