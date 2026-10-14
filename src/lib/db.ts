@@ -3,11 +3,12 @@ import { dirname, resolve } from 'node:path'
 import Database from 'better-sqlite3'
 import { drizzle } from 'drizzle-orm/better-sqlite3'
 import { migrate } from 'drizzle-orm/better-sqlite3/migrator'
+import { resolveDatabasePath } from './paths'
 import { ensureScheduler } from '../server/scheduler'
 import * as schema from './auth-schema'
 import { repairSigningKeys } from './signing-keys'
 
-const databasePath = resolve(process.env.DATABASE_PATH ?? './data/subdue.db')
+const databasePath = resolveDatabasePath()
 
 mkdirSync(dirname(databasePath), { recursive: true })
 

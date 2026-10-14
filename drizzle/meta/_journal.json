@@ -78,6 +78,13 @@
       "when": 1792009505024,
       "tag": "0010_happy_whistler",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "6",
+      "when": 1792011603910,
+      "tag": "0011_careless_stone_men",
+      "breakpoints": true
     }
   ]
 }

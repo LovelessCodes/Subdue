@@ -1,6 +1,9 @@
+import { mkdtempSync, readdirSync, rmSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import SqliteDatabase from 'better-sqlite3'
 import { zipSync } from 'fflate'
-import { describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import {
   parseSubscriptionsCsv,
   parseWallosBackup,
@@ -8,8 +11,10 @@ import {
 } from '@/server/services/import'
 import { exportSubscriptionsCsv } from '@/server/services/export'
 import { createCategory } from '@/server/services/categories'
+import { createPaymentMethod } from '@/server/services/payment-methods'
 import {
   createSubscription,
+  getSubscription,
   listSubscriptions,
 } from '@/server/services/subscriptions'
 import { createTestDb, insertTestUser } from '@/test/db'
@@ -37,7 +42,10 @@ function wallosDatabase(): SqliteDatabase.Database {
       payer_user_id INTEGER,
       category_id INTEGER,
       notify BOOLEAN DEFAULT false,
-      inactive INTEGER DEFAULT 0
+      inactive INTEGER DEFAULT 0,
+      url TEXT,
+      auto_renew INTEGER DEFAULT 1,
+      cancellation_date TEXT
     );
     INSERT INTO currencies (id, name, symbol, code, rate) VALUES
       (1, 'Danish Krone', 'kr', 'DKK', '1'),
@@ -60,6 +68,13 @@ function wallosDatabase(): SqliteDatabase.Database {
       ('Mystery Currency', 5, 99, '2026-12-05', 3, 1, NULL, 1, NULL, 0),
       ('Old Thing', 10, 1, '2026-01-01', 3, 1, NULL, 1, NULL, 1),
       ('Wallos One-off', 99, 1, '2026-05-01', 5, 1, NULL, 1, NULL, 0);
+    UPDATE subscriptions
+      SET url = 'https://loveless.codes/', payment_method_id = 2,
+          auto_renew = 0, logo = 'loveless.png'
+      WHERE name = 'Loveless.codes';
+    UPDATE subscriptions
+      SET cancellation_date = '2026-11-06', payment_method_id = 1
+      WHERE name = 'Gym';
   `)
   return sqlite
 }
@@ -68,10 +83,27 @@ function wallosZip(): Uint8Array {
   const sqlite = wallosDatabase()
   const bytes = new Uint8Array(sqlite.serialize())
   sqlite.close()
-  return zipSync({ 'wallos.db': bytes })
+  return zipSync({
+    'wallos.db': bytes,
+    'logos/loveless.png': new Uint8Array([
+      0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 0,
+    ]),
+  })
 }
 
 describe('wallos import', () => {
+  let logoDir: string
+
+  beforeEach(() => {
+    logoDir = mkdtempSync(join(tmpdir(), 'subdue-import-logos-'))
+    process.env.DATA_DIR = logoDir
+  })
+
+  afterEach(() => {
+    rmSync(logoDir, { recursive: true, force: true })
+    delete process.env.DATA_DIR
+  })
+
   it('reads a zipped Wallos backup and maps subscriptions', () => {
     const parsed = parseWallosBackup(wallosZip(), { defaultCurrency: 'DKK' })
     const names = parsed.subscriptions.map((item) => item.name)
@@ -92,9 +124,14 @@ describe('wallos import', () => {
       cycleUnit: 'years',
       cycleCount: 1,
       category: 'Domains',
+      paymentMethod: 'Credit Card',
       payer: 'Mads',
+      url: 'https://loveless.codes/',
       notes: 'renews Oct',
       remindDaysBefore: null,
+      autoRenew: false,
+      cancelledAt: null,
+      logo: 'loveless.png',
     })
     expect(codes?.nextPayment.toISOString()).toBe('2026-10-30T00:00:00.000Z')
 
@@ -107,6 +144,8 @@ describe('wallos import', () => {
 
     const gym = parsed.subscriptions[2]
     expect(gym?.category).toBeNull()
+    expect(gym?.paymentMethod).toBe('PayPal')
+    expect(gym?.cancelledAt?.toISOString()).toBe('2026-11-06T00:00:00.000Z')
 
     const tokyo = parsed.subscriptions[3]
     expect(tokyo).toMatchObject({ price: 1000, currency: 'JPY' })
@@ -121,7 +160,7 @@ describe('wallos import', () => {
     expect(warnings).toContain('inactive')
     expect(warnings).toContain('one-time')
     expect(warnings).toContain('no known currency')
-    expect(warnings).toContain('not part of Subdue yet')
+    expect(warnings).toContain('notification toggles')
   })
 
   it('accepts a raw wallos.db too', () => {
@@ -182,6 +221,19 @@ describe('wallos import', () => {
     })
     expect(page.total).toBe(5)
 
+    expect(readdirSync(join(logoDir, 'logos'))).toContain('loveless.png')
+    const stored = await getSubscription(
+      db,
+      'u1',
+      page.items.find((item) => item.name === 'Loveless.codes')!.id,
+    )
+    expect(stored).toMatchObject({
+      url: 'https://loveless.codes/',
+      logo: 'loveless.png',
+      autoRenew: false,
+      paymentMethodName: 'Credit Card',
+    })
+
     const again = await runImport(db, 'u1', parsed)
     expect(again.subscriptions.created).toBe(0)
     expect(again.subscriptions.skippedDuplicates).toBe(5)
@@ -196,6 +248,9 @@ describe('csv import', () => {
     await insertTestUser(db, 'u2')
 
     const category = await createCategory(db, 'u1', { name: 'Domains' })
+    const method = await createPaymentMethod(db, 'u1', {
+      name: 'Credit Card',
+    })
     await createSubscription(db, 'u1', {
       name: 'Comma, Inc',
       price: 1234,
@@ -204,8 +259,12 @@ describe('csv import', () => {
       cycleCount: 1,
       nextPayment: new Date('2026-11-15T00:00:00.000Z'),
       categoryId: category?.id ?? null,
+      paymentMethodId: method?.id ?? null,
+      url: 'https://comma.example/pricing',
       notes: 'line one\nline two',
       remindDaysBefore: 7,
+      autoRenew: false,
+      cancelledAt: new Date('2026-12-01T00:00:00.000Z'),
     })
     await createSubscription(db, 'u1', {
       name: 'Plain One',

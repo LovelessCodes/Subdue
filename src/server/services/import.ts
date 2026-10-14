@@ -1,3 +1,4 @@
+import { basename } from 'node:path'
 import SqliteDatabase from 'better-sqlite3'
 import { eq } from 'drizzle-orm'
 import { unzipSync } from 'fflate'
@@ -5,6 +6,7 @@ import { category, paymentMethod, subscription } from '../../lib/auth-schema'
 import { parseCsv } from '../../lib/csv'
 import type { Database } from '../../lib/db'
 import { fromIsoDay, minorUnitExponent } from '../../lib/money'
+import { saveImportedLogo } from '../logos'
 import { createCategory } from './categories'
 import { createPaymentMethod } from './payment-methods'
 import { cycleUnits, type CycleUnit } from './recurrence'
@@ -20,15 +22,21 @@ export type ParsedSubscription = {
   cycleCount: number
   nextPayment: Date
   category: string | null
+  paymentMethod: string | null
   payer: string | null
+  url: string | null
   notes: string | null
   remindDaysBefore: number | null
+  autoRenew: boolean
+  cancelledAt: Date | null
+  logo: string | null
 }
 
 export type ParsedImport = {
   subscriptions: ParsedSubscription[]
   categories: string[]
   paymentMethods: string[]
+  logos: { name: string; data: Uint8Array }[]
   warnings: string[]
 }
 
@@ -47,10 +55,11 @@ const SELECT_CANDIDATES: Record<string, string[]> = {
   cycles: ['id', 'days'],
   categories: ['id', 'name'],
   household: ['id', 'name'],
-  payment_methods: ['name'],
+  payment_methods: ['id', 'name'],
   subscriptions: [
     'id',
     'name',
+    'logo',
     'price',
     'currency_id',
     'next_payment',
@@ -58,9 +67,13 @@ const SELECT_CANDIDATES: Record<string, string[]> = {
     'frequency',
     'notes',
     'category_id',
+    'payment_method_id',
     'payer_user_id',
     'inactive',
     'notify_days_before',
+    'url',
+    'auto_renew',
+    'cancellation_date',
   ],
 }
 
@@ -82,37 +95,56 @@ function selectAvailable(
     .all() as Row[]
 }
 
+const LOGO_FILE_PATTERN = /\.(png|jpe?g|gif|webp)$/i
+
 export function parseWallosBackup(
   file: Uint8Array,
   options: { defaultCurrency: string },
 ): ParsedImport {
   const magic = new TextDecoder().decode(file.slice(0, 16))
-  const bytes = magic.startsWith('SQLite format 3')
-    ? file
-    : extractWallosDatabase(file)
 
-  const sqlite = new SqliteDatabase(Buffer.from(bytes))
-  try {
-    return readWallosDatabase(sqlite, options)
-  } finally {
-    sqlite.close()
+  if (magic.startsWith('SQLite format 3')) {
+    const sqlite = new SqliteDatabase(Buffer.from(file))
+    try {
+      return { ...readWallosDatabase(sqlite, options), logos: [] }
+    } finally {
+      sqlite.close()
+    }
   }
-}
 
-function extractWallosDatabase(file: Uint8Array): Uint8Array {
   const entries = unzipSync(file, {
-    filter: (entry) => entry.name.toLowerCase().endsWith('.db'),
+    filter: (entry) =>
+      entry.name.toLowerCase().endsWith('.db') ||
+      LOGO_FILE_PATTERN.test(entry.name),
   })
   const names = Object.keys(entries)
-  const name =
+  const databaseName =
     names.find(
       (candidate) => candidate.split('/').pop()?.toLowerCase() === 'wallos.db',
-    ) ?? names[0]
-  const bytes = name ? entries[name] : undefined
+    ) ?? names.find((candidate) => candidate.toLowerCase().endsWith('.db'))
+  const bytes = databaseName ? entries[databaseName] : undefined
   if (!bytes) {
     throw new Error('Wallos backup archive does not contain a database file')
   }
-  return bytes
+
+  const logos: { name: string; data: Uint8Array }[] = []
+  for (const name of names) {
+    if (name === databaseName) {
+      continue
+    }
+    const data = entries[name]
+    const file = name.split('/').pop()?.trim() ?? ''
+    if (data && file) {
+      logos.push({ name: file, data })
+    }
+  }
+
+  const sqlite = new SqliteDatabase(Buffer.from(bytes))
+  try {
+    return { ...readWallosDatabase(sqlite, options), logos }
+  } finally {
+    sqlite.close()
+  }
 }
 
 function cycleFromDays(
@@ -142,6 +174,16 @@ function parseRemindDays(value: unknown): number | null {
     return null
   }
   return Math.min(Math.round(days), 60)
+}
+
+function parseIsoDay(value: unknown): Date | null {
+  const day = typeof value === 'string' ? value.slice(0, 10) : ''
+  return /^\d{4}-\d{2}-\d{2}$/.test(day) ? fromIsoDay(day) : null
+}
+
+function parseUrl(value: unknown): string | null {
+  const url = typeof value === 'string' ? value.trim() : ''
+  return /^https?:\/\//i.test(url) ? url : null
 }
 
 function readWallosDatabase(
@@ -184,6 +226,15 @@ function readWallosDatabase(
     SELECT_CANDIDATES.household ?? [],
   )) {
     householdNames.set(Number(row.id), String(row.name ?? ''))
+  }
+
+  const paymentMethodNames = new Map<number, string>()
+  for (const row of selectAvailable(
+    sqlite,
+    'payment_methods',
+    SELECT_CANDIDATES.payment_methods ?? [],
+  )) {
+    paymentMethodNames.set(Number(row.id), String(row.name ?? ''))
   }
 
   const categories: string[] = []
@@ -267,6 +318,14 @@ function readWallosDatabase(
       categories.push(categoryOut)
     }
 
+    const rawPaymentMethod = paymentMethodNames
+      .get(Number(row.payment_method_id))
+      ?.trim()
+    const logoName =
+      typeof row.logo === 'string' && row.logo.trim()
+        ? basename(row.logo.trim())
+        : null
+
     subscriptions.push({
       name,
       price: Math.round(price * 10 ** minorUnitExponent(currency)),
@@ -275,10 +334,15 @@ function readWallosDatabase(
       cycleCount: cycle.count * frequency,
       nextPayment: fromIsoDay(day),
       category: categoryOut,
+      paymentMethod: rawPaymentMethod ? rawPaymentMethod : null,
       payer: householdNames.get(Number(row.payer_user_id)) ?? null,
+      url: parseUrl(row.url),
       notes:
         typeof row.notes === 'string' && row.notes.trim() ? row.notes : null,
       remindDaysBefore: parseRemindDays(row.notify_days_before),
+      autoRenew: Number(row.auto_renew ?? 1) !== 0,
+      cancelledAt: parseIsoDay(row.cancellation_date),
+      logo: logoName,
     })
   }
 
@@ -301,13 +365,14 @@ function readWallosDatabase(
     )
   }
   warnings.push(
-    'Logos, URLs, auto-renew flags, and payment-method links are not part of Subdue yet and were not imported.',
+    'Wallos per-subscription notification toggles are not imported; reminder days are.',
   )
 
   return {
     subscriptions,
     categories: [...new Set(categories)],
     paymentMethods: [...new Set(paymentMethods)],
+    logos: [],
     warnings,
   }
 }
@@ -322,9 +387,13 @@ const CSV_ALIASES: Record<string, string> = {
   frequency: 'cycleCount',
   nextpayment: 'nextPayment',
   category: 'category',
+  paymentmethod: 'paymentMethod',
   payer: 'payer',
+  url: 'url',
   notes: 'notes',
   reminddaysbefore: 'remindDaysBefore',
+  autorenew: 'autoRenew',
+  cancelledat: 'cancelledAt',
 }
 
 const CSV_REQUIRED = [
@@ -400,6 +469,7 @@ export function parseSubscriptionsCsv(csvText: string): ParsedImport {
 
     const remindDays = cell(row, 'remindDaysBefore')
     const remindDaysBefore = remindDays === '' ? null : Number(remindDays)
+    const autoRenewCell = cell(row, 'autoRenew').toLowerCase()
 
     subscriptions.push({
       name,
@@ -409,12 +479,17 @@ export function parseSubscriptionsCsv(csvText: string): ParsedImport {
       cycleCount,
       nextPayment: fromIsoDay(day),
       category: categoryOut,
+      paymentMethod: cell(row, 'paymentMethod') || null,
       payer: cell(row, 'payer') || null,
+      url: parseUrl(cell(row, 'url')),
       notes: cell(row, 'notes') || null,
       remindDaysBefore:
         remindDaysBefore === null || Number.isFinite(remindDaysBefore)
           ? remindDaysBefore
           : null,
+      autoRenew: autoRenewCell === '' ? true : autoRenewCell !== 'false',
+      cancelledAt: parseIsoDay(cell(row, 'cancelledAt')),
+      logo: null,
     })
   }
 
@@ -426,6 +501,7 @@ export function parseSubscriptionsCsv(csvText: string): ParsedImport {
     subscriptions,
     categories: [...new Set(categories)],
     paymentMethods: [],
+    logos: [],
     warnings,
   }
 }
@@ -471,6 +547,16 @@ export async function runImport(
     ]),
   )
 
+  const storedLogos = new Map<string, string>()
+  if (!dryRun) {
+    for (const logo of parsed.logos) {
+      const stored = saveImportedLogo(logo.name, logo.data)
+      if (stored) {
+        storedLogos.set(logo.name, stored)
+      }
+    }
+  }
+
   const wantedCategories = new Set<string>(parsed.categories)
   for (const item of parsed.subscriptions) {
     if (item.category) {
@@ -496,7 +582,14 @@ export async function runImport(
     }
   }
 
-  for (const name of parsed.paymentMethods) {
+  const wantedPaymentMethods = new Set<string>(parsed.paymentMethods)
+  for (const item of parsed.subscriptions) {
+    if (item.paymentMethod) {
+      wantedPaymentMethods.add(item.paymentMethod)
+    }
+  }
+
+  for (const name of wantedPaymentMethods) {
     const key = name.trim().toLowerCase()
     if (!key) {
       continue
@@ -542,9 +635,17 @@ export async function runImport(
         categoryId: item.category
           ? (categoryIds.get(item.category.trim().toLowerCase()) ?? null)
           : null,
+        paymentMethodId: item.paymentMethod
+          ? (paymentMethodIds.get(item.paymentMethod.trim().toLowerCase()) ??
+            null)
+          : null,
         payer: item.payer,
+        url: item.url,
         notes: item.notes,
         remindDaysBefore: item.remindDaysBefore,
+        autoRenew: item.autoRenew,
+        cancelledAt: item.cancelledAt,
+        logo: item.logo ? (storedLogos.get(item.logo) ?? null) : null,
       })
     }
   }

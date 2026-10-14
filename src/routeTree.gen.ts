@@ -17,6 +17,7 @@ import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as SubscriptionsRouteImport } from './routes/subscriptions'
 import { Route as DotwellKnownSplatRouteImport } from './routes/[.]well-known/$'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
+import { Route as ApiLogosRouteImport } from './routes/api/logos'
 import { Route as ApiMcpRouteImport } from './routes/api/mcp'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiExportBackupRouteImport } from './routes/api/export/backup'
@@ -25,6 +26,7 @@ import { Route as ApiExportJsonRouteImport } from './routes/api/export/json'
 import { Route as ApiIcalTokenRouteImport } from './routes/api/ical/$token'
 import { Route as ApiImportCsvRouteImport } from './routes/api/import/csv'
 import { Route as ApiImportWallosRouteImport } from './routes/api/import/wallos'
+import { Route as ApiLogosFileRouteImport } from './routes/api/logos/$file'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -64,6 +66,11 @@ const DotwellKnownSplatRoute = DotwellKnownSplatRouteImport.update({
 const ApiHealthRoute = ApiHealthRouteImport.update({
   id: '/api/health',
   path: '/api/health',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiLogosRoute = ApiLogosRouteImport.update({
+  id: '/api/logos',
+  path: '/api/logos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiMcpRoute = ApiMcpRouteImport.update({
@@ -106,6 +113,11 @@ const ApiImportWallosRoute = ApiImportWallosRouteImport.update({
   path: '/api/import/wallos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiLogosFileRoute = ApiLogosFileRouteImport.update({
+  id: '/$file',
+  path: '/$file',
+  getParentRoute: () => ApiLogosRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -116,6 +128,7 @@ export interface FileRoutesByFullPath {
   '/subscriptions': typeof SubscriptionsRoute
   '/.well-known/$': typeof DotwellKnownSplatRoute
   '/api/health': typeof ApiHealthRoute
+  '/api/logos': typeof ApiLogosRouteWithChildren
   '/api/mcp': typeof ApiMcpRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/export/backup': typeof ApiExportBackupRoute
@@ -124,6 +137,7 @@ export interface FileRoutesByFullPath {
   '/api/ical/$token': typeof ApiIcalTokenRoute
   '/api/import/csv': typeof ApiImportCsvRoute
   '/api/import/wallos': typeof ApiImportWallosRoute
+  '/api/logos/$file': typeof ApiLogosFileRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -134,6 +148,7 @@ export interface FileRoutesByTo {
   '/subscriptions': typeof SubscriptionsRoute
   '/.well-known/$': typeof DotwellKnownSplatRoute
   '/api/health': typeof ApiHealthRoute
+  '/api/logos': typeof ApiLogosRouteWithChildren
   '/api/mcp': typeof ApiMcpRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/export/backup': typeof ApiExportBackupRoute
@@ -142,6 +157,7 @@ export interface FileRoutesByTo {
   '/api/ical/$token': typeof ApiIcalTokenRoute
   '/api/import/csv': typeof ApiImportCsvRoute
   '/api/import/wallos': typeof ApiImportWallosRoute
+  '/api/logos/$file': typeof ApiLogosFileRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -153,6 +169,7 @@ export interface FileRoutesById {
   '/subscriptions': typeof SubscriptionsRoute
   '/.well-known/$': typeof DotwellKnownSplatRoute
   '/api/health': typeof ApiHealthRoute
+  '/api/logos': typeof ApiLogosRouteWithChildren
   '/api/mcp': typeof ApiMcpRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/export/backup': typeof ApiExportBackupRoute
@@ -161,6 +178,7 @@ export interface FileRoutesById {
   '/api/ical/$token': typeof ApiIcalTokenRoute
   '/api/import/csv': typeof ApiImportCsvRoute
   '/api/import/wallos': typeof ApiImportWallosRoute
+  '/api/logos/$file': typeof ApiLogosFileRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -173,6 +191,7 @@ export interface FileRouteTypes {
     | '/subscriptions'
     | '/.well-known/$'
     | '/api/health'
+    | '/api/logos'
     | '/api/mcp'
     | '/api/auth/$'
     | '/api/export/backup'
@@ -181,6 +200,7 @@ export interface FileRouteTypes {
     | '/api/ical/$token'
     | '/api/import/csv'
     | '/api/import/wallos'
+    | '/api/logos/$file'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -191,6 +211,7 @@ export interface FileRouteTypes {
     | '/subscriptions'
     | '/.well-known/$'
     | '/api/health'
+    | '/api/logos'
     | '/api/mcp'
     | '/api/auth/$'
     | '/api/export/backup'
@@ -199,6 +220,7 @@ export interface FileRouteTypes {
     | '/api/ical/$token'
     | '/api/import/csv'
     | '/api/import/wallos'
+    | '/api/logos/$file'
   id:
     | '__root__'
     | '/'
@@ -209,6 +231,7 @@ export interface FileRouteTypes {
     | '/subscriptions'
     | '/.well-known/$'
     | '/api/health'
+    | '/api/logos'
     | '/api/mcp'
     | '/api/auth/$'
     | '/api/export/backup'
@@ -217,6 +240,7 @@ export interface FileRouteTypes {
     | '/api/ical/$token'
     | '/api/import/csv'
     | '/api/import/wallos'
+    | '/api/logos/$file'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -228,6 +252,7 @@ export interface RootRouteChildren {
   SubscriptionsRoute: typeof SubscriptionsRoute
   DotwellKnownSplatRoute: typeof DotwellKnownSplatRoute
   ApiHealthRoute: typeof ApiHealthRoute
+  ApiLogosRoute: typeof ApiLogosRouteWithChildren
   ApiMcpRoute: typeof ApiMcpRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiExportBackupRoute: typeof ApiExportBackupRoute
@@ -296,6 +321,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiHealthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/logos': {
+      id: '/api/logos'
+      path: '/api/logos'
+      fullPath: '/api/logos'
+      preLoaderRoute: typeof ApiLogosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/mcp': {
       id: '/api/mcp'
       path: '/api/mcp'
@@ -352,8 +384,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiImportWallosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/logos/$file': {
+      id: '/api/logos/$file'
+      path: '/$file'
+      fullPath: '/api/logos/$file'
+      preLoaderRoute: typeof ApiLogosFileRouteImport
+      parentRoute: typeof ApiLogosRoute
+    }
   }
 }
+
+interface ApiLogosRouteChildren {
+  ApiLogosFileRoute: typeof ApiLogosFileRoute
+}
+
+const ApiLogosRouteChildren: ApiLogosRouteChildren = {
+  ApiLogosFileRoute: ApiLogosFileRoute,
+}
+
+const ApiLogosRouteWithChildren = ApiLogosRoute._addFileChildren(
+  ApiLogosRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -364,6 +415,7 @@ const rootRouteChildren: RootRouteChildren = {
   SubscriptionsRoute: SubscriptionsRoute,
   DotwellKnownSplatRoute: DotwellKnownSplatRoute,
   ApiHealthRoute: ApiHealthRoute,
+  ApiLogosRoute: ApiLogosRouteWithChildren,
   ApiMcpRoute: ApiMcpRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiExportBackupRoute: ApiExportBackupRoute,

@@ -113,7 +113,7 @@ docker run -d --name subdue -p 3000:3000 -v ./data:/data subdue
 
 **Docker Compose:** copy `.env.example` to `.env` (all values optional) and `docker compose up -d`.
 
-One volume (`/data`) holds the SQLite database — WAL mode, so the `-wal` and `-shm` files travel with it — and migrations run automatically on every boot: upgrading is pulling a new image. Tagged releases publish a multi-arch image to `ghcr.io/lovelesscodes/subdue`:
+One volume (`/data`) holds the SQLite database — WAL mode, so the `-wal` and `-shm` files travel with it — plus the `logos/` folder for uploaded images. Migrations run automatically on every boot: upgrading is pulling a new image. Tagged releases publish a multi-arch image to `ghcr.io/lovelesscodes/subdue`:
 
 ```bash
 git tag v0.1.0 && git push origin v0.1.0   # builds amd64 + arm64, writes release notes
@@ -175,7 +175,9 @@ curl -b cookies.txt -X POST 'http://localhost:3000/api/import/csv?dryRun=1' \
   --data-binary @subdue-subscriptions-2026-01-01.csv
 ```
 
-The Wallos importer reads the raw `wallos.db` inside a backup zip (a bare `.db` works too) and follows Wallos semantics: cycle days plus frequency become Subdue cycles, decimal prices become minor units, and per-subscription reminder overrides carry over. Duplicate names are skipped; inactive subscriptions and one-time payments are reported rather than imported.
+The Wallos importer reads the raw `wallos.db` inside a backup zip (a bare `.db` works too) and follows Wallos semantics: cycle days plus frequency become Subdue cycles, decimal prices become minor units, per-subscription reminder overrides carry over, and logos, URLs, payment methods and cancellation dates come along too. Duplicate names are skipped; inactive subscriptions and one-time payments are reported rather than imported.
+
+Logos are files in the data folder (`data/logos/`), so a complete backup is the database plus that folder; the JSON export records the filenames.
 
 ## Calendar feed
 

@@ -1,5 +1,5 @@
-import { and, asc, count, desc, eq } from 'drizzle-orm'
-import { subscription } from '../../lib/auth-schema'
+import { and, asc, count, desc, eq, getTableColumns } from 'drizzle-orm'
+import { paymentMethod, subscription } from '../../lib/auth-schema'
 import type { Database } from '../../lib/db'
 import { isOverdue, rolledNextPayment, type CycleUnit } from './recurrence'
 
@@ -8,6 +8,7 @@ export type Subscription = typeof subscription.$inferSelect
 export type SubscriptionWithRecurrence = Subscription & {
   nextDue: Date
   overdue: boolean
+  paymentMethodName: string | null
 }
 
 export type SubscriptionInput = {
@@ -17,17 +18,24 @@ export type SubscriptionInput = {
   cycleUnit: CycleUnit
   cycleCount: number
   categoryId?: string | null
+  paymentMethodId?: string | null
   payer?: string | null
+  url?: string | null
   nextPayment: Date
   notes?: string | null
   remindDaysBefore?: number | null
+  autoRenew?: boolean
+  cancelledAt?: Date | null
+  logo?: string | null
 }
 
 export const sortKeys = ['next-payment', 'name', 'price', 'created-at'] as const
 export type SortKey = (typeof sortKeys)[number]
 
+type SubscriptionRow = Subscription & { paymentMethodName?: string | null }
+
 function withRecurrence(
-  row: Subscription,
+  row: SubscriptionRow,
   now: Date,
 ): SubscriptionWithRecurrence {
   const cycle = { count: row.cycleCount, unit: row.cycleUnit as CycleUnit }
@@ -36,6 +44,7 @@ function withRecurrence(
     ...row,
     nextDue: rolledNextPayment(row.nextPayment, cycle, now),
     overdue: isOverdue(row.nextPayment, now),
+    paymentMethodName: row.paymentMethodName ?? null,
   }
 }
 
@@ -67,8 +76,15 @@ export async function listSubscriptions(
 
   const [items, totals] = await Promise.all([
     db
-      .select()
+      .select({
+        ...getTableColumns(subscription),
+        paymentMethodName: paymentMethod.name,
+      })
       .from(subscription)
+      .leftJoin(
+        paymentMethod,
+        eq(subscription.paymentMethodId, paymentMethod.id),
+      )
       .where(where)
       .orderBy(params.order === 'desc' ? desc(column) : asc(column))
       .limit(params.limit)
@@ -89,8 +105,12 @@ export async function getSubscription(
   now: Date = new Date(),
 ): Promise<SubscriptionWithRecurrence | null> {
   const rows = await db
-    .select()
+    .select({
+      ...getTableColumns(subscription),
+      paymentMethodName: paymentMethod.name,
+    })
     .from(subscription)
+    .leftJoin(paymentMethod, eq(subscription.paymentMethodId, paymentMethod.id))
     .where(and(eq(subscription.id, id), eq(subscription.userId, userId)))
     .limit(1)
 
@@ -115,10 +135,15 @@ export async function createSubscription(
       cycleUnit: input.cycleUnit,
       cycleCount: input.cycleCount,
       categoryId: input.categoryId ?? null,
+      paymentMethodId: input.paymentMethodId ?? null,
       payer: input.payer ?? null,
+      url: input.url ?? null,
       nextPayment: input.nextPayment,
       notes: input.notes ?? null,
       remindDaysBefore: input.remindDaysBefore ?? null,
+      autoRenew: input.autoRenew ?? true,
+      cancelledAt: input.cancelledAt ?? null,
+      logo: input.logo ?? null,
       createdAt: new Date(),
     })
     .returning()
@@ -141,12 +166,19 @@ export async function updateSubscription(
   if (patch.cycleUnit !== undefined) values.cycleUnit = patch.cycleUnit
   if (patch.cycleCount !== undefined) values.cycleCount = patch.cycleCount
   if (patch.categoryId !== undefined) values.categoryId = patch.categoryId
+  if (patch.paymentMethodId !== undefined) {
+    values.paymentMethodId = patch.paymentMethodId
+  }
   if (patch.payer !== undefined) values.payer = patch.payer
+  if (patch.url !== undefined) values.url = patch.url
   if (patch.nextPayment !== undefined) values.nextPayment = patch.nextPayment
   if (patch.notes !== undefined) values.notes = patch.notes
   if (patch.remindDaysBefore !== undefined) {
     values.remindDaysBefore = patch.remindDaysBefore
   }
+  if (patch.autoRenew !== undefined) values.autoRenew = patch.autoRenew
+  if (patch.cancelledAt !== undefined) values.cancelledAt = patch.cancelledAt
+  if (patch.logo !== undefined) values.logo = patch.logo
 
   if (Object.keys(values).length === 0) {
     return getSubscription(db, userId, id, now)

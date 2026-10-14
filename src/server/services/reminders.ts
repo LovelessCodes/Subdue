@@ -40,10 +40,19 @@ export function reminderCandidates(
   const candidates: ReminderCandidate[] = []
 
   for (const subscription of subscriptions) {
+    const endDay = subscription.cancelledAt
+      ? dayNumber(subscription.cancelledAt)
+      : null
+    if (endDay !== null && endDay < today) {
+      continue
+    }
+
     const daysBefore = subscription.remindDaysBefore ?? defaultDaysBefore
     const daysUntil = dayNumber(subscription.nextDue) - today
+    const dueBeforeEnd =
+      endDay === null || dayNumber(subscription.nextDue) <= endDay
 
-    if (daysUntil >= 0 && daysUntil <= daysBefore) {
+    if (dueBeforeEnd && daysUntil >= 0 && daysUntil <= daysBefore) {
       candidates.push({
         subscriptionId: subscription.id,
         name: subscription.name,

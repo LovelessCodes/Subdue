@@ -1,5 +1,6 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
-import { dirname, resolve } from 'node:path'
+import { dirname, join } from 'node:path'
+import { dataDir } from './paths'
 
 const PLACEHOLDER_SECRET = 'change-me'
 
@@ -15,10 +16,7 @@ export function resolveAuthSecret(): string {
     return fromEnv
   }
 
-  const databasePath = resolve(
-    process.env.DATABASE_PATH?.trim() || './data/subdue.db',
-  )
-  const secretPath = resolve(dirname(databasePath), 'secret')
+  const secretPath = join(dataDir(), 'secret')
 
   try {
     const existing = readFileSync(secretPath, 'utf8').trim()

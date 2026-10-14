@@ -666,7 +666,13 @@
           "categoryId": {
             "type": "string"
           },
+          "paymentMethodId": {
+            "type": "string"
+          },
           "payer": {
+            "type": "string"
+          },
+          "url": {
             "type": "string"
           },
           "nextPayment": {
@@ -678,6 +684,17 @@
           },
           "remindDaysBefore": {
             "type": "number"
+          },
+          "autoRenew": {
+            "type": "boolean",
+            "default": true
+          },
+          "cancelledAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "logo": {
+            "type": "string"
           },
           "userId": {
             "type": "string"
@@ -14143,12 +14160,25 @@
                       "null"
                     ]
                   },
+                  "paymentMethodId": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
                   "payer": {
                     "type": [
                       "string",
                       "null"
                     ],
                     "maxLength": 100
+                  },
+                  "url": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "maxLength": 2048
                   },
                   "nextPayment": {
                     "type": "string"
@@ -14165,6 +14195,22 @@
                       "number",
                       "null"
                     ]
+                  },
+                  "autoRenew": {
+                    "type": "boolean"
+                  },
+                  "cancelledAt": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "logo": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "maxLength": 255
                   }
                 },
                 "required": [
@@ -14325,12 +14371,25 @@
                       "null"
                     ]
                   },
+                  "paymentMethodId": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
                   "payer": {
                     "type": [
                       "string",
                       "null"
                     ],
                     "maxLength": 100
+                  },
+                  "url": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "maxLength": 2048
                   },
                   "nextPayment": {
                     "type": "string"
@@ -14347,6 +14406,22 @@
                       "number",
                       "null"
                     ]
+                  },
+                  "autoRenew": {
+                    "type": "boolean"
+                  },
+                  "cancelledAt": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "logo": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "maxLength": 255
                   },
                   "id": {
                     "type": "string"

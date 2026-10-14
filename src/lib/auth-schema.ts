@@ -307,10 +307,18 @@ export const subscription = sqliteTable(
     categoryId: text('category_id').references(() => category.id, {
       onDelete: 'set null',
     }),
+    paymentMethodId: text('payment_method_id').references(
+      () => paymentMethod.id,
+      { onDelete: 'set null' },
+    ),
     payer: text('payer'),
+    url: text('url'),
     nextPayment: integer('next_payment', { mode: 'timestamp_ms' }).notNull(),
     notes: text('notes'),
     remindDaysBefore: integer('remind_days_before'),
+    autoRenew: integer('auto_renew', { mode: 'boolean' }).default(true),
+    cancelledAt: integer('cancelled_at', { mode: 'timestamp_ms' }),
+    logo: text('logo'),
     userId: text('user_id')
       .notNull()
       .references(() => user.id, { onDelete: 'cascade' }),
@@ -319,6 +327,7 @@ export const subscription = sqliteTable(
   (table) => [
     index('subscription_userId_idx').on(table.userId),
     index('subscription_categoryId_idx').on(table.categoryId),
+    index('subscription_paymentMethodId_idx').on(table.paymentMethodId),
   ],
 )
 
@@ -612,12 +621,16 @@ export const notificationRelations = relations(
   }),
 )
 
-export const paymentMethodRelations = relations(paymentMethod, ({ one }) => ({
-  user: one(user, {
-    fields: [paymentMethod.userId],
-    references: [user.id],
+export const paymentMethodRelations = relations(
+  paymentMethod,
+  ({ one, many }) => ({
+    user: one(user, {
+      fields: [paymentMethod.userId],
+      references: [user.id],
+    }),
+    subscriptions: many(subscription),
   }),
-}))
+)
 
 export const userSettingRelations = relations(userSetting, ({ one }) => ({
   user: one(user, {
@@ -632,6 +645,10 @@ export const subscriptionRelations = relations(
     category: one(category, {
       fields: [subscription.categoryId],
       references: [category.id],
+    }),
+    paymentMethod: one(paymentMethod, {
+      fields: [subscription.paymentMethodId],
+      references: [paymentMethod.id],
     }),
     user: one(user, {
       fields: [subscription.userId],

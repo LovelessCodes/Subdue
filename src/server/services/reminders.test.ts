@@ -179,3 +179,71 @@ describe('reminder runs', () => {
     expect(after[0]?.readAt).not.toBeNull()
   })
 })
+
+describe('cancelled subscriptions', () => {
+  it('stops reminding after the access end date has passed', async () => {
+    const { db } = createTestDb()
+    await insertTestUser(db, 'u1')
+    await createSubscription(
+      db,
+      'u1',
+      {
+        name: 'Ended Service',
+        price: 9900,
+        currency: 'DKK',
+        cycleUnit: 'months',
+        cycleCount: 1,
+        nextPayment: new Date('2026-10-16T00:00:00.000Z'),
+        cancelledAt: new Date('2026-10-05T00:00:00.000Z'),
+      },
+      now,
+    )
+
+    const candidates = reminderCandidates(await enrichedFor(db, 'u1'), now, 3)
+    expect(candidates).toHaveLength(0)
+  })
+
+  it('keeps reminding while access continues', async () => {
+    const { db } = createTestDb()
+    await insertTestUser(db, 'u1')
+    await createSubscription(
+      db,
+      'u1',
+      {
+        name: 'Last Months',
+        price: 9900,
+        currency: 'DKK',
+        cycleUnit: 'months',
+        cycleCount: 1,
+        nextPayment: new Date('2026-10-16T00:00:00.000Z'),
+        cancelledAt: new Date('2026-10-20T00:00:00.000Z'),
+      },
+      now,
+    )
+
+    const candidates = reminderCandidates(await enrichedFor(db, 'u1'), now, 3)
+    expect(candidates.map((candidate) => candidate.type)).toEqual(['upcoming'])
+  })
+
+  it('drops charges that land after the end date', async () => {
+    const { db } = createTestDb()
+    await insertTestUser(db, 'u1')
+    await createSubscription(
+      db,
+      'u1',
+      {
+        name: 'Due After End',
+        price: 9900,
+        currency: 'DKK',
+        cycleUnit: 'months',
+        cycleCount: 1,
+        nextPayment: new Date('2026-11-15T00:00:00.000Z'),
+        cancelledAt: new Date('2026-10-20T00:00:00.000Z'),
+      },
+      now,
+    )
+
+    const candidates = reminderCandidates(await enrichedFor(db, 'u1'), now, 3)
+    expect(candidates).toHaveLength(0)
+  })
+})

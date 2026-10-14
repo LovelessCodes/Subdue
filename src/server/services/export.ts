@@ -15,9 +15,14 @@ export type ExportedSubscription = {
   cycleCount: number
   nextPayment: string
   category: string | null
+  paymentMethod: string | null
   payer: string | null
+  url: string | null
   notes: string | null
   remindDaysBefore: number | null
+  autoRenew: boolean
+  cancelledAt: string | null
+  logo: string | null
 }
 
 export type ExportBundle = {
@@ -55,6 +60,9 @@ export async function exportBundle(
     ])
 
   const categoryNames = new Map(categories.map((row) => [row.id, row.name]))
+  const paymentMethodNames = new Map(
+    paymentMethods.map((row) => [row.id, row.name]),
+  )
 
   return {
     app: 'subdue',
@@ -76,9 +84,16 @@ export async function exportBundle(
       category: row.categoryId
         ? (categoryNames.get(row.categoryId) ?? null)
         : null,
+      paymentMethod: row.paymentMethodId
+        ? (paymentMethodNames.get(row.paymentMethodId) ?? null)
+        : null,
       payer: row.payer,
+      url: row.url,
       notes: row.notes,
       remindDaysBefore: row.remindDaysBefore,
+      autoRenew: row.autoRenew ?? true,
+      cancelledAt: row.cancelledAt ? toIsoDay(row.cancelledAt) : null,
+      logo: row.logo,
     })),
   }
 }
@@ -91,9 +106,13 @@ export const CSV_COLUMNS = [
   'cycle_count',
   'next_payment',
   'category',
+  'payment_method',
   'payer',
+  'url',
   'notes',
   'remind_days_before',
+  'auto_renew',
+  'cancelled_at',
 ] as const
 
 export async function exportSubscriptionsCsv(
@@ -112,9 +131,13 @@ export async function exportSubscriptionsCsv(
       String(item.cycleCount),
       item.nextPayment,
       item.category ?? '',
+      item.paymentMethod ?? '',
       item.payer ?? '',
+      item.url ?? '',
       item.notes ?? '',
       item.remindDaysBefore === null ? '' : String(item.remindDaysBefore),
+      item.autoRenew ? 'true' : 'false',
+      item.cancelledAt ?? '',
     ]),
   ]
 

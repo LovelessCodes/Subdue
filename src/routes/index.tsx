@@ -1,5 +1,7 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
+import { ExternalLink } from 'lucide-react'
 import { AppHeader } from '@/components/app-header'
+import { SubscriptionAvatar } from '@/components/subscription-avatar'
 import { Badge } from '@/components/ui/badge'
 import {
   Card,
@@ -186,22 +188,46 @@ function Dashboard() {
                     key={subscription.id}
                     className="flex items-center justify-between gap-3 py-3"
                   >
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-medium">
-                        {subscription.name}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {formatDate(subscription.nextDue, summary.locale)} ·{' '}
-                        {formatMinor(
-                          subscription.price,
-                          subscription.currency,
-                          summary.locale,
-                        )}
-                      </p>
+                    <div className="flex min-w-0 items-center gap-3">
+                      <SubscriptionAvatar
+                        name={subscription.name}
+                        logo={subscription.logo}
+                      />
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <p className="truncate text-sm font-medium">
+                            {subscription.name}
+                          </p>
+                          {subscription.url ? (
+                            <a
+                              href={subscription.url}
+                              target="_blank"
+                              rel="noreferrer"
+                              aria-label={`Open ${subscription.name}`}
+                              className="text-muted-foreground hover:text-foreground"
+                            >
+                              <ExternalLink className="size-3.5" />
+                            </a>
+                          ) : null}
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          {formatDate(subscription.nextDue, summary.locale)} ·{' '}
+                          {formatMinor(
+                            subscription.price,
+                            subscription.currency,
+                            summary.locale,
+                          )}
+                        </p>
+                      </div>
                     </div>
-                    {subscription.overdue ? (
-                      <Badge variant="destructive">overdue</Badge>
-                    ) : null}
+                    <div className="flex items-center gap-2">
+                      {subscription.cancelledAt ? (
+                        <Badge variant="outline">cancelled</Badge>
+                      ) : null}
+                      {subscription.overdue ? (
+                        <Badge variant="destructive">overdue</Badge>
+                      ) : null}
+                    </div>
                   </li>
                 ))}
               </ul>
