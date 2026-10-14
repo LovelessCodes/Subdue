@@ -280,6 +280,7 @@ export const socialProviders: SocialProviderDefinition[] = [
     ],
   },
   { id: 'twitch', label: 'Twitch', fields: [] },
+  { id: 'twitter', label: 'Twitter', fields: [] },
   {
     id: 'vercel',
     label: 'Vercel',
@@ -287,6 +288,7 @@ export const socialProviders: SocialProviderDefinition[] = [
       { key: 'scope', envKey: 'SCOPE', label: 'Scopes', kind: 'text-list' },
     ],
   },
+  { id: 'vk', label: 'VK', fields: [] },
   { id: 'zoom', label: 'Zoom', fields: [] },
 ]
 

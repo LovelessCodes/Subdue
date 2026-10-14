@@ -83,4 +83,19 @@ describe('social providers from environment', () => {
       }),
     ).toEqual(['discord'])
   })
+
+  it('covers twitter and vk from the catalog', () => {
+    const configured = loadSocialProvidersFromEnv({
+      TWITTER_CLIENT_ID: 'id',
+      TWITTER_CLIENT_SECRET: 'secret',
+      VK_CLIENT_ID: 'id',
+      VK_CLIENT_SECRET: 'secret',
+      VK_SCHEME: 'dark',
+    })
+
+    expect(Object.keys(configured).sort()).toEqual(['twitter', 'vk'])
+    // VK's `scheme` is declared in better-auth's types but never read by its
+    // implementation, so the catalog (and therefore the env loader) drops it.
+    expect(configured.vk).toEqual({ clientId: 'id', clientSecret: 'secret' })
+  })
 })

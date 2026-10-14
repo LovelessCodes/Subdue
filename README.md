@@ -198,7 +198,7 @@ Subdue is a PWA: it installs from any modern browser (manifest, icons, theme col
 
 Two first-class ways to configure providers — the environment wins when they overlap:
 
-**In the browser:** an administrator opens `/admin`, picks from 32 providers, pastes the credentials plus any provider-specific fields (Microsoft tenant, Cognito domain/region/pool, Discord permissions, Facebook scopes, …), registers the callback URL shown, and restarts Subdue. Secrets live in the database and are never returned by the API.
+**In the browser:** an administrator opens `/admin`, picks from 34 providers, pastes the credentials plus any provider-specific fields (Microsoft tenant, Cognito domain/region/pool, Discord permissions, Facebook scopes, …), registers the callback URL shown, and restarts Subdue. Secrets live in the database and are never returned by the API.
 
 **In the container:** environment variables follow `${PROVIDER}_CLIENT_ID` / `${PROVIDER}_CLIENT_SECRET`, with extras as `${PROVIDER}_${KEY}`:
 
@@ -210,7 +210,7 @@ docker run … \
   -e DISCORD_PERMISSIONS=8,2048
 ```
 
-Providers configured by environment show as "from environment" on the admin page and stay read-only there until the variables are removed. The sign-in and sign-up pages grow the matching buttons automatically. `twitter` and `vk` are not available in the current better-auth version; everything else from Atlassian to Zoom is.
+Providers configured by environment show as "from environment" on the admin page and stay read-only there until the variables are removed. The sign-in and sign-up pages grow the matching buttons automatically.
 
 ## Contributing
 
