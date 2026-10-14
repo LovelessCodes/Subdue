@@ -46,7 +46,7 @@ Directions, not promises. Each milestone should end in something usable and test
 
 - [x] Subscriptions: price, cycle (custom N× days/weeks/months/years), categories, payment methods, notes
 - [x] Recurrence engine: next payment, prior payments, overdue — specified and tested before it ships
-- [ ] Currencies with daily exchange rates (ECB, no API key needed)
+- [x] Currencies with daily exchange rates (ECB, no API key needed)
 
 ### M2 — See
 

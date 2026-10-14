@@ -157,6 +157,14 @@ export const category = sqliteTable(
   (table) => [index('category_userId_idx').on(table.userId)],
 )
 
+export const exchangeRate = sqliteTable('exchange_rate', {
+  id: text('id').primaryKey(),
+  quote: text('quote').notNull().unique(),
+  rate: integer('rate').notNull(),
+  rateDate: integer('rate_date', { mode: 'timestamp_ms' }).notNull(),
+  fetchedAt: integer('fetched_at', { mode: 'timestamp_ms' }).notNull(),
+})
+
 export const paymentMethod = sqliteTable(
   'payment_method',
   {
