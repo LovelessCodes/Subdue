@@ -208,6 +208,8 @@ export const userSetting = sqliteTable('user_setting', {
   locale: text('locale'),
   weekStart: text('week_start'),
   theme: text('theme'),
+  budgetAmountMinor: integer('budget_amount_minor'),
+  payAnchorDay: integer('pay_anchor_day'),
   userId: text('user_id')
     .notNull()
     .unique()

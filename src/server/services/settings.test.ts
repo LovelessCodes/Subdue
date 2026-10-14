@@ -27,6 +27,8 @@ describe('settings service', () => {
       locale: defaultSettings.locale,
       weekStart: defaultSettings.weekStart,
       theme: 'dark',
+      budgetAmountMinor: null,
+      payAnchorDay: null,
     })
 
     const patched = await updateSettings(db, 'u1', { locale: 'da' })

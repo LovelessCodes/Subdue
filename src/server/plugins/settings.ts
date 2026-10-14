@@ -14,6 +14,8 @@ export const settingsPlugin = () =>
           locale: { type: 'string', required: false },
           weekStart: { type: 'string', required: false },
           theme: { type: 'string', required: false },
+          budgetAmountMinor: { type: 'number', required: false },
+          payAnchorDay: { type: 'number', required: false },
           userId: {
             type: 'string',
             required: true,
@@ -48,6 +50,8 @@ export const settingsPlugin = () =>
             locale: z.string().min(2).max(20).optional(),
             weekStart: z.enum(settings.weekStarts).optional(),
             theme: z.enum(settings.themes).optional(),
+            budgetAmountMinor: z.number().int().min(0).nullish(),
+            payAnchorDay: z.number().int().min(1).max(31).nullish(),
           }),
           use: [sessionMiddleware],
         },

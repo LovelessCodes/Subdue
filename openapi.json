@@ -489,6 +489,12 @@
           "theme": {
             "type": "string"
           },
+          "budgetAmountMinor": {
+            "type": "number"
+          },
+          "payAnchorDay": {
+            "type": "number"
+          },
           "userId": {
             "type": "string"
           },
@@ -12081,6 +12087,18 @@
                       "light",
                       "dark",
                       "system"
+                    ]
+                  },
+                  "budgetAmountMinor": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "payAnchorDay": {
+                    "type": [
+                      "number",
+                      "null"
                     ]
                   }
                 }

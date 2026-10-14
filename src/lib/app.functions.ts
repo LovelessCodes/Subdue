@@ -1,5 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
 import { getRequestHeaders } from '@tanstack/react-start/server'
+import { getBudgetStatus } from '../server/services/budget'
 import { getCalendarMonth } from '../server/services/calendar'
 import { getDashboardSummary } from '../server/services/dashboard'
 import { getSettings } from '../server/services/settings'
@@ -21,6 +22,11 @@ export const getDashboard = createServerFn({ method: 'GET' }).handler(
     return getDashboardSummary(db, userId)
   },
 )
+
+export const getBudget = createServerFn({ method: 'GET' }).handler(async () => {
+  const userId = await requireUserId()
+  return getBudgetStatus(db, userId)
+})
 
 export const listMySubscriptions = createServerFn({ method: 'GET' }).handler(
   async () => {

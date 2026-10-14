@@ -8,7 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { getDashboard } from '@/lib/app.functions'
+import { getBudget, getDashboard } from '@/lib/app.functions'
 import { getSession } from '@/lib/auth.functions'
 import { formatDate, formatMinor } from '@/lib/money'
 
@@ -21,15 +21,45 @@ export const Route = createFileRoute('/')({
     return { user: session.user }
   },
   loader: async () => {
-    return { summary: await getDashboard() }
+    const [summary, budget] = await Promise.all([getDashboard(), getBudget()])
+    return { summary, budget }
   },
   component: Dashboard,
 })
 
+function periodLabel(
+  period: { start: string | Date; end: string | Date; anchored: boolean },
+  locale: string,
+): string {
+  const start = new Date(period.start)
+  const end = new Date(period.end)
+
+  if (!period.anchored) {
+    return new Intl.DateTimeFormat(locale, {
+      month: 'long',
+      year: 'numeric',
+      timeZone: 'UTC',
+    }).format(start)
+  }
+
+  const short = new Intl.DateTimeFormat(locale, {
+    month: 'short',
+    day: 'numeric',
+    timeZone: 'UTC',
+  })
+
+  return `${short.format(start)} – ${short.format(end)}`
+}
+
 function Dashboard() {
-  const { summary } = Route.useLoaderData()
+  const { summary, budget } = Route.useLoaderData()
   const money = (amountMinor: number) =>
     formatMinor(amountMinor, summary.currency, summary.locale)
+
+  const percent =
+    budget.budgetMinor !== null && budget.budgetMinor > 0
+      ? Math.min(100, Math.round((budget.dueMinor / budget.budgetMinor) * 100))
+      : 100
 
   return (
     <div className="min-h-svh">
@@ -83,6 +113,59 @@ function Dashboard() {
             </CardContent>
           </Card>
         </div>
+
+        <Card>
+          <CardHeader>
+            <CardDescription>
+              {periodLabel(budget.period, budget.locale)}
+            </CardDescription>
+            <CardTitle className="text-2xl">
+              {formatMinor(budget.dueMinor, budget.currency, budget.locale)} due
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {budget.budgetMinor === null ? (
+              <p className="text-xs text-muted-foreground">
+                No budget set for this period — configure one through the
+                settings API to track headroom.
+              </p>
+            ) : (
+              <>
+                <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+                  <div
+                    className={`h-full rounded-full ${
+                      budget.overBudget ? 'bg-destructive' : 'bg-primary'
+                    }`}
+                    style={{ width: `${percent}%` }}
+                  />
+                </div>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  of{' '}
+                  {formatMinor(
+                    budget.budgetMinor,
+                    budget.currency,
+                    budget.locale,
+                  )}{' '}
+                  budget ·{' '}
+                  {budget.overBudget
+                    ? `over by ${formatMinor(
+                        -(budget.remainingMinor ?? 0),
+                        budget.currency,
+                        budget.locale,
+                      )}`
+                    : `${formatMinor(
+                        budget.remainingMinor ?? 0,
+                        budget.currency,
+                        budget.locale,
+                      )} left`}
+                  {budget.unconvertibleCurrencies.length > 0
+                    ? ` · no rates for ${budget.unconvertibleCurrencies.join(', ')}`
+                    : ''}
+                </p>
+              </>
+            )}
+          </CardContent>
+        </Card>
 
         <Card>
           <CardHeader>

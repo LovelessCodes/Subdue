@@ -8,7 +8,7 @@ export type Cycle = {
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000
 
-function daysInMonth(year: number, monthIndex: number): number {
+export function daysInMonth(year: number, monthIndex: number): number {
   return new Date(Date.UTC(year, monthIndex + 1, 0)).getUTCDate()
 }
 

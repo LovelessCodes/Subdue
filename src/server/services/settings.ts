@@ -13,6 +13,8 @@ export type Settings = {
   locale: string
   weekStart: WeekStart
   theme: Theme
+  budgetAmountMinor: number | null
+  payAnchorDay: number | null
 }
 
 export type SettingsPatch = Partial<Settings>
@@ -22,6 +24,8 @@ export const defaultSettings: Settings = {
   locale: 'en',
   weekStart: 'monday',
   theme: 'system',
+  budgetAmountMinor: null,
+  payAnchorDay: null,
 }
 
 export async function getSettings(
@@ -44,6 +48,8 @@ export async function getSettings(
     locale: row.locale ?? defaultSettings.locale,
     weekStart: (row.weekStart as WeekStart | null) ?? defaultSettings.weekStart,
     theme: (row.theme as Theme | null) ?? defaultSettings.theme,
+    budgetAmountMinor: row.budgetAmountMinor ?? null,
+    payAnchorDay: row.payAnchorDay ?? null,
   }
 }
 
@@ -63,6 +69,12 @@ export async function updateSettings(
     ...(patch.locale !== undefined && { locale: patch.locale }),
     ...(patch.weekStart !== undefined && { weekStart: patch.weekStart }),
     ...(patch.theme !== undefined && { theme: patch.theme }),
+    ...(patch.budgetAmountMinor !== undefined && {
+      budgetAmountMinor: patch.budgetAmountMinor,
+    }),
+    ...(patch.payAnchorDay !== undefined && {
+      payAnchorDay: patch.payAnchorDay,
+    }),
   }
 
   if (rows[0]) {
