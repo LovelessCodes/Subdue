@@ -127,9 +127,51 @@ export const apikey = sqliteTable(
   ],
 )
 
+export const category = sqliteTable(
+  'category',
+  {
+    id: text('id').primaryKey(),
+    name: text('name').notNull(),
+    color: text('color'),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
+  },
+  (table) => [index('category_userId_idx').on(table.userId)],
+)
+
+export const subscription = sqliteTable(
+  'subscription',
+  {
+    id: text('id').primaryKey(),
+    name: text('name').notNull(),
+    price: integer('price').notNull(),
+    currency: text('currency').notNull(),
+    cycleUnit: text('cycle_unit').notNull(),
+    cycleCount: integer('cycle_count').notNull(),
+    categoryId: text('category_id').references(() => category.id, {
+      onDelete: 'set null',
+    }),
+    payer: text('payer'),
+    nextPayment: integer('next_payment', { mode: 'timestamp_ms' }).notNull(),
+    notes: text('notes'),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
+  },
+  (table) => [
+    index('subscription_userId_idx').on(table.userId),
+    index('subscription_categoryId_idx').on(table.categoryId),
+  ],
+)
+
 export const userRelations = relations(user, ({ many }) => ({
   sessions: many(session),
   accounts: many(account),
+  categorys: many(category),
+  subscriptions: many(subscription),
 }))
 
 export const sessionRelations = relations(session, ({ one }) => ({
@@ -142,6 +184,25 @@ export const sessionRelations = relations(session, ({ one }) => ({
 export const accountRelations = relations(account, ({ one }) => ({
   user: one(user, {
     fields: [account.userId],
+    references: [user.id],
+  }),
+}))
+
+export const categoryRelations = relations(category, ({ one, many }) => ({
+  user: one(user, {
+    fields: [category.userId],
+    references: [user.id],
+  }),
+  subscriptions: many(subscription),
+}))
+
+export const subscriptionRelations = relations(subscription, ({ one }) => ({
+  category: one(category, {
+    fields: [subscription.categoryId],
+    references: [category.id],
+  }),
+  user: one(user, {
+    fields: [subscription.userId],
     references: [user.id],
   }),
 }))

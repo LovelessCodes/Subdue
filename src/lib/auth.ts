@@ -4,6 +4,8 @@ import { betterAuth } from 'better-auth'
 import { openAPI } from 'better-auth/plugins'
 import { admin } from 'better-auth/plugins/admin'
 import { tanstackStartCookies } from 'better-auth/tanstack-start'
+import { categoriesPlugin } from '../server/plugins/categories'
+import { subscriptionsPlugin } from '../server/plugins/subscriptions'
 import * as schema from './auth-schema'
 import { db, sqlite } from './db'
 
@@ -33,5 +35,12 @@ export const auth = betterAuth({
       },
     },
   },
-  plugins: [admin(), apiKey(), openAPI(), tanstackStartCookies()],
+  plugins: [
+    admin(),
+    apiKey(),
+    openAPI(),
+    categoriesPlugin(),
+    subscriptionsPlugin(),
+    tanstackStartCookies(),
+  ],
 })
