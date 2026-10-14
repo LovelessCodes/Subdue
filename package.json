@@ -1,9 +1,9 @@
 {
   "name": "subdue",
-  "description": "Self-hosted subscription tracker",
   "private": true,
-  "type": "module",
+  "description": "Self-hosted subscription tracker",
   "license": "MIT",
+  "type": "module",
   "imports": {
     "#/*": "./src/*"
   },
@@ -12,9 +12,12 @@
     "generate-routes": "tsr generate",
     "build": "vite build",
     "preview": "vite preview",
-    "format": "biome format",
-    "lint": "biome lint",
-    "check": "biome check"
+    "format": "oxfmt",
+    "format:check": "oxfmt --check",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "check": "oxlint && oxfmt --check",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.18",
@@ -27,13 +30,14 @@
     "tailwindcss": "^4.1.18"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.4.5",
     "@tanstack/devtools-vite": "0.8.5",
     "@tanstack/router-cli": "^1.132.0",
     "@types/node": "^22.10.2",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^6.0.1",
+    "oxfmt": "^0.73.0",
+    "oxlint": "^1.88.0",
     "typescript": "^6.0.2",
     "vite": "^8.0.0"
   },
