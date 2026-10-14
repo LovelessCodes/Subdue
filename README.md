@@ -85,7 +85,7 @@ Directions, not promises. Each milestone should end in something usable and test
 
 Needs [Bun](https://bun.sh) (preferred) or a recent Node.
 
-First run: `cp .env.example .env`. Everything in it is optional — the auth secret is generated on first boot (stored next to the database) and the base URL is derived from requests.
+First run: `cp .env.example .env`. Everything in it is optional — the auth secret is generated on first boot (stored next to the database) and the base URL is derived from requests. Then open Subdue, create an account, and claim the administrator role: the claim URL is printed to the server logs on first boot.
 
 ```bash
 bun install                # dependencies
@@ -113,7 +113,7 @@ docker run -d --name subdue -p 3000:3000 -v ./data:/data subdue
 
 **Docker Compose:** copy `.env.example` to `.env` (all values optional) and `docker compose up -d`.
 
-One volume (`/data`) holds the SQLite database — WAL mode, so the `-wal` and `-shm` files travel with it — plus the `logos/` folder for uploaded images. Migrations run automatically on every boot: upgrading is pulling a new image. Tagged releases publish a multi-arch image to `ghcr.io/lovelesscodes/subdue`:
+One volume (`/data`) holds the SQLite database — WAL mode, so the `-wal` and `-shm` files travel with it — plus the `logos/` folder for uploaded images. Migrations run automatically on every boot: upgrading is pulling a new image. On a fresh install the logs print a claim URL (`docker compose logs subdue | grep Subdue`) and the account that opens it becomes the administrator — the token lives at `data/setup-token` and is deleted once claimed. Tagged releases publish a multi-arch image to `ghcr.io/lovelesscodes/subdue`:
 
 ```bash
 git tag v0.1.0 && git push origin v0.1.0   # builds amd64 + arm64, writes release notes
@@ -193,6 +193,10 @@ Add `http://localhost:3000/api/ical/<token>` as a calendar subscription in anyth
 ## Install it
 
 Subdue is a PWA: it installs from any modern browser (manifest, icons, theme color). Pages are cached network-first, so whenever the server is reachable the data is fresh; when it is not, the last-rendered copy appears with a banner naming the cache time. API calls are never cached. The reasoning and its trade-offs live in [docs/adr/0001-offline-behaviour.md](./docs/adr/0001-offline-behaviour.md).
+
+## Social sign-in
+
+An administrator can enable Google, GitHub, Microsoft or Discord sign-in from `/admin`: paste the client credentials from the provider's console, register the callback URL shown on the page, and restart Subdue. Credentials live in the database and are never returned by the API — the secret field only accepts replacements. The sign-in and sign-up pages grow the matching buttons automatically, and the provider list is visible to admins as active or "restart to apply".
 
 ## Contributing
 

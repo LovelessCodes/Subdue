@@ -85,6 +85,13 @@
       "when": 1792011603910,
       "tag": "0011_careless_stone_men",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "6",
+      "when": 1792013016230,
+      "tag": "0012_complete_blizzard",
+      "breakpoints": true
     }
   ]
 }

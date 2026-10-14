@@ -1,7 +1,13 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import type { FormEvent } from 'react'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { getAuthProviders } from '@/lib/app.functions'
+import { authClient } from '@/lib/auth-client'
+import {
+  socialProviderLabels,
+  type SocialProviderName,
+} from '@/lib/social-providers'
 import {
   Card,
   CardContent,
@@ -13,14 +19,25 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
 export const Route = createFileRoute('/sign-in')({
+  loader: async () => ({ providers: await getAuthProviders() }),
   component: SignIn,
 })
 
 function SignIn() {
+  const { providers } = Route.useLoaderData()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [pending, setPending] = useState(false)
+
+  async function signInWith(provider: SocialProviderName) {
+    setError(null)
+    try {
+      await authClient.signIn.social({ provider, callbackURL: '/' })
+    } catch {
+      setError('Social sign-in failed to start.')
+    }
+  }
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault()
@@ -69,6 +86,23 @@ function SignIn() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {providers.length > 0 ? (
+            <div className="mb-4 flex flex-col gap-2">
+              {providers.map((provider) => (
+                <Button
+                  key={provider}
+                  type="button"
+                  variant="outline"
+                  onClick={() => signInWith(provider as SocialProviderName)}
+                >
+                  Continue with{' '}
+                  {socialProviderLabels[provider as SocialProviderName] ??
+                    provider}
+                </Button>
+              ))}
+              <p className="text-center text-xs text-muted-foreground">or</p>
+            </div>
+          ) : null}
           <form onSubmit={onSubmit} className="flex flex-col gap-4">
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
@@ -97,6 +131,15 @@ function SignIn() {
               {pending ? 'Signing in…' : 'Sign in'}
             </Button>
           </form>
+          <p className="mt-4 text-center text-sm text-muted-foreground">
+            First time here?{' '}
+            <Link
+              to="/sign-up"
+              className="underline underline-offset-4 hover:text-foreground"
+            >
+              Create an account
+            </Link>
+          </p>
         </CardContent>
       </Card>
     </div>

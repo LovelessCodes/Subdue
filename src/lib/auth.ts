@@ -16,6 +16,7 @@ import { icalPlugin } from '../server/plugins/ical'
 import { notificationsPlugin } from '../server/plugins/notifications'
 import { paymentMethodsPlugin } from '../server/plugins/payment-methods'
 import { settingsPlugin } from '../server/plugins/settings'
+import { socialPlugin } from '../server/plugins/social'
 import { subscriptionsPlugin } from '../server/plugins/subscriptions'
 import * as schema from './auth-schema'
 import { db, sqlite } from './db'
@@ -25,6 +26,52 @@ const envBaseUrl = process.env.BETTER_AUTH_URL?.trim()
 const envTrustedOrigins = process.env.TRUSTED_ORIGINS?.split(',')
   .map((origin) => origin.trim())
   .filter(Boolean)
+
+type SocialProviderKey = 'google' | 'github' | 'microsoft' | 'discord'
+
+const SOCIAL_PROVIDER_KEYS: SocialProviderKey[] = [
+  'google',
+  'github',
+  'microsoft',
+  'discord',
+]
+
+/**
+ * Social providers are configured by the administrator at runtime and stored
+ * in the database; this module reads them at boot. Raw SQL (rather than the
+ * drizzle table) keeps schema generation working before the table exists.
+ */
+function loadSocialProviders(): Partial<
+  Record<SocialProviderKey, { clientId: string; clientSecret: string }>
+> {
+  try {
+    const rows = sqlite
+      .prepare(
+        'SELECT provider, client_id AS clientId, client_secret AS clientSecret FROM social_provider WHERE enabled = 1',
+      )
+      .all() as { provider: string; clientId: string; clientSecret: string }[]
+
+    const providers: Partial<
+      Record<SocialProviderKey, { clientId: string; clientSecret: string }>
+    > = {}
+    for (const row of rows) {
+      if (
+        (SOCIAL_PROVIDER_KEYS as string[]).includes(row.provider) &&
+        row.clientId &&
+        row.clientSecret
+      ) {
+        providers[row.provider as SocialProviderKey] = {
+          clientId: row.clientId,
+          clientSecret: row.clientSecret,
+        }
+      }
+    }
+    return providers
+  } catch {
+    // first boot before migrations, or schema generation: no providers yet
+    return {}
+  }
+}
 
 export const mcpResource =
   process.env.MCP_RESOURCE_URL?.trim() ||
@@ -53,21 +100,7 @@ export const auth = betterAuth({
       joins: true,
     },
   },
-  databaseHooks: {
-    user: {
-      create: {
-        before: async (user) => {
-          const row = sqlite
-            .prepare('SELECT COUNT(*) AS count FROM user')
-            .get() as { count: number }
-          if (row.count === 0) {
-            return { data: { ...user, role: 'admin' } }
-          }
-          return { data: user }
-        },
-      },
-    },
-  },
+  socialProviders: loadSocialProviders(),
   plugins: [
     admin(),
     apiKey({
@@ -95,6 +128,7 @@ export const auth = betterAuth({
     notificationsPlugin(),
     paymentMethodsPlugin(),
     settingsPlugin(),
+    socialPlugin(),
     subscriptionsPlugin(),
     mcp({
       loginPage: '/sign-in',

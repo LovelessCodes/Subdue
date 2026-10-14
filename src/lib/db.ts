@@ -4,6 +4,7 @@ import Database from 'better-sqlite3'
 import { drizzle } from 'drizzle-orm/better-sqlite3'
 import { migrate } from 'drizzle-orm/better-sqlite3/migrator'
 import { resolveDatabasePath } from './paths'
+import { ensureSetupToken } from './setup-token'
 import { ensureScheduler } from '../server/scheduler'
 import * as schema from './auth-schema'
 import { repairSigningKeys } from './signing-keys'
@@ -24,6 +25,21 @@ migrate(db, {
 })
 
 repairSigningKeys(sqlite)
+
+const adminCount = (
+  sqlite
+    .prepare("SELECT COUNT(*) AS count FROM user WHERE role = 'admin'")
+    .get() as { count: number }
+).count
+const setupToken = ensureSetupToken(adminCount > 0)
+if (setupToken) {
+  const base = (
+    process.env.BETTER_AUTH_URL?.trim() || 'http://localhost:3000'
+  ).replace(/\/+$/, '')
+  console.log(
+    `[Subdue] No administrator yet — sign in, then open ${base}/setup?token=${setupToken} to claim it.`,
+  )
+}
 
 ensureScheduler(db)
 

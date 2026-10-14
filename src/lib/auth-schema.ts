@@ -295,6 +295,16 @@ export const userSetting = sqliteTable(
   (table) => [index('userSetting_icalToken_idx').on(table.icalToken)],
 )
 
+export const socialProvider = sqliteTable('social_provider', {
+  id: text('id').primaryKey(),
+  provider: text('provider').notNull().unique(),
+  clientId: text('client_id').notNull(),
+  clientSecret: text('client_secret').notNull(),
+  enabled: integer('enabled', { mode: 'boolean' }).default(true).notNull(),
+  createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
+  updatedAt: integer('updated_at', { mode: 'timestamp_ms' }).notNull(),
+})
+
 export const subscription = sqliteTable(
   'subscription',
   {

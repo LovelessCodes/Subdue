@@ -1,11 +1,16 @@
 import { createServerFn } from '@tanstack/react-start'
 import { getRequestHeaders } from '@tanstack/react-start/server'
+import { eq } from 'drizzle-orm'
 import * as z from 'zod'
+import { user } from '../lib/auth-schema'
+import { socialProviderNames } from '../lib/social-providers'
 import { getBudgetStatus } from '../server/services/budget'
 import { getCalendarMonth } from '../server/services/calendar'
 import { listCategories } from '../server/services/categories'
 import * as channels from '../server/services/channels'
 import * as deliveries from '../server/services/deliveries'
+import * as setupService from '../server/services/setup'
+import * as socialAuth from '../server/services/social-auth'
 import { getDashboardSummary } from '../server/services/dashboard'
 import * as ical from '../server/services/ical'
 import { listPaymentMethods } from '../server/services/payment-methods'
@@ -22,6 +27,7 @@ import {
   channelPatchSchema,
   checkSubscriptionReferences,
   settingsPatchSchema,
+  socialProviderUpdateSchema,
   subscriptionBodySchema,
 } from '../server/validation'
 import { removeLogo } from '../server/logos'
@@ -369,3 +375,85 @@ export const listMyDeliveries = createServerFn({ method: 'GET' }).handler(
     return deliveries.listDeliveries(db, userId, 20)
   },
 )
+
+export const getAuthProviders = createServerFn({ method: 'GET' }).handler(
+  async () => {
+    const providers = (auth.options.socialProviders ?? {}) as Record<
+      string,
+      unknown
+    >
+    return Object.keys(providers).filter((name) => Boolean(providers[name]))
+  },
+)
+
+export const getSetupStatus = createServerFn({ method: 'GET' }).handler(
+  async () => {
+    const userId = await requireUserId()
+    return setupService.getSetupStatus(db, userId)
+  },
+)
+
+export const claimSetup = createServerFn({ method: 'POST' })
+  .validator((input: { token: string }) => ({
+    token: z.string().trim().min(1).max(200).parse(input.token),
+  }))
+  .handler(async ({ data }) => {
+    const userId = await requireUserId()
+    const result = await setupService.claimAdmin(db, userId, data.token)
+    if (result === 'invalid-token') {
+      throw new Error('SETUP_TOKEN_INVALID')
+    }
+    return { result }
+  })
+
+async function requireAdminUserId(): Promise<string> {
+  const userId = await requireUserId()
+  const rows = await db
+    .select({ role: user.role })
+    .from(user)
+    .where(eq(user.id, userId))
+    .limit(1)
+  if (rows[0]?.role !== 'admin') {
+    throw new Error('ADMIN_REQUIRED')
+  }
+  return userId
+}
+
+export const listSocialProviders = createServerFn({ method: 'GET' }).handler(
+  async () => {
+    await requireAdminUserId()
+    const items = await socialAuth.listSocialProviders(db)
+    const providers = (auth.options.socialProviders ?? {}) as Record<
+      string,
+      unknown
+    >
+    return {
+      items,
+      active: Object.keys(providers).filter((name) => Boolean(providers[name])),
+    }
+  },
+)
+
+export const saveSocialProvider = createServerFn({ method: 'POST' })
+  .validator((input: unknown) => socialProviderUpdateSchema.parse(input))
+  .handler(async ({ data }) => {
+    await requireAdminUserId()
+    const result = await socialAuth.upsertSocialProvider(db, data)
+    if (result.error) {
+      throw new Error(result.error)
+    }
+    return result.row
+  })
+
+export const removeSocialProvider = createServerFn({ method: 'POST' })
+  .validator((input: { provider: string }) => ({
+    provider: z.enum(socialProviderNames).parse(input.provider),
+  }))
+  .handler(async ({ data }) => {
+    await requireAdminUserId()
+    const removed = await socialAuth.removeSocialProvider(db, data.provider)
+    if (!removed) {
+      throw new Error('SOCIAL_PROVIDER_NOT_FOUND')
+    }
+    return { success: true }
+  })

@@ -1,5 +1,10 @@
 import { useState } from 'react'
-import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
+import {
+  Link,
+  createFileRoute,
+  redirect,
+  useRouter,
+} from '@tanstack/react-router'
 import { AppHeader } from '@/components/app-header'
 import { Button } from '@/components/ui/button'
 import {
@@ -305,6 +310,17 @@ function SettingsPage() {
             <span className="text-sm text-muted-foreground">Saved</span>
           ) : null}
         </div>
+
+        <p className="text-sm text-muted-foreground">
+          Running this instance?{' '}
+          <Link
+            to="/admin"
+            className="underline underline-offset-4 hover:text-foreground"
+          >
+            Administration, social sign-in and roles
+          </Link>
+          .
+        </p>
       </main>
     </div>
   )
