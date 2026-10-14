@@ -192,7 +192,7 @@ Add `http://localhost:3000/api/ical/<token>` as a calendar subscription in anyth
 
 ## Install it
 
-Subdue is a PWA: it installs from any modern browser (manifest, icons, theme color). The service worker is deliberately non-caching — a stale due date is worse than an offline screen — so "offline support" is honest for now: the app needs its server. Making offline real is [#8](https://github.com/LovelessCodes/Subdue/issues/8).
+Subdue is a PWA: it installs from any modern browser (manifest, icons, theme color). Pages are cached network-first, so whenever the server is reachable the data is fresh; when it is not, the last-rendered copy appears with a banner naming the cache time. API calls are never cached. The reasoning and its trade-offs live in [docs/adr/0001-offline-behaviour.md](./docs/adr/0001-offline-behaviour.md).
 
 ## Contributing
 
