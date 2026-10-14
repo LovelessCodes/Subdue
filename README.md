@@ -30,52 +30,7 @@ Subdue is our answer to all three. Four principles:
 | Database  | SQLite — Drizzle + better-sqlite3, WAL + busy timeout                                        |
 | Build     | Vite                                                                                         |
 
-## Roadmap
-
-Directions, not promises. Each milestone should end in something usable and tested.
-
-### M0 — Foundation (current)
-
-- [x] TanStack Start + TypeScript scaffold
-- [x] SQLite with WAL and a sane busy timeout, from the first migration
-- [x] Drizzle schema + migrations that run on boot
-- [x] Single-user login (multi-user designed in, not bolted on later)
-- [x] User settings (currency, locale, week start, theme)
-
-### M1 — Track
-
-- [x] Subscriptions: price, cycle (custom N× days/weeks/months/years), categories, payment methods, notes, end dates
-- [x] Recurrence engine: next payment, prior payments, overdue — specified and tested before it ships
-- [x] Currencies with daily exchange rates (ECB, no API key needed)
-
-### M2 — See
-
-- [x] Dashboard: monthly cost, upcoming payments, what changed since last month
-- [x] Calendar view
-- [x] Budgets, including pay-period anchoring
-
-### M3 — Get told
-
-- [x] Reminders: N days before a charge, with per-subscription overrides
-- [x] Channels: SMTP email first, then ntfy / Telegram / Discord / generic webhooks
-- [x] An in-app inbox so nothing gets missed
-
-### M4 — Fit into the house
-
-- [x] Import from Wallos backups and CSV
-- [x] Export: JSON/CSV and a one-file backup
-- [x] iCal feed
-- [x] REST API (API keys) — for scripts, dashboards, and MCP servers
-- [x] MCP server — OAuth-protected tools for MCP clients (read-only for now)
-- [x] PWA (installable; offline behaviour is [#8](https://github.com/LovelessCodes/Subdue/issues/8))
-
-### M5 — Ship it properly
-
-- [x] Docker image: one volume, healthcheck, self-migrating
-- [x] CI that runs lint, typecheck, and tests on every pull request
-- [x] Release automation (tag-driven image + notes; the first tag is yours to cut)
-
-### Explicit non-goals (for now)
+## Non-goals
 
 - Feature parity with anything — parity with how people actually use it is the goal.
 - AI recommendations, gamification, engagement loops.
