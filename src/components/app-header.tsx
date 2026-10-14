@@ -24,6 +24,15 @@ export function AppHeader() {
             Dashboard
           </Link>
           <Link
+            to="/calendar"
+            className="rounded-md px-3 py-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+            activeProps={{
+              className: 'rounded-md px-3 py-1.5 bg-muted text-foreground',
+            }}
+          >
+            Calendar
+          </Link>
+          <Link
             to="/subscriptions"
             className="rounded-md px-3 py-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
             activeProps={{

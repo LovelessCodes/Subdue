@@ -1,5 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
 import { getRequestHeaders } from '@tanstack/react-start/server'
+import { getCalendarMonth } from '../server/services/calendar'
 import { getDashboardSummary } from '../server/services/dashboard'
 import { getSettings } from '../server/services/settings'
 import { listSubscriptions } from '../server/services/subscriptions'
@@ -40,3 +41,24 @@ export const getMySettings = createServerFn({ method: 'GET' }).handler(
     return getSettings(db, userId)
   },
 )
+
+export const getCalendar = createServerFn({ method: 'GET' })
+  .validator((input: { month?: string }) => input)
+  .handler(async ({ data }) => {
+    const userId = await requireUserId()
+    const now = new Date()
+    let year = now.getUTCFullYear()
+    let month = now.getUTCMonth() + 1
+
+    const match = data.month?.match(/^(\d{4})-(\d{2})$/)
+    if (match) {
+      const parsedYear = Number(match[1])
+      const parsedMonth = Number(match[2])
+      if (parsedMonth >= 1 && parsedMonth <= 12) {
+        year = parsedYear
+        month = parsedMonth
+      }
+    }
+
+    return getCalendarMonth(db, userId, { year, month })
+  })
