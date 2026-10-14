@@ -1,4 +1,5 @@
 import { apiKey } from '@better-auth/api-key'
+import { passkey } from '@better-auth/passkey'
 import { cimd } from '@better-auth/cimd'
 import { fetchClientMetadataResource } from '@better-auth/cimd/node'
 import { drizzleAdapter } from '@better-auth/drizzle-adapter'
@@ -139,6 +140,14 @@ export const auth = betterAuth({
     }),
     lastLoginMethod(),
     openAPI(),
+    passkey({
+      // WebAuthn binds a passkey to one domain, and the plugin's default is
+      // 'localhost' when baseURL is dynamic. Set PASSKEY_RP_ID to the hostname
+      // you actually browse (see the README's Passkeys section).
+      ...(process.env.PASSKEY_RP_ID?.trim()
+        ? { rpID: process.env.PASSKEY_RP_ID.trim() }
+        : {}),
+    }),
     twoFactor({
       issuer: 'Subdue',
     }),

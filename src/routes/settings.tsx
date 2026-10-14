@@ -6,6 +6,7 @@ import {
   useRouter,
 } from '@tanstack/react-router'
 import { AppHeader } from '@/components/app-header'
+import { PasskeyCard } from '@/components/passkey-card'
 import { TwoFactorCard } from '@/components/two-factor-card'
 import { Button } from '@/components/ui/button'
 import {
@@ -296,6 +297,8 @@ function SettingsPage() {
             </Field>
           </CardContent>
         </Card>
+
+        <PasskeyCard />
 
         <TwoFactorCard />
 

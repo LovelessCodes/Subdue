@@ -23,6 +23,7 @@ export const Route = createFileRoute('/sign-in')({
 function SignIn() {
   const { providers } = Route.useLoaderData()
   const [lastMethod, setLastMethod] = useState<string | null>(null)
+  const [passkeyReady, setPasskeyReady] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -30,7 +31,32 @@ function SignIn() {
 
   useEffect(() => {
     setLastMethod(authClient.getLastUsedLoginMethod())
+    setPasskeyReady(
+      typeof window !== 'undefined' &&
+        window.isSecureContext &&
+        Boolean(window.PublicKeyCredential),
+    )
   }, [])
+
+  async function signInWithPasskey() {
+    setError(null)
+    try {
+      const result = await authClient.signIn.passkey()
+      if (result?.error) {
+        setError(
+          /cancel|NotAllowedError|abort/i.test(result.error.message ?? '')
+            ? 'The passkey prompt was cancelled.'
+            : (result.error.message ?? 'No passkey worked for this site.'),
+        )
+        return
+      }
+      window.location.assign('/')
+    } catch (caught) {
+      setError(
+        caught instanceof Error ? caught.message : 'Passkey sign-in failed.',
+      )
+    }
+  }
 
   async function signInWith(provider: string) {
     setError(null)
@@ -146,6 +172,19 @@ function SignIn() {
               ) : null}
             </Button>
           </form>
+          {passkeyReady ? (
+            <div className="mt-4">
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={signInWithPasskey}
+                disabled={pending}
+              >
+                Sign in with a passkey
+              </Button>
+            </div>
+          ) : null}
           <p className="mt-4 text-center text-sm text-muted-foreground">
             First time here?{' '}
             <Link

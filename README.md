@@ -198,6 +198,10 @@ Subdue is a PWA: it installs from any modern browser (manifest, icons, theme col
 
 TOTP two-factor is per account: **Settings → Two-factor authentication**. Enabling asks for your password, shows a QR code plus the secret for manual entry, and issues ten single-use backup codes — the account is only protected once you verify the first code, which is better-auth's rule and a good one. Sign-in then asks for a code, backup codes work as recovery, and turning two-factor off revokes remembered verification. Nothing to configure on the server side.
 
+## Passkeys
+
+Accounts can register passkeys (WebAuthn) from **Settings → Passkeys** and sign in with them from the sign-in page — Touch ID, Windows Hello or a hardware key, no password typed. Two constraints come from WebAuthn itself, not from Subdue: passkeys require a **secure context** (HTTPS, or http on localhost), and they are bound to the **domain** they were registered on — localhost, a LAN name and a public domain are three separate passkey worlds. Behind a real domain, set `PASSKEY_RP_ID=your.hostname` (the plugin's default is `localhost`); on plain http across a LAN, browsers refuse to create passkeys until TLS is in front.
+
 ## Social sign-in
 
 Two first-class ways to configure providers — the environment wins when they overlap:
