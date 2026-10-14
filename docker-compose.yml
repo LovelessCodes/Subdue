@@ -1,8 +1,8 @@
 services:
   subdue:
+    # Builds this checkout. To run the released image instead, swap this for
+    # `image: ghcr.io/lovelesscodes/subdue:latest`.
     build: .
-    # Once the first release is tagged, prefer the published image:
-    # image: ghcr.io/lovelesscodes/subdue:latest
     ports:
       - '3000:3000'
     environment:

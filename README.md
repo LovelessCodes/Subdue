@@ -104,14 +104,22 @@ UI components are copy-in files in `src/components/ui` (shadcn/ui on Base UI —
 
 ## Deploy
 
-**Docker, built locally:**
+The published image is a multi-arch build (amd64 + arm64) on GHCR. The minimal `docker-compose.yml` — no environment variables required:
 
-```bash
-docker build -t subdue .
-docker run -d --name subdue -p 3000:3000 -v ./data:/data subdue
+```yaml
+services:
+  subdue:
+    image: ghcr.io/lovelesscodes/subdue:latest
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./data:/data
+    restart: unless-stopped
 ```
 
-**Docker Compose:** copy `.env.example` to `.env` (all values optional) and `docker compose up -d`.
+Then `docker compose up -d`. A fresh GHCR package starts **private**, so either flip it to public in the package settings or `docker login ghcr.io` once before pulling.
+
+Prefer building from a checkout? `docker build -t subdue . && docker run -d --name subdue -p 3000:3000 -v ./data:/data subdue`.
 
 One volume (`/data`) holds the SQLite database — WAL mode, so the `-wal` and `-shm` files travel with it — plus the `logos/` folder for uploaded images. Migrations run automatically on every boot: upgrading is pulling a new image. On a fresh install the logs print a claim URL (`docker compose logs subdue | grep Subdue`) and the account that opens it becomes the administrator — the token lives at `data/setup-token` and is deleted once claimed. Tagged releases publish a multi-arch image to `ghcr.io/lovelesscodes/subdue`:
 
@@ -119,16 +127,17 @@ One volume (`/data`) holds the SQLite database — WAL mode, so the `-wal` and `
 git tag v0.1.0 && git push origin v0.1.0   # builds amd64 + arm64, writes release notes
 ```
 
-The workflow can also be run manually from the Actions tab — manual runs build without pushing anything, so the pipeline is verifiable without cutting a release. One gotcha after the first release: a fresh GHCR package starts **private**, so either flip it to public in the package settings or `docker login ghcr.io` before pulling.
+The workflow can also be run manually from the Actions tab — manual runs build without pushing anything, so the pipeline is verifiable without cutting a release.
 
-Nothing needs configuring for a LAN deploy: the auth secret is generated into the data volume on first boot, and the base URL is derived from each request, so localhost, LAN names and IPs all work. Four settings are worth knowing:
+Nothing needs configuring for a LAN deploy: the auth secret is generated into the data volume on first boot, and the base URL is derived from each request, so localhost, LAN names and IPs all work. A few settings are worth knowing:
 
 - `BETTER_AUTH_SECRET` — set it only if you want to control it. The generated secret lives beside the database (`/data/secret`); keep the two together. Changing the secret no longer breaks stored signing keys (they are written unencrypted at rest — the database itself is the sensitive file — and key rows from older versions are repaired on boot); existing sessions do log out.
 - `BETTER_AUTH_URL` — optional; set it to pin OAuth/MCP callback URLs to one public URL.
 - `TRUSTED_ORIGINS` — defaults to `*` (any origin), which suits self-hosting. Narrow it (comma-separated) if the instance is reachable from the internet.
 - `TRUST_PROXY_HEADERS` — set to `true` when a reverse proxy in front sets `x-forwarded-for`. Otherwise incoming values are ignored and the socket address is used, so the per-IP rate limits cannot be spoofed.
 - `MCP_RESOURCE_URL` — set it to your public `/api/mcp` if you use MCP clients.
-  The container runs as root and writes to `/data`; on a NAS, pre-create that folder with your own ownership if it matters to you.
+
+The container runs as root and writes to `/data`; on a NAS, pre-create that folder with your own ownership if it matters to you.
 
 ## API & docs
 
