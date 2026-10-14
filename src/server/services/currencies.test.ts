@@ -1,9 +1,8 @@
 import { describe, expect, it } from 'vitest'
+import { convertMinorUnits, minorUnitExponent } from '@/lib/money'
 import {
   convertMinor,
-  convertMinorUnits,
   ensureRates,
-  minorUnitExponent,
   refreshRates,
   type Fetcher,
 } from '@/server/services/currencies'
@@ -118,6 +117,21 @@ describe('currencies: conversion', () => {
     expect(result?.converted).toBe(1448)
     expect(result?.rate).toBeCloseTo(1.08 / 7.46, 10)
     expect(result?.rateDate).toEqual(new Date('2026-10-14T00:00:00.000Z'))
+  })
+
+  it('converts from the ECB base currency without a stored EUR row', async () => {
+    const { db } = createTestDb()
+    const { fetchFn } = fakeFetch(payload)
+    const options = { fetchFn, now: new Date('2026-10-14T12:00:00.000Z') }
+
+    const result = await convertMinor(
+      db,
+      { amount: 1000, from: 'EUR', to: 'DKK' },
+      options,
+    )
+
+    expect(result?.converted).toBe(7460)
+    expect(result?.rate).toBe(7.46)
   })
 
   it('respects zero-decimal currencies like JPY', async () => {

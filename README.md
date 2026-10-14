@@ -4,7 +4,7 @@
 
 > Subdue: subscription **due** dates — and a good verb for taking control of them.
 
-**Status: early.** The foundation is in — database, auth, first resource APIs, and an OAuth-protected MCP server. The tracker UI is next; the roadmap below is the plan of record. Star or watch the repo to follow along.
+**Status: early.** The tracker UI is landing — dashboard and subscriptions list are live, backed by a tested engine for recurrence, currencies, and monthly totals. Calendar and budgets are next; the roadmap below is the plan of record.
 
 ## Why
 
@@ -50,7 +50,7 @@ Directions, not promises. Each milestone should end in something usable and test
 
 ### M2 — See
 
-- [ ] Dashboard: monthly cost, upcoming payments, what changed since last month
+- [x] Dashboard: monthly cost, upcoming payments, what changed since last month
 - [ ] Calendar view
 - [ ] Budgets, including pay-period anchoring
 

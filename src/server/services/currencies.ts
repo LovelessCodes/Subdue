@@ -1,6 +1,7 @@
 import { sql } from 'drizzle-orm'
 import { exchangeRate } from '../../lib/auth-schema'
 import type { Database } from '../../lib/db'
+import { convertMinorUnits } from '../../lib/money'
 
 export const ECB_BASE = 'EUR'
 export const FRANKFURTER_URL = 'https://api.frankfurter.dev/v1/latest?base=EUR'
@@ -11,21 +12,11 @@ export type Fetcher = (
   url: string,
 ) => Promise<{ ok: boolean; status: number; json: () => Promise<unknown> }>
 
-const ZERO_DECIMAL_CURRENCIES = new Set(['ISK', 'JPY', 'KRW'])
-
-export function minorUnitExponent(code: string): number {
-  return ZERO_DECIMAL_CURRENCIES.has(code.toUpperCase()) ? 0 : 2
-}
-
-export function convertMinorUnits(
-  amount: number,
-  rate: number,
-  from: string,
-  to: string,
-): number {
-  const scaled =
-    amount * rate * 10 ** (minorUnitExponent(to) - minorUnitExponent(from))
-  return Math.round(scaled)
+export function ratesMap(rows: ExchangeRate[]): Map<string, number> {
+  return new Map([
+    [ECB_BASE, 1],
+    ...rows.map((row) => [row.quote, row.rate] as const),
+  ])
 }
 
 export function crossRate(
@@ -172,8 +163,7 @@ export async function convertMinor(
   }
 
   const { rows, stale } = await ensureRates(db, options)
-  const rates = new Map(rows.map((row) => [row.quote, row.rate]))
-  const rate = crossRate(from, to, rates)
+  const rate = crossRate(from, to, ratesMap(rows))
 
   if (rate === null) {
     return null

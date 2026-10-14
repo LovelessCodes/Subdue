@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ConsentRouteImport } from './routes/consent'
 import { Route as SignInRouteImport } from './routes/sign-in'
+import { Route as SubscriptionsRouteImport } from './routes/subscriptions'
 import { Route as DotwellKnownSplatRouteImport } from './routes/[.]well-known/$'
 import { Route as ApiMcpRouteImport } from './routes/api/mcp'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
@@ -29,6 +30,11 @@ const ConsentRoute = ConsentRouteImport.update({
 const SignInRoute = SignInRouteImport.update({
   id: '/sign-in',
   path: '/sign-in',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SubscriptionsRoute = SubscriptionsRouteImport.update({
+  id: '/subscriptions',
+  path: '/subscriptions',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DotwellKnownSplatRoute = DotwellKnownSplatRouteImport.update({
@@ -51,6 +57,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/consent': typeof ConsentRoute
   '/sign-in': typeof SignInRoute
+  '/subscriptions': typeof SubscriptionsRoute
   '/.well-known/$': typeof DotwellKnownSplatRoute
   '/api/mcp': typeof ApiMcpRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -59,6 +66,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/consent': typeof ConsentRoute
   '/sign-in': typeof SignInRoute
+  '/subscriptions': typeof SubscriptionsRoute
   '/.well-known/$': typeof DotwellKnownSplatRoute
   '/api/mcp': typeof ApiMcpRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -68,6 +76,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/consent': typeof ConsentRoute
   '/sign-in': typeof SignInRoute
+  '/subscriptions': typeof SubscriptionsRoute
   '/.well-known/$': typeof DotwellKnownSplatRoute
   '/api/mcp': typeof ApiMcpRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -78,6 +87,7 @@ export interface FileRouteTypes {
     | '/'
     | '/consent'
     | '/sign-in'
+    | '/subscriptions'
     | '/.well-known/$'
     | '/api/mcp'
     | '/api/auth/$'
@@ -86,6 +96,7 @@ export interface FileRouteTypes {
     | '/'
     | '/consent'
     | '/sign-in'
+    | '/subscriptions'
     | '/.well-known/$'
     | '/api/mcp'
     | '/api/auth/$'
@@ -94,6 +105,7 @@ export interface FileRouteTypes {
     | '/'
     | '/consent'
     | '/sign-in'
+    | '/subscriptions'
     | '/.well-known/$'
     | '/api/mcp'
     | '/api/auth/$'
@@ -103,6 +115,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ConsentRoute: typeof ConsentRoute
   SignInRoute: typeof SignInRoute
+  SubscriptionsRoute: typeof SubscriptionsRoute
   DotwellKnownSplatRoute: typeof DotwellKnownSplatRoute
   ApiMcpRoute: typeof ApiMcpRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
@@ -129,6 +142,13 @@ declare module '@tanstack/react-router' {
       path: '/sign-in'
       fullPath: '/sign-in'
       preLoaderRoute: typeof SignInRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/subscriptions': {
+      id: '/subscriptions'
+      path: '/subscriptions'
+      fullPath: '/subscriptions'
+      preLoaderRoute: typeof SubscriptionsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/.well-known/$': {
@@ -159,6 +179,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ConsentRoute: ConsentRoute,
   SignInRoute: SignInRoute,
+  SubscriptionsRoute: SubscriptionsRoute,
   DotwellKnownSplatRoute: DotwellKnownSplatRoute,
   ApiMcpRoute: ApiMcpRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,

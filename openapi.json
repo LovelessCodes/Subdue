@@ -405,6 +405,43 @@
           "fetchedAt"
         ]
       },
+      "CostSnapshot": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "readOnly": true
+          },
+          "year": {
+            "type": "number"
+          },
+          "month": {
+            "type": "number"
+          },
+          "totalMinor": {
+            "type": "number"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "year",
+          "month",
+          "totalMinor",
+          "currency",
+          "userId",
+          "createdAt"
+        ]
+      },
       "PaymentMethod": {
         "type": "object",
         "properties": {

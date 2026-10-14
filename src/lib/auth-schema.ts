@@ -165,6 +165,29 @@ export const exchangeRate = sqliteTable('exchange_rate', {
   fetchedAt: integer('fetched_at', { mode: 'timestamp_ms' }).notNull(),
 })
 
+export const costSnapshot = sqliteTable(
+  'cost_snapshot',
+  {
+    id: text('id').primaryKey(),
+    year: integer('year').notNull(),
+    month: integer('month').notNull(),
+    totalMinor: integer('total_minor').notNull(),
+    currency: text('currency').notNull(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
+  },
+  (table) => [
+    uniqueIndex('costSnapshot_userId_year_month_uidx').on(
+      table.userId,
+      table.year,
+      table.month,
+    ),
+    index('costSnapshot_userId_idx').on(table.userId),
+  ],
+)
+
 export const paymentMethod = sqliteTable(
   'payment_method',
   {
@@ -423,6 +446,7 @@ export const userRelations = relations(user, ({ one, many }) => ({
   sessions: many(session),
   accounts: many(account),
   categorys: many(category),
+  costSnapshots: many(costSnapshot),
   paymentMethods: many(paymentMethod),
   userSetting: one(userSetting),
   subscriptions: many(subscription),
@@ -454,6 +478,13 @@ export const categoryRelations = relations(category, ({ one, many }) => ({
     references: [user.id],
   }),
   subscriptions: many(subscription),
+}))
+
+export const costSnapshotRelations = relations(costSnapshot, ({ one }) => ({
+  user: one(user, {
+    fields: [costSnapshot.userId],
+    references: [user.id],
+  }),
 }))
 
 export const paymentMethodRelations = relations(paymentMethod, ({ one }) => ({
