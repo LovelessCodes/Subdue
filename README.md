@@ -111,12 +111,12 @@ UI components are copy-in files in `src/components/ui` (shadcn/ui on Base UI —
 
 Reminders deliver through any combination of channels — configured per user via the API for now (a settings UI is coming):
 
-| Type       | Config                                         |
-| ---------- | ---------------------------------------------- |
-| `email`    | `{ host, port, secure, username, password, from, to }` |
-| `ntfy`     | `{ server, topic, token? }`                    |
-| `telegram` | `{ botToken, chatId }`                          |
-| `discord`  | `{ webhookUrl }`                                |
+| Type       | Config                                                   |
+| ---------- | -------------------------------------------------------- |
+| `email`    | `{ host, port, secure, username, password, from, to }`   |
+| `ntfy`     | `{ server, topic, token? }`                              |
+| `telegram` | `{ botToken, chatId }`                                   |
+| `discord`  | `{ webhookUrl }`                                         |
 | `webhook`  | `{ url, secret? }` — JSON POST `{ title, body, source }` |
 
 ```bash
