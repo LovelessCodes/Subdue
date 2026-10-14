@@ -4,7 +4,7 @@
 
 > Subdue: subscription **due** dates — and a good verb for taking control of them.
 
-**Status: early, but alive.** Dashboard (with pay-period budgets), calendar, subscriptions, and the reminder inbox are live in the browser, backed by a tested engine for recurrence, currencies, and monthly totals. Channel delivery (email, chat apps) is next; the roadmap below is the plan of record.
+**Status: early, but alive.** Dashboard (with pay-period budgets), calendar, subscriptions, and the reminder inbox are live in the browser, backed by a tested engine for recurrence, currencies, and monthly totals. Reminders deliver through email, ntfy, Telegram, Discord, and webhooks; the roadmap below is the plan of record.
 
 ## Why
 
@@ -57,7 +57,7 @@ Directions, not promises. Each milestone should end in something usable and test
 ### M3 — Get told
 
 - [x] Reminders: N days before a charge, with per-subscription overrides
-- [ ] Channels: SMTP email first, then ntfy / Telegram / Discord / generic webhooks
+- [x] Channels: SMTP email first, then ntfy / Telegram / Discord / generic webhooks
 - [x] An in-app inbox so nothing gets missed
 
 ### M4 — Fit into the house
@@ -106,6 +106,27 @@ UI components are copy-in files in `src/components/ui` (shadcn/ui on Base UI —
 - **Interactive reference** (Scalar): `/api/auth/reference` on a running instance — covers every endpoint, including the plugin ones.
 - **Machine-readable spec**: [`openapi.json`](./openapi.json); regenerate with `bun run openapi` after endpoint changes.
 - **MCP**: the app serves an MCP endpoint at `/api/mcp`, protected by OAuth (dynamic client registration, CIMD, PKCE). Point an MCP client at `http://localhost:3000/api/mcp` — it discovers the authorization server, and you approve access on the consent page.
+
+## Notifications
+
+Reminders deliver through any combination of channels — configured per user via the API for now (a settings UI is coming):
+
+| Type       | Config                                         |
+| ---------- | ---------------------------------------------- |
+| `email`    | `{ host, port, secure, username, password, from, to }` |
+| `ntfy`     | `{ server, topic, token? }`                    |
+| `telegram` | `{ botToken, chatId }`                          |
+| `discord`  | `{ webhookUrl }`                                |
+| `webhook`  | `{ url, secret? }` — JSON POST `{ title, body, source }` |
+
+```bash
+# with your session cookie in cookies.txt
+curl -X POST http://localhost:3000/api/auth/channels/create \
+  -H 'content-type: application/json' -b cookies.txt \
+  -d '{"type":"ntfy","name":"Phone","config":{"topic":"my-subs"}}'
+```
+
+Every send is queued and retried up to three times; `/api/auth/channels/deliveries` shows what was sent, and `/api/auth/channels/test` fires a test message through one channel. The reminder tick runs in-process every five minutes — no cron to configure.
 
 ## Contributing
 

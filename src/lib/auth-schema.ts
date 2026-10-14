@@ -157,6 +157,50 @@ export const category = sqliteTable(
   (table) => [index('category_userId_idx').on(table.userId)],
 )
 
+export const channel = sqliteTable(
+  'channel',
+  {
+    id: text('id').primaryKey(),
+    type: text('type').notNull(),
+    name: text('name').notNull(),
+    enabled: integer('enabled', { mode: 'boolean' }).notNull(),
+    config: text('config').notNull(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
+  },
+  (table) => [index('channel_userId_idx').on(table.userId)],
+)
+
+export const notificationDelivery = sqliteTable(
+  'notification_delivery',
+  {
+    id: text('id').primaryKey(),
+    status: text('status').notNull(),
+    attempts: integer('attempts').notNull(),
+    lastError: text('last_error'),
+    sentAt: integer('sent_at', { mode: 'timestamp_ms' }),
+    notificationId: text('notification_id')
+      .notNull()
+      .references(() => notification.id, { onDelete: 'cascade' }),
+    channelId: text('channel_id')
+      .notNull()
+      .references(() => channel.id, { onDelete: 'cascade' }),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
+  },
+  (table) => [
+    uniqueIndex('notificationDelivery_notificationId_channelId_uidx').on(
+      table.notificationId,
+      table.channelId,
+    ),
+    index('notificationDelivery_userId_idx').on(table.userId),
+  ],
+)
+
 export const exchangeRate = sqliteTable('exchange_rate', {
   id: text('id').primaryKey(),
   quote: text('quote').notNull().unique(),
@@ -478,6 +522,8 @@ export const userRelations = relations(user, ({ one, many }) => ({
   sessions: many(session),
   accounts: many(account),
   categorys: many(category),
+  channels: many(channel),
+  notificationDeliverys: many(notificationDelivery),
   costSnapshots: many(costSnapshot),
   notifications: many(notification),
   paymentMethods: many(paymentMethod),
@@ -513,6 +559,32 @@ export const categoryRelations = relations(category, ({ one, many }) => ({
   subscriptions: many(subscription),
 }))
 
+export const channelRelations = relations(channel, ({ one, many }) => ({
+  user: one(user, {
+    fields: [channel.userId],
+    references: [user.id],
+  }),
+  notificationDeliverys: many(notificationDelivery),
+}))
+
+export const notificationDeliveryRelations = relations(
+  notificationDelivery,
+  ({ one }) => ({
+    notification: one(notification, {
+      fields: [notificationDelivery.notificationId],
+      references: [notification.id],
+    }),
+    channel: one(channel, {
+      fields: [notificationDelivery.channelId],
+      references: [channel.id],
+    }),
+    user: one(user, {
+      fields: [notificationDelivery.userId],
+      references: [user.id],
+    }),
+  }),
+)
+
 export const costSnapshotRelations = relations(costSnapshot, ({ one }) => ({
   user: one(user, {
     fields: [costSnapshot.userId],
@@ -520,16 +592,20 @@ export const costSnapshotRelations = relations(costSnapshot, ({ one }) => ({
   }),
 }))
 
-export const notificationRelations = relations(notification, ({ one }) => ({
-  subscription: one(subscription, {
-    fields: [notification.subscriptionId],
-    references: [subscription.id],
+export const notificationRelations = relations(
+  notification,
+  ({ one, many }) => ({
+    subscription: one(subscription, {
+      fields: [notification.subscriptionId],
+      references: [subscription.id],
+    }),
+    user: one(user, {
+      fields: [notification.userId],
+      references: [user.id],
+    }),
+    notificationDeliverys: many(notificationDelivery),
   }),
-  user: one(user, {
-    fields: [notification.userId],
-    references: [user.id],
-  }),
-}))
+)
 
 export const paymentMethodRelations = relations(paymentMethod, ({ one }) => ({
   user: one(user, {

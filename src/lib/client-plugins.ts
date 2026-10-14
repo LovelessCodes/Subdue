@@ -1,5 +1,6 @@
 import type { BetterAuthClientPlugin } from 'better-auth/client'
 import type { categoriesPlugin } from '@/server/plugins/categories'
+import type { channelsPlugin } from '@/server/plugins/channels'
 import type { currenciesPlugin } from '@/server/plugins/currencies'
 import type { notificationsPlugin } from '@/server/plugins/notifications'
 import type { paymentMethodsPlugin } from '@/server/plugins/payment-methods'
@@ -9,6 +10,11 @@ import type { subscriptionsPlugin } from '@/server/plugins/subscriptions'
 export const categoriesClient = {
   id: 'categories',
   $InferServerPlugin: {} as ReturnType<typeof categoriesPlugin>,
+} satisfies BetterAuthClientPlugin
+
+export const channelsClient = {
+  id: 'channels',
+  $InferServerPlugin: {} as ReturnType<typeof channelsPlugin>,
 } satisfies BetterAuthClientPlugin
 
 export const currenciesClient = {

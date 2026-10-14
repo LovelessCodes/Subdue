@@ -9,6 +9,7 @@ import { admin } from 'better-auth/plugins/admin'
 import { jwt } from 'better-auth/plugins/jwt'
 import { tanstackStartCookies } from 'better-auth/tanstack-start'
 import { categoriesPlugin } from '../server/plugins/categories'
+import { channelsPlugin } from '../server/plugins/channels'
 import { currenciesPlugin } from '../server/plugins/currencies'
 import { dashboardPlugin } from '../server/plugins/dashboard'
 import { notificationsPlugin } from '../server/plugins/notifications'
@@ -53,6 +54,7 @@ export const auth = betterAuth({
     jwt(),
     openAPI(),
     categoriesPlugin(),
+    channelsPlugin(),
     currenciesPlugin(),
     dashboardPlugin(),
     notificationsPlugin(),

@@ -2,6 +2,9 @@ import { and, count, desc, eq, inArray, isNull } from 'drizzle-orm'
 import { notification } from '../../lib/auth-schema'
 import type { Database } from '../../lib/db'
 import { formatDate, formatMinor } from '../../lib/money'
+import type { Sender } from '../senders'
+import type { ChannelType } from './channels'
+import { dispatchUserDeliveries, enqueueDeliveries } from './deliveries'
 import { getSettings } from './settings'
 import {
   listSubscriptions,
@@ -90,7 +93,7 @@ export async function runDueReminders(
   db: Database,
   userId: string,
   options: { now?: Date } = {},
-): Promise<{ created: number }> {
+): Promise<{ created: number; ids: string[] }> {
   const now = options.now ?? new Date()
   const settings = await getSettings(db, userId)
   const page = await listSubscriptions(
@@ -106,6 +109,7 @@ export async function runDueReminders(
   )
 
   let created = 0
+  const ids: string[] = []
 
   for (const candidate of candidates) {
     const message = messageFor(candidate, settings.locale)
@@ -124,12 +128,14 @@ export async function runDueReminders(
       .onConflictDoNothing()
       .returning({ id: notification.id })
 
-    if (rows.length > 0) {
+    const row = rows[0]
+    if (row) {
       created += 1
+      ids.push(row.id)
     }
   }
 
-  return { created }
+  return { created, ids }
 }
 
 export async function listNotifications(
@@ -181,6 +187,24 @@ export async function markNotificationsRead(
   return rows.length
 }
 
+export type TickOptions = {
+  now?: Date
+  senders?: Partial<Record<ChannelType, Sender>>
+}
+
+export async function tickUser(
+  db: Database,
+  userId: string,
+  options: TickOptions = {},
+) {
+  const now = options.now ?? new Date()
+  const { ids } = await runDueReminders(db, userId, { now })
+  if (ids.length > 0) {
+    await enqueueDeliveries(db, userId, ids)
+  }
+  return dispatchUserDeliveries(db, userId, { now, senders: options.senders })
+}
+
 const tickTimestamps = new Map<string, number>()
 const MIN_TICK_INTERVAL_MS = 15 * 60 * 1000
 
@@ -195,7 +219,7 @@ export async function maybeRunReminders(
   }
 
   try {
-    await runDueReminders(db, userId, { now })
+    await tickUser(db, userId, { now })
     tickTimestamps.set(userId, now.getTime())
   } catch (error) {
     console.error('reminder tick failed', error)
