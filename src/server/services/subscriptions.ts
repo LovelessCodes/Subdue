@@ -20,6 +20,7 @@ export type SubscriptionInput = {
   payer?: string | null
   nextPayment: Date
   notes?: string | null
+  remindDaysBefore?: number | null
 }
 
 export const sortKeys = ['next-payment', 'name', 'price', 'created-at'] as const
@@ -117,6 +118,7 @@ export async function createSubscription(
       payer: input.payer ?? null,
       nextPayment: input.nextPayment,
       notes: input.notes ?? null,
+      remindDaysBefore: input.remindDaysBefore ?? null,
       createdAt: new Date(),
     })
     .returning()
@@ -142,6 +144,9 @@ export async function updateSubscription(
   if (patch.payer !== undefined) values.payer = patch.payer
   if (patch.nextPayment !== undefined) values.nextPayment = patch.nextPayment
   if (patch.notes !== undefined) values.notes = patch.notes
+  if (patch.remindDaysBefore !== undefined) {
+    values.remindDaysBefore = patch.remindDaysBefore
+  }
 
   if (Object.keys(values).length === 0) {
     return getSubscription(db, userId, id, now)

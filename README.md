@@ -4,7 +4,7 @@
 
 > Subdue: subscription **due** dates — and a good verb for taking control of them.
 
-**Status: early, but alive.** Dashboard (with pay-period budgets), calendar, and subscriptions are live in the browser, backed by a tested engine for recurrence, currencies, and monthly totals. Notifications (M3) are next; the roadmap below is the plan of record.
+**Status: early, but alive.** Dashboard (with pay-period budgets), calendar, subscriptions, and the reminder inbox are live in the browser, backed by a tested engine for recurrence, currencies, and monthly totals. Channel delivery (email, chat apps) is next; the roadmap below is the plan of record.
 
 ## Why
 
@@ -56,9 +56,9 @@ Directions, not promises. Each milestone should end in something usable and test
 
 ### M3 — Get told
 
-- [ ] Reminders: N days before a charge, with per-subscription overrides
+- [x] Reminders: N days before a charge, with per-subscription overrides
 - [ ] Channels: SMTP email first, then ntfy / Telegram / Discord / generic webhooks
-- [ ] An in-app inbox so nothing gets missed
+- [x] An in-app inbox so nothing gets missed
 
 ### M4 — Fit into the house
 

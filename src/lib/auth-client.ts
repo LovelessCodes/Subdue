@@ -3,6 +3,7 @@ import { createAuthClient } from 'better-auth/react'
 import {
   categoriesClient,
   currenciesClient,
+  notificationsClient,
   paymentMethodsClient,
   settingsClient,
   subscriptionsClient,
@@ -13,6 +14,7 @@ export const authClient = createAuthClient({
     adminClient(),
     categoriesClient,
     currenciesClient,
+    notificationsClient,
     paymentMethodsClient,
     settingsClient,
     subscriptionsClient,

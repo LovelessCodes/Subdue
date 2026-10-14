@@ -3,6 +3,12 @@ import { getRequestHeaders } from '@tanstack/react-start/server'
 import { getBudgetStatus } from '../server/services/budget'
 import { getCalendarMonth } from '../server/services/calendar'
 import { getDashboardSummary } from '../server/services/dashboard'
+import {
+  listNotifications,
+  markNotificationsRead,
+  maybeRunReminders,
+  unreadCount,
+} from '../server/services/reminders'
 import { getSettings } from '../server/services/settings'
 import { listSubscriptions } from '../server/services/subscriptions'
 import { auth } from './auth'
@@ -19,6 +25,7 @@ async function requireUserId(): Promise<string> {
 export const getDashboard = createServerFn({ method: 'GET' }).handler(
   async () => {
     const userId = await requireUserId()
+    await maybeRunReminders(db, userId)
     return getDashboardSummary(db, userId)
   },
 )
@@ -27,6 +34,24 @@ export const getBudget = createServerFn({ method: 'GET' }).handler(async () => {
   const userId = await requireUserId()
   return getBudgetStatus(db, userId)
 })
+
+export const getInbox = createServerFn({ method: 'GET' }).handler(async () => {
+  const userId = await requireUserId()
+  await maybeRunReminders(db, userId)
+  const [items, unread] = await Promise.all([
+    listNotifications(db, userId, { limit: 50 }),
+    unreadCount(db, userId),
+  ])
+  return { items, unread }
+})
+
+export const markInboxRead = createServerFn({ method: 'POST' })
+  .validator((input: { ids?: string[] }) => input)
+  .handler(async ({ data }) => {
+    const userId = await requireUserId()
+    const marked = await markNotificationsRead(db, userId, data.ids)
+    return { marked, unread: await unreadCount(db, userId) }
+  })
 
 export const listMySubscriptions = createServerFn({ method: 'GET' }).handler(
   async () => {

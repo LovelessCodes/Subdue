@@ -16,6 +16,7 @@ export const settingsPlugin = () =>
           theme: { type: 'string', required: false },
           budgetAmountMinor: { type: 'number', required: false },
           payAnchorDay: { type: 'number', required: false },
+          remindDaysBefore: { type: 'number', required: false },
           userId: {
             type: 'string',
             required: true,
@@ -52,6 +53,7 @@ export const settingsPlugin = () =>
             theme: z.enum(settings.themes).optional(),
             budgetAmountMinor: z.number().int().min(0).nullish(),
             payAnchorDay: z.number().int().min(1).max(31).nullish(),
+            remindDaysBefore: z.number().int().min(0).max(60).nullish(),
           }),
           use: [sessionMiddleware],
         },

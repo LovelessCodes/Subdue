@@ -29,6 +29,7 @@ describe('settings service', () => {
       theme: 'dark',
       budgetAmountMinor: null,
       payAnchorDay: null,
+      remindDaysBefore: defaultSettings.remindDaysBefore,
     })
 
     const patched = await updateSettings(db, 'u1', { locale: 'da' })

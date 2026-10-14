@@ -15,9 +15,12 @@ export type Settings = {
   theme: Theme
   budgetAmountMinor: number | null
   payAnchorDay: number | null
+  remindDaysBefore: number
 }
 
-export type SettingsPatch = Partial<Settings>
+export type SettingsPatch = {
+  [Key in keyof Settings]?: Settings[Key] | null
+}
 
 export const defaultSettings: Settings = {
   currency: 'DKK',
@@ -26,6 +29,7 @@ export const defaultSettings: Settings = {
   theme: 'system',
   budgetAmountMinor: null,
   payAnchorDay: null,
+  remindDaysBefore: 3,
 }
 
 export async function getSettings(
@@ -50,6 +54,7 @@ export async function getSettings(
     theme: (row.theme as Theme | null) ?? defaultSettings.theme,
     budgetAmountMinor: row.budgetAmountMinor ?? null,
     payAnchorDay: row.payAnchorDay ?? null,
+    remindDaysBefore: row.remindDaysBefore ?? defaultSettings.remindDaysBefore,
   }
 }
 
@@ -74,6 +79,9 @@ export async function updateSettings(
     }),
     ...(patch.payAnchorDay !== undefined && {
       payAnchorDay: patch.payAnchorDay,
+    }),
+    ...(patch.remindDaysBefore !== undefined && {
+      remindDaysBefore: patch.remindDaysBefore,
     }),
   }
 

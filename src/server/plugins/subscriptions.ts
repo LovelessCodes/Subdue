@@ -25,6 +25,7 @@ const subscriptionBody = z.object({
   payer: z.string().max(100).nullish(),
   nextPayment: z.coerce.date(),
   notes: z.string().max(2000).nullish(),
+  remindDaysBefore: z.number().int().min(0).max(60).nullish(),
 })
 
 export const subscriptionsPlugin = () =>
@@ -50,6 +51,7 @@ export const subscriptionsPlugin = () =>
           payer: { type: 'string', required: false },
           nextPayment: { type: 'date', required: true },
           notes: { type: 'string', required: false },
+          remindDaysBefore: { type: 'number', required: false },
           userId: {
             type: 'string',
             required: true,

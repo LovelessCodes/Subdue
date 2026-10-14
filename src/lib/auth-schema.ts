@@ -188,6 +188,34 @@ export const costSnapshot = sqliteTable(
   ],
 )
 
+export const notification = sqliteTable(
+  'notification',
+  {
+    id: text('id').primaryKey(),
+    type: text('type').notNull(),
+    title: text('title').notNull(),
+    body: text('body').notNull(),
+    dueDate: integer('due_date', { mode: 'timestamp_ms' }).notNull(),
+    readAt: integer('read_at', { mode: 'timestamp_ms' }),
+    subscriptionId: text('subscription_id')
+      .notNull()
+      .references(() => subscription.id, { onDelete: 'cascade' }),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
+  },
+  (table) => [
+    uniqueIndex('notification_userId_subscriptionId_type_dueDate_uidx').on(
+      table.userId,
+      table.subscriptionId,
+      table.type,
+      table.dueDate,
+    ),
+    index('notification_userId_idx').on(table.userId),
+  ],
+)
+
 export const paymentMethod = sqliteTable(
   'payment_method',
   {
@@ -210,6 +238,7 @@ export const userSetting = sqliteTable('user_setting', {
   theme: text('theme'),
   budgetAmountMinor: integer('budget_amount_minor'),
   payAnchorDay: integer('pay_anchor_day'),
+  remindDaysBefore: integer('remind_days_before'),
   userId: text('user_id')
     .notNull()
     .unique()
@@ -232,6 +261,7 @@ export const subscription = sqliteTable(
     payer: text('payer'),
     nextPayment: integer('next_payment', { mode: 'timestamp_ms' }).notNull(),
     notes: text('notes'),
+    remindDaysBefore: integer('remind_days_before'),
     userId: text('user_id')
       .notNull()
       .references(() => user.id, { onDelete: 'cascade' }),
@@ -449,6 +479,7 @@ export const userRelations = relations(user, ({ one, many }) => ({
   accounts: many(account),
   categorys: many(category),
   costSnapshots: many(costSnapshot),
+  notifications: many(notification),
   paymentMethods: many(paymentMethod),
   userSetting: one(userSetting),
   subscriptions: many(subscription),
@@ -489,6 +520,17 @@ export const costSnapshotRelations = relations(costSnapshot, ({ one }) => ({
   }),
 }))
 
+export const notificationRelations = relations(notification, ({ one }) => ({
+  subscription: one(subscription, {
+    fields: [notification.subscriptionId],
+    references: [subscription.id],
+  }),
+  user: one(user, {
+    fields: [notification.userId],
+    references: [user.id],
+  }),
+}))
+
 export const paymentMethodRelations = relations(paymentMethod, ({ one }) => ({
   user: one(user, {
     fields: [paymentMethod.userId],
@@ -503,16 +545,20 @@ export const userSettingRelations = relations(userSetting, ({ one }) => ({
   }),
 }))
 
-export const subscriptionRelations = relations(subscription, ({ one }) => ({
-  category: one(category, {
-    fields: [subscription.categoryId],
-    references: [category.id],
+export const subscriptionRelations = relations(
+  subscription,
+  ({ one, many }) => ({
+    category: one(category, {
+      fields: [subscription.categoryId],
+      references: [category.id],
+    }),
+    user: one(user, {
+      fields: [subscription.userId],
+      references: [user.id],
+    }),
+    notifications: many(notification),
   }),
-  user: one(user, {
-    fields: [subscription.userId],
-    references: [user.id],
-  }),
-}))
+)
 
 export const oauthClientRelations = relations(oauthClient, ({ one, many }) => ({
   user: one(user, {
