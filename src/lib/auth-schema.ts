@@ -157,6 +157,20 @@ export const category = sqliteTable(
   (table) => [index('category_userId_idx').on(table.userId)],
 )
 
+export const paymentMethod = sqliteTable(
+  'payment_method',
+  {
+    id: text('id').primaryKey(),
+    name: text('name').notNull(),
+    icon: text('icon'),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
+  },
+  (table) => [index('paymentMethod_userId_idx').on(table.userId)],
+)
+
 export const userSetting = sqliteTable('user_setting', {
   id: text('id').primaryKey(),
   currency: text('currency'),
@@ -401,6 +415,7 @@ export const userRelations = relations(user, ({ one, many }) => ({
   sessions: many(session),
   accounts: many(account),
   categorys: many(category),
+  paymentMethods: many(paymentMethod),
   userSetting: one(userSetting),
   subscriptions: many(subscription),
   oauthClients: many(oauthClient),
@@ -431,6 +446,13 @@ export const categoryRelations = relations(category, ({ one, many }) => ({
     references: [user.id],
   }),
   subscriptions: many(subscription),
+}))
+
+export const paymentMethodRelations = relations(paymentMethod, ({ one }) => ({
+  user: one(user, {
+    fields: [paymentMethod.userId],
+    references: [user.id],
+  }),
 }))
 
 export const userSettingRelations = relations(userSetting, ({ one }) => ({

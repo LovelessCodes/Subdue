@@ -106,4 +106,32 @@ describe('subscriptions service', () => {
     expect(fetched).not.toBeNull()
     expect(fetched?.categoryId).toBeNull()
   })
+
+  it('reports rolled next due dates and overdue flags', async () => {
+    const { db } = createTestDb()
+    await insertTestUser(db, 'u1')
+
+    const now = new Date('2026-10-14T12:00:00.000Z')
+
+    const created = await createSubscription(
+      db,
+      'u1',
+      input({ nextPayment: new Date('2026-08-01T00:00:00.000Z') }),
+      now,
+    )
+    expect(created?.overdue).toBe(true)
+    expect(created?.nextDue).toEqual(new Date('2026-11-01T00:00:00.000Z'))
+
+    const list = await listSubscriptions(
+      db,
+      'u1',
+      { limit: 50, offset: 0, sort: 'next-payment', order: 'asc' },
+      now,
+    )
+    expect(list.items[0]?.nextDue).toEqual(new Date('2026-11-01T00:00:00.000Z'))
+
+    const fresh = await getSubscription(db, 'u1', created!.id, now)
+    expect(fresh?.nextDue).toEqual(new Date('2026-11-01T00:00:00.000Z'))
+    expect(fresh?.overdue).toBe(true)
+  })
 })

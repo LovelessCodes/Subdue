@@ -1,11 +1,14 @@
 import { and, asc, count, desc, eq } from 'drizzle-orm'
 import { subscription } from '../../lib/auth-schema'
 import type { Database } from '../../lib/db'
+import { isOverdue, rolledNextPayment, type CycleUnit } from './recurrence'
 
 export type Subscription = typeof subscription.$inferSelect
 
-export const cycleUnits = ['days', 'weeks', 'months', 'years'] as const
-export type CycleUnit = (typeof cycleUnits)[number]
+export type SubscriptionWithRecurrence = Subscription & {
+  nextDue: Date
+  overdue: boolean
+}
 
 export type SubscriptionInput = {
   name: string
@@ -22,6 +25,19 @@ export type SubscriptionInput = {
 export const sortKeys = ['next-payment', 'name', 'price', 'created-at'] as const
 export type SortKey = (typeof sortKeys)[number]
 
+function withRecurrence(
+  row: Subscription,
+  now: Date,
+): SubscriptionWithRecurrence {
+  const cycle = { count: row.cycleCount, unit: row.cycleUnit as CycleUnit }
+
+  return {
+    ...row,
+    nextDue: rolledNextPayment(row.nextPayment, cycle, now),
+    overdue: isOverdue(row.nextPayment, now),
+  }
+}
+
 export async function listSubscriptions(
   db: Database,
   userId: string,
@@ -32,7 +48,8 @@ export async function listSubscriptions(
     sort: SortKey
     order: 'asc' | 'desc'
   },
-): Promise<{ items: Subscription[]; total: number }> {
+  now: Date = new Date(),
+): Promise<{ items: SubscriptionWithRecurrence[]; total: number }> {
   const sortColumns = {
     'next-payment': subscription.nextPayment,
     name: subscription.name,
@@ -58,28 +75,34 @@ export async function listSubscriptions(
     db.select({ value: count() }).from(subscription).where(where),
   ])
 
-  return { items, total: totals[0]?.value ?? 0 }
+  return {
+    items: items.map((item) => withRecurrence(item, now)),
+    total: totals[0]?.value ?? 0,
+  }
 }
 
 export async function getSubscription(
   db: Database,
   userId: string,
   id: string,
-): Promise<Subscription | null> {
+  now: Date = new Date(),
+): Promise<SubscriptionWithRecurrence | null> {
   const rows = await db
     .select()
     .from(subscription)
     .where(and(eq(subscription.id, id), eq(subscription.userId, userId)))
     .limit(1)
 
-  return rows[0] ?? null
+  const row = rows[0]
+  return row ? withRecurrence(row, now) : null
 }
 
 export async function createSubscription(
   db: Database,
   userId: string,
   input: SubscriptionInput,
-): Promise<Subscription | null> {
+  now: Date = new Date(),
+): Promise<SubscriptionWithRecurrence | null> {
   const rows = await db
     .insert(subscription)
     .values({
@@ -98,7 +121,8 @@ export async function createSubscription(
     })
     .returning()
 
-  return rows[0] ?? null
+  const row = rows[0]
+  return row ? withRecurrence(row, now) : null
 }
 
 export async function updateSubscription(
@@ -106,7 +130,8 @@ export async function updateSubscription(
   userId: string,
   id: string,
   patch: Partial<SubscriptionInput>,
-): Promise<Subscription | null> {
+  now: Date = new Date(),
+): Promise<SubscriptionWithRecurrence | null> {
   const values: Partial<SubscriptionInput> = {}
   if (patch.name !== undefined) values.name = patch.name
   if (patch.price !== undefined) values.price = patch.price
@@ -119,7 +144,7 @@ export async function updateSubscription(
   if (patch.notes !== undefined) values.notes = patch.notes
 
   if (Object.keys(values).length === 0) {
-    return getSubscription(db, userId, id)
+    return getSubscription(db, userId, id, now)
   }
 
   const rows = await db
@@ -128,7 +153,8 @@ export async function updateSubscription(
     .where(and(eq(subscription.id, id), eq(subscription.userId, userId)))
     .returning()
 
-  return rows[0] ?? null
+  const row = rows[0]
+  return row ? withRecurrence(row, now) : null
 }
 
 export async function deleteSubscription(

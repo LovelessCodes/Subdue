@@ -6,10 +6,11 @@ import {
 } from 'better-auth/api'
 import * as z from 'zod'
 import { db } from '../../lib/db'
+import { cycleUnits } from '../services/recurrence'
 import * as settings from '../services/settings'
 import * as subscriptions from '../services/subscriptions'
 
-const cycleUnitSchema = z.enum(subscriptions.cycleUnits)
+const cycleUnitSchema = z.enum(cycleUnits)
 
 const subscriptionBody = z.object({
   name: z.string().min(1).max(200),

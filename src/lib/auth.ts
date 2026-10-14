@@ -9,6 +9,7 @@ import { admin } from 'better-auth/plugins/admin'
 import { jwt } from 'better-auth/plugins/jwt'
 import { tanstackStartCookies } from 'better-auth/tanstack-start'
 import { categoriesPlugin } from '../server/plugins/categories'
+import { paymentMethodsPlugin } from '../server/plugins/payment-methods'
 import { settingsPlugin } from '../server/plugins/settings'
 import { subscriptionsPlugin } from '../server/plugins/subscriptions'
 import * as schema from './auth-schema'
@@ -49,6 +50,7 @@ export const auth = betterAuth({
     jwt(),
     openAPI(),
     categoriesPlugin(),
+    paymentMethodsPlugin(),
     settingsPlugin(),
     subscriptionsPlugin(),
     mcp({
