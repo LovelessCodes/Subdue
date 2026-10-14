@@ -177,3 +177,28 @@ describe('budget: status', () => {
     expect(status.dueMinor).toBe(9900)
   })
 })
+
+describe('budget: end dates', () => {
+  it('ignores charges that would land after the subscription ends', async () => {
+    const { db } = createTestDb()
+    await insertTestUser(db, 'u1')
+
+    await createSubscription(
+      db,
+      'u1',
+      {
+        name: 'Ends Before Charge',
+        price: 9900,
+        currency: 'DKK',
+        cycleUnit: 'months',
+        cycleCount: 1,
+        nextPayment: new Date('2026-10-20T00:00:00.000Z'),
+        cancelledAt: new Date('2026-10-19T00:00:00.000Z'),
+      },
+      now,
+    )
+
+    const status = await getBudgetStatus(db, 'u1', options)
+    expect(status.dueMinor).toBe(0)
+  })
+})

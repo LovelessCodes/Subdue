@@ -450,7 +450,7 @@ export function SubscriptionForm({
 
           <Field>
             <FieldLabel htmlFor="subscription-cancelled">
-              Access ends (optional)
+              Ends on (optional)
             </FieldLabel>
             <Input
               id="subscription-cancelled"
@@ -459,8 +459,8 @@ export function SubscriptionForm({
               onChange={(event) => set('cancelledAt', event.target.value)}
             />
             <FieldDescription>
-              Set when a cancelled subscription runs out — reminders stop after
-              this date.
+              After this date the subscription stops counting toward totals, the
+              calendar, the budget and reminders.
             </FieldDescription>
           </Field>
 

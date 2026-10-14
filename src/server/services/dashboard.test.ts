@@ -217,3 +217,62 @@ describe('dashboard: summary', () => {
     expect(rows[0]?.totalMinor).toBe(23456)
   })
 })
+
+describe('dashboard: subscriptions that end', () => {
+  it('drops ended subscriptions from totals, upcoming and overdue', async () => {
+    const { db } = createTestDb()
+    await insertTestUser(db, 'u1')
+
+    await createSubscription(
+      db,
+      'u1',
+      {
+        name: 'Active',
+        price: 19900,
+        currency: 'DKK',
+        cycleUnit: 'months',
+        cycleCount: 1,
+        nextPayment: new Date('2026-11-01T00:00:00.000Z'),
+      },
+      now,
+    )
+    await createSubscription(
+      db,
+      'u1',
+      {
+        name: 'Ended',
+        price: 19900,
+        currency: 'DKK',
+        cycleUnit: 'months',
+        cycleCount: 1,
+        nextPayment: new Date('2026-10-13T00:00:00.000Z'),
+        cancelledAt: new Date('2026-10-13T00:00:00.000Z'),
+      },
+      now,
+    )
+    await createSubscription(
+      db,
+      'u1',
+      {
+        name: 'Ends Before Charge',
+        price: 19900,
+        currency: 'DKK',
+        cycleUnit: 'months',
+        cycleCount: 1,
+        nextPayment: new Date('2026-11-01T00:00:00.000Z'),
+        cancelledAt: new Date('2026-10-20T00:00:00.000Z'),
+      },
+      now,
+    )
+
+    const summary = await getDashboardSummary(db, 'u1', {
+      now,
+      fetchFn: fakeFetch(payload).fetchFn,
+    })
+
+    expect(summary.monthlyTotalMinor).toBe(19900 * 2)
+    expect(summary.upcoming.map((item) => item.name)).toEqual(['Active'])
+    expect(summary.overdueCount).toBe(0)
+    expect(summary.subscriptionCount).toBe(3)
+  })
+})

@@ -87,6 +87,12 @@ export function buildIcalEvents(
     ).slice(0, MAX_OCCURRENCES_PER_SUBSCRIPTION)
 
     for (const occurrence of occurrences) {
+      if (
+        subscription.cancelledAt &&
+        occurrence.getTime() > subscription.cancelledAt.getTime()
+      ) {
+        continue
+      }
       events.push({
         uid: `${subscription.id}-${toIsoDay(occurrence).replace(/-/g, '')}@subdue`,
         date: occurrence,

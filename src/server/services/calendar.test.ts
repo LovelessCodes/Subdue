@@ -216,3 +216,44 @@ describe('calendar service', () => {
     expect(summary.unconvertibleCurrencies).toEqual(['USD'])
   })
 })
+
+describe('calendar: end dates', () => {
+  it('stops projecting occurrences after the subscription ends', async () => {
+    const { db } = createTestDb()
+    await insertTestUser(db, 'u1')
+
+    await createSubscription(
+      db,
+      'u1',
+      {
+        name: 'Ends Mid-October',
+        price: 9900,
+        currency: 'DKK',
+        cycleUnit: 'months',
+        cycleCount: 1,
+        nextPayment: new Date('2026-10-01T00:00:00.000Z'),
+        cancelledAt: new Date('2026-10-15T00:00:00.000Z'),
+      },
+      now,
+    )
+
+    const october = await getCalendarMonth(
+      db,
+      'u1',
+      { year: 2026, month: 10 },
+      options,
+    )
+    expect(october.entries.map((entry) => entry.date)).toEqual([
+      new Date('2026-10-01T00:00:00.000Z'),
+    ])
+    expect(october.totalMinor).toBe(9900)
+
+    const november = await getCalendarMonth(
+      db,
+      'u1',
+      { year: 2026, month: 11 },
+      options,
+    )
+    expect(november.entries).toEqual([])
+  })
+})

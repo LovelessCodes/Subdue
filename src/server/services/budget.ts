@@ -114,6 +114,10 @@ export async function getBudgetStatus(
       cycle,
       period.start,
       period.end,
+    ).filter(
+      (date) =>
+        !subscription.cancelledAt ||
+        date.getTime() <= subscription.cancelledAt.getTime(),
     ).length
 
     if (occurrences === 0) {

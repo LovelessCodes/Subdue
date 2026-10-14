@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  hasEnded,
   isOverdue,
   nextOccurrence,
   occurrenceAt,
@@ -173,5 +174,14 @@ describe('recurrence: overdue and roll-forward', () => {
     expect(
       rolledNextPayment(utc(2026, 12, 1), monthly, utc(2026, 10, 14)),
     ).toEqual(utc(2026, 12, 1))
+  })
+})
+
+describe('recurrence: end dates', () => {
+  it('a subscription ending today is still live', () => {
+    expect(hasEnded(utc(2026, 10, 14), utc(2026, 10, 14, 18))).toBe(false)
+    expect(hasEnded(utc(2026, 10, 13), utc(2026, 10, 14, 1))).toBe(true)
+    expect(hasEnded(null, utc(2026, 10, 14))).toBe(false)
+    expect(hasEnded(undefined, utc(2026, 10, 14))).toBe(false)
   })
 })

@@ -44,7 +44,7 @@ Directions, not promises. Each milestone should end in something usable and test
 
 ### M1 — Track
 
-- [x] Subscriptions: price, cycle (custom N× days/weeks/months/years), categories, payment methods, notes
+- [x] Subscriptions: price, cycle (custom N× days/weeks/months/years), categories, payment methods, notes, end dates
 - [x] Recurrence engine: next payment, prior payments, overdue — specified and tested before it ships
 - [x] Currencies with daily exchange rates (ECB, no API key needed)
 

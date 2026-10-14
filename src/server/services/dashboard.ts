@@ -3,7 +3,7 @@ import { costSnapshot } from '../../lib/auth-schema'
 import type { Database } from '../../lib/db'
 import { convertMinorUnits } from '../../lib/money'
 import { crossRate, ensureRates, ratesMap, type Fetcher } from './currencies'
-import type { CycleUnit } from './recurrence'
+import { hasEnded, type CycleUnit } from './recurrence'
 import { getSettings } from './settings'
 import {
   listSubscriptions,
@@ -115,6 +115,9 @@ export async function getDashboardSummary(
   const unconvertible = new Set<string>()
 
   for (const subscription of page.items) {
+    if (hasEnded(subscription.cancelledAt, now)) {
+      continue
+    }
     const monthly = monthlyEquivalentMinor(
       subscription.price,
       subscription.cycleUnit as CycleUnit,
@@ -137,9 +140,13 @@ export async function getDashboardSummary(
 
   const horizon = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)
   const upcoming = page.items
+    .filter((item) => !hasEnded(item.cancelledAt, now))
+    .filter((item) => !item.cancelledAt || item.nextDue <= item.cancelledAt)
     .filter((item) => item.nextDue <= horizon)
     .slice(0, 10)
-  const overdueCount = page.items.filter((item) => item.overdue).length
+  const overdueCount = page.items.filter(
+    (item) => item.overdue && !hasEnded(item.cancelledAt, now),
+  ).length
 
   await upsertCostSnapshot(
     db,

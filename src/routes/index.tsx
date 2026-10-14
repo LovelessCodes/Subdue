@@ -222,7 +222,10 @@ function Dashboard() {
                     </div>
                     <div className="flex items-center gap-2">
                       {subscription.cancelledAt ? (
-                        <Badge variant="outline">cancelled</Badge>
+                        <Badge variant="outline">
+                          ends{' '}
+                          {formatDate(subscription.cancelledAt, summary.locale)}
+                        </Badge>
                       ) : null}
                       {subscription.overdue ? (
                         <Badge variant="destructive">overdue</Badge>

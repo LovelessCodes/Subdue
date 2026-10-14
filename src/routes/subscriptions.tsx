@@ -94,79 +94,89 @@ function Subscriptions() {
               </p>
             ) : (
               <ul className="flex flex-col divide-y">
-                {items.map((subscription) => (
-                  <li
-                    key={subscription.id}
-                    className="flex items-center justify-between gap-3 py-3"
-                  >
-                    <div className="flex min-w-0 items-center gap-3">
-                      <SubscriptionAvatar
-                        name={subscription.name}
-                        logo={subscription.logo}
-                      />
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2">
-                          <p className="truncate text-sm font-medium">
-                            {subscription.name}
+                {items.map((subscription) => {
+                  const ended = subscription.cancelledAt
+                    ? new Date(subscription.cancelledAt).getTime() +
+                        86_400_000 <=
+                      Date.now()
+                    : false
+
+                  return (
+                    <li
+                      key={subscription.id}
+                      className={`flex items-center justify-between gap-3 py-3 ${
+                        ended ? 'opacity-60' : ''
+                      }`}
+                    >
+                      <div className="flex min-w-0 items-center gap-3">
+                        <SubscriptionAvatar
+                          name={subscription.name}
+                          logo={subscription.logo}
+                        />
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2">
+                            <p className="truncate text-sm font-medium">
+                              {subscription.name}
+                            </p>
+                            {subscription.url ? (
+                              <a
+                                href={subscription.url}
+                                target="_blank"
+                                rel="noreferrer"
+                                aria-label={`Open ${subscription.name}`}
+                                className="text-muted-foreground hover:text-foreground"
+                              >
+                                <ExternalLink className="size-3.5" />
+                              </a>
+                            ) : null}
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            {cycleLabel(
+                              subscription.cycleCount,
+                              subscription.cycleUnit,
+                            )}{' '}
+                            · next{' '}
+                            {formatDate(subscription.nextDue, settings.locale)}
+                            {subscription.paymentMethodName
+                              ? ` · ${subscription.paymentMethodName}`
+                              : ''}
                           </p>
-                          {subscription.url ? (
-                            <a
-                              href={subscription.url}
-                              target="_blank"
-                              rel="noreferrer"
-                              aria-label={`Open ${subscription.name}`}
-                              className="text-muted-foreground hover:text-foreground"
-                            >
-                              <ExternalLink className="size-3.5" />
-                            </a>
-                          ) : null}
                         </div>
-                        <p className="text-xs text-muted-foreground">
-                          {cycleLabel(
-                            subscription.cycleCount,
-                            subscription.cycleUnit,
-                          )}{' '}
-                          · next{' '}
-                          {formatDate(subscription.nextDue, settings.locale)}
-                          {subscription.paymentMethodName
-                            ? ` · ${subscription.paymentMethodName}`
-                            : ''}
-                        </p>
                       </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm">
-                        {formatMinor(
-                          subscription.price,
-                          subscription.currency,
-                          settings.locale,
-                        )}
-                      </span>
-                      {subscription.cancelledAt ? (
-                        <Badge variant="outline">
-                          cancelled{' '}
-                          {formatDate(
-                            subscription.cancelledAt,
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm">
+                          {formatMinor(
+                            subscription.price,
+                            subscription.currency,
                             settings.locale,
                           )}
-                        </Badge>
-                      ) : subscription.autoRenew === false ? (
-                        <Badge variant="outline">no auto-renew</Badge>
-                      ) : null}
-                      {subscription.overdue ? (
-                        <Badge variant="destructive">overdue</Badge>
-                      ) : null}
-                      <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        aria-label={`Edit ${subscription.name}`}
-                        onClick={() => openEdit(subscription)}
-                      >
-                        <Pencil />
-                      </Button>
-                    </div>
-                  </li>
-                ))}
+                        </span>
+                        {subscription.cancelledAt ? (
+                          <Badge variant="outline">
+                            ends{' '}
+                            {formatDate(
+                              subscription.cancelledAt,
+                              settings.locale,
+                            )}
+                          </Badge>
+                        ) : subscription.autoRenew === false ? (
+                          <Badge variant="outline">no auto-renew</Badge>
+                        ) : null}
+                        {subscription.overdue ? (
+                          <Badge variant="destructive">overdue</Badge>
+                        ) : null}
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          aria-label={`Edit ${subscription.name}`}
+                          onClick={() => openEdit(subscription)}
+                        >
+                          <Pencil />
+                        </Button>
+                      </div>
+                    </li>
+                  )
+                })}
               </ul>
             )}
           </CardContent>

@@ -67,6 +67,12 @@ export async function getCalendarMonth(
       monthStart,
       monthEnd,
     )) {
+      if (
+        subscription.cancelledAt &&
+        date.getTime() > subscription.cancelledAt.getTime()
+      ) {
+        continue
+      }
       entries.push({
         subscriptionId: subscription.id,
         name: subscription.name,
