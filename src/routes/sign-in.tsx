@@ -1,6 +1,6 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import type { FormEvent } from 'react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { getAuthProviders } from '@/lib/app.functions'
 import { authClient } from '@/lib/auth-client'
@@ -22,10 +22,15 @@ export const Route = createFileRoute('/sign-in')({
 
 function SignIn() {
   const { providers } = Route.useLoaderData()
+  const [lastMethod, setLastMethod] = useState<string | null>(null)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [pending, setPending] = useState(false)
+
+  useEffect(() => {
+    setLastMethod(authClient.getLastUsedLoginMethod())
+  }, [])
 
   async function signInWith(provider: string) {
     setError(null)
@@ -102,6 +107,9 @@ function SignIn() {
                   onClick={() => signInWith(provider)}
                 >
                   Continue with {socialProviderLabel(provider)}
+                  {lastMethod === provider ? (
+                    <span className="text-xs opacity-70">· last used</span>
+                  ) : null}
                 </Button>
               ))}
               <p className="text-center text-xs text-muted-foreground">or</p>
@@ -133,6 +141,9 @@ function SignIn() {
             {error ? <p className="text-sm text-destructive">{error}</p> : null}
             <Button type="submit" disabled={pending}>
               {pending ? 'Signing in…' : 'Sign in'}
+              {lastMethod === 'email' ? (
+                <span className="text-xs opacity-70">· last used</span>
+              ) : null}
             </Button>
           </form>
           <p className="mt-4 text-center text-sm text-muted-foreground">

@@ -214,7 +214,7 @@ docker run … \
   -e DISCORD_PERMISSIONS=8,2048
 ```
 
-Providers configured by environment show as "from environment" on the admin page and stay read-only there until the variables are removed. The sign-in and sign-up pages grow the matching buttons automatically.
+Providers configured by environment show as "from environment" on the admin page and stay read-only there until the variables are removed. The sign-in and sign-up pages grow the matching buttons automatically. The sign-in page also remembers the method you used last — per browser, for 30 days — and marks it with a quiet "last used".
 
 ## Contributing
 

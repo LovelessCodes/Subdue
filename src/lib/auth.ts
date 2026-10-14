@@ -4,7 +4,7 @@ import { fetchClientMetadataResource } from '@better-auth/cimd/node'
 import { drizzleAdapter } from '@better-auth/drizzle-adapter'
 import { mcp } from '@better-auth/mcp'
 import { betterAuth } from 'better-auth'
-import { openAPI } from 'better-auth/plugins'
+import { lastLoginMethod, openAPI } from 'better-auth/plugins'
 import { admin } from 'better-auth/plugins/admin'
 import { jwt } from 'better-auth/plugins/jwt'
 import { twoFactor } from 'better-auth/plugins/two-factor'
@@ -137,6 +137,7 @@ export const auth = betterAuth({
       // single-file setup the database itself is the sensitive artifact.
       jwks: { disablePrivateKeyEncryption: true },
     }),
+    lastLoginMethod(),
     openAPI(),
     twoFactor({
       issuer: 'Subdue',
