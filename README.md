@@ -4,7 +4,7 @@
 
 > Subdue: subscription **due** dates — and a good verb for taking control of them.
 
-**Status: early, but alive.** Dashboard (with pay-period budgets), calendar, subscriptions, and the reminder inbox are live in the browser, backed by a tested engine for recurrence, currencies, and monthly totals. Reminders deliver through email, ntfy, Telegram, Discord, and webhooks; the roadmap below is the plan of record.
+**Status: early, but alive.** Dashboard (with pay-period budgets), calendar, subscriptions, and the reminder inbox are live in the browser, backed by a tested engine for recurrence, currencies, and monthly totals. Reminders deliver through email, ntfy, Telegram, Discord, and webhooks, and your data moves in and out freely — JSON, CSV, a one-file backup, and a Wallos importer that reads the real thing.
 
 ## Why
 
@@ -62,8 +62,8 @@ Directions, not promises. Each milestone should end in something usable and test
 
 ### M4 — Fit into the house
 
-- [ ] Import from Wallos backups and CSV
-- [ ] Export: JSON/CSV and a one-file backup
+- [x] Import from Wallos backups and CSV
+- [x] Export: JSON/CSV and a one-file backup
 - [ ] iCal feed
 - [ ] REST API (API keys) — for scripts, dashboards, and MCP servers
 - [x] MCP server — OAuth-protected tools for MCP clients (read-only for now)
@@ -127,6 +127,27 @@ curl -X POST http://localhost:3000/api/auth/channels/create \
 ```
 
 Every send is queued and retried up to three times; `/api/auth/channels/deliveries` shows what was sent, and `/api/auth/channels/test` fires a test message through one channel. The reminder tick runs in-process every five minutes — no cron to configure.
+
+## Moving your data
+
+Three exports, all session-gated file downloads:
+
+```bash
+curl -b cookies.txt -O -J http://localhost:3000/api/export/json     # versioned JSON bundle
+curl -b cookies.txt -O -J http://localhost:3000/api/export/csv      # round-trippable CSV
+curl -b cookies.txt -O -J http://localhost:3000/api/export/backup   # full SQLite copy (VACUUM INTO)
+```
+
+Two imports, both with a dry run that reports exactly what would happen without writing anything:
+
+```bash
+curl -b cookies.txt -X POST 'http://localhost:3000/api/import/wallos?dryRun=1' \
+  --data-binary @Wallos-Backup-20260101-120000.zip
+curl -b cookies.txt -X POST 'http://localhost:3000/api/import/csv?dryRun=1' \
+  --data-binary @subdue-subscriptions-2026-01-01.csv
+```
+
+The Wallos importer reads the raw `wallos.db` inside a backup zip (a bare `.db` works too) and follows Wallos semantics: cycle days plus frequency become Subdue cycles, decimal prices become minor units, and per-subscription reminder overrides carry over. Duplicate names are skipped; inactive subscriptions and one-time payments are reported rather than imported.
 
 ## Contributing
 

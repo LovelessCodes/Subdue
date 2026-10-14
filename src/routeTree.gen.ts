@@ -18,6 +18,11 @@ import { Route as SubscriptionsRouteImport } from './routes/subscriptions'
 import { Route as DotwellKnownSplatRouteImport } from './routes/[.]well-known/$'
 import { Route as ApiMcpRouteImport } from './routes/api/mcp'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as ApiExportBackupRouteImport } from './routes/api/export/backup'
+import { Route as ApiExportCsvRouteImport } from './routes/api/export/csv'
+import { Route as ApiExportJsonRouteImport } from './routes/api/export/json'
+import { Route as ApiImportCsvRouteImport } from './routes/api/import/csv'
+import { Route as ApiImportWallosRouteImport } from './routes/api/import/wallos'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -64,6 +69,31 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiExportBackupRoute = ApiExportBackupRouteImport.update({
+  id: '/api/export/backup',
+  path: '/api/export/backup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiExportCsvRoute = ApiExportCsvRouteImport.update({
+  id: '/api/export/csv',
+  path: '/api/export/csv',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiExportJsonRoute = ApiExportJsonRouteImport.update({
+  id: '/api/export/json',
+  path: '/api/export/json',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiImportCsvRoute = ApiImportCsvRouteImport.update({
+  id: '/api/import/csv',
+  path: '/api/import/csv',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiImportWallosRoute = ApiImportWallosRouteImport.update({
+  id: '/api/import/wallos',
+  path: '/api/import/wallos',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -75,6 +105,11 @@ export interface FileRoutesByFullPath {
   '/.well-known/$': typeof DotwellKnownSplatRoute
   '/api/mcp': typeof ApiMcpRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/export/backup': typeof ApiExportBackupRoute
+  '/api/export/csv': typeof ApiExportCsvRoute
+  '/api/export/json': typeof ApiExportJsonRoute
+  '/api/import/csv': typeof ApiImportCsvRoute
+  '/api/import/wallos': typeof ApiImportWallosRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -86,6 +121,11 @@ export interface FileRoutesByTo {
   '/.well-known/$': typeof DotwellKnownSplatRoute
   '/api/mcp': typeof ApiMcpRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/export/backup': typeof ApiExportBackupRoute
+  '/api/export/csv': typeof ApiExportCsvRoute
+  '/api/export/json': typeof ApiExportJsonRoute
+  '/api/import/csv': typeof ApiImportCsvRoute
+  '/api/import/wallos': typeof ApiImportWallosRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -98,6 +138,11 @@ export interface FileRoutesById {
   '/.well-known/$': typeof DotwellKnownSplatRoute
   '/api/mcp': typeof ApiMcpRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/export/backup': typeof ApiExportBackupRoute
+  '/api/export/csv': typeof ApiExportCsvRoute
+  '/api/export/json': typeof ApiExportJsonRoute
+  '/api/import/csv': typeof ApiImportCsvRoute
+  '/api/import/wallos': typeof ApiImportWallosRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -111,6 +156,11 @@ export interface FileRouteTypes {
     | '/.well-known/$'
     | '/api/mcp'
     | '/api/auth/$'
+    | '/api/export/backup'
+    | '/api/export/csv'
+    | '/api/export/json'
+    | '/api/import/csv'
+    | '/api/import/wallos'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -122,6 +172,11 @@ export interface FileRouteTypes {
     | '/.well-known/$'
     | '/api/mcp'
     | '/api/auth/$'
+    | '/api/export/backup'
+    | '/api/export/csv'
+    | '/api/export/json'
+    | '/api/import/csv'
+    | '/api/import/wallos'
   id:
     | '__root__'
     | '/'
@@ -133,6 +188,11 @@ export interface FileRouteTypes {
     | '/.well-known/$'
     | '/api/mcp'
     | '/api/auth/$'
+    | '/api/export/backup'
+    | '/api/export/csv'
+    | '/api/export/json'
+    | '/api/import/csv'
+    | '/api/import/wallos'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -145,6 +205,11 @@ export interface RootRouteChildren {
   DotwellKnownSplatRoute: typeof DotwellKnownSplatRoute
   ApiMcpRoute: typeof ApiMcpRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  ApiExportBackupRoute: typeof ApiExportBackupRoute
+  ApiExportCsvRoute: typeof ApiExportCsvRoute
+  ApiExportJsonRoute: typeof ApiExportJsonRoute
+  ApiImportCsvRoute: typeof ApiImportCsvRoute
+  ApiImportWallosRoute: typeof ApiImportWallosRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -212,6 +277,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/export/backup': {
+      id: '/api/export/backup'
+      path: '/api/export/backup'
+      fullPath: '/api/export/backup'
+      preLoaderRoute: typeof ApiExportBackupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/export/csv': {
+      id: '/api/export/csv'
+      path: '/api/export/csv'
+      fullPath: '/api/export/csv'
+      preLoaderRoute: typeof ApiExportCsvRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/export/json': {
+      id: '/api/export/json'
+      path: '/api/export/json'
+      fullPath: '/api/export/json'
+      preLoaderRoute: typeof ApiExportJsonRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/import/csv': {
+      id: '/api/import/csv'
+      path: '/api/import/csv'
+      fullPath: '/api/import/csv'
+      preLoaderRoute: typeof ApiImportCsvRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/import/wallos': {
+      id: '/api/import/wallos'
+      path: '/api/import/wallos'
+      fullPath: '/api/import/wallos'
+      preLoaderRoute: typeof ApiImportWallosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -225,6 +325,11 @@ const rootRouteChildren: RootRouteChildren = {
   DotwellKnownSplatRoute: DotwellKnownSplatRoute,
   ApiMcpRoute: ApiMcpRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
+  ApiExportBackupRoute: ApiExportBackupRoute,
+  ApiExportCsvRoute: ApiExportCsvRoute,
+  ApiExportJsonRoute: ApiExportJsonRoute,
+  ApiImportCsvRoute: ApiImportCsvRoute,
+  ApiImportWallosRoute: ApiImportWallosRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -32,3 +32,11 @@ export function formatMinor(
 export function formatDate(date: Date, locale = 'en'): string {
   return new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(date)
 }
+
+export function toIsoDay(date: Date): string {
+  return date.toISOString().slice(0, 10)
+}
+
+export function fromIsoDay(day: string): Date {
+  return new Date(`${day}T00:00:00.000Z`)
+}
