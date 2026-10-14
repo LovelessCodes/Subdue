@@ -4,7 +4,7 @@
 
 > Subdue: subscription **due** dates — and a good verb for taking control of them.
 
-**Status: early, but alive.** Dashboard (with pay-period budgets), calendar, subscriptions, and the reminder inbox are live in the browser, backed by a tested engine for recurrence, currencies, and monthly totals. Reminders deliver through email, ntfy, Telegram, Discord, and webhooks, and your data moves in and out freely — JSON, CSV, a one-file backup, and a Wallos importer that reads the real thing.
+**Status: early, but alive.** Dashboard (with pay-period budgets), calendar, subscriptions, and the reminder inbox are live in the browser, backed by a tested engine for recurrence, currencies, and monthly totals. Everything from subscriptions to integrations is managed in the browser, reminders deliver through email, ntfy, Telegram, Discord, and webhooks, and your data moves in and out freely — JSON, CSV, a one-file backup, and a Wallos importer that reads the real thing.
 
 ## Why
 
@@ -137,7 +137,7 @@ Nothing needs configuring for a LAN deploy: the auth secret is generated into th
 
 ## Notifications
 
-Reminders deliver through any combination of channels — configured per user via the API for now (a settings UI is coming):
+Reminders deliver through any combination of channels — configured per user via the API for now (the settings page covers everything else):
 
 | Type       | Config                                                   |
 | ---------- | -------------------------------------------------------- |

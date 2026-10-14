@@ -13,6 +13,8 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as CalendarRouteImport } from './routes/calendar'
 import { Route as ConsentRouteImport } from './routes/consent'
 import { Route as InboxRouteImport } from './routes/inbox'
+import { Route as IntegrationsRouteImport } from './routes/integrations'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as SubscriptionsRouteImport } from './routes/subscriptions'
 import { Route as DotwellKnownSplatRouteImport } from './routes/[.]well-known/$'
@@ -46,6 +48,16 @@ const ConsentRoute = ConsentRouteImport.update({
 const InboxRoute = InboxRouteImport.update({
   id: '/inbox',
   path: '/inbox',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IntegrationsRoute = IntegrationsRouteImport.update({
+  id: '/integrations',
+  path: '/integrations',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SignInRoute = SignInRouteImport.update({
@@ -124,6 +136,8 @@ export interface FileRoutesByFullPath {
   '/calendar': typeof CalendarRoute
   '/consent': typeof ConsentRoute
   '/inbox': typeof InboxRoute
+  '/integrations': typeof IntegrationsRoute
+  '/settings': typeof SettingsRoute
   '/sign-in': typeof SignInRoute
   '/subscriptions': typeof SubscriptionsRoute
   '/.well-known/$': typeof DotwellKnownSplatRoute
@@ -144,6 +158,8 @@ export interface FileRoutesByTo {
   '/calendar': typeof CalendarRoute
   '/consent': typeof ConsentRoute
   '/inbox': typeof InboxRoute
+  '/integrations': typeof IntegrationsRoute
+  '/settings': typeof SettingsRoute
   '/sign-in': typeof SignInRoute
   '/subscriptions': typeof SubscriptionsRoute
   '/.well-known/$': typeof DotwellKnownSplatRoute
@@ -165,6 +181,8 @@ export interface FileRoutesById {
   '/calendar': typeof CalendarRoute
   '/consent': typeof ConsentRoute
   '/inbox': typeof InboxRoute
+  '/integrations': typeof IntegrationsRoute
+  '/settings': typeof SettingsRoute
   '/sign-in': typeof SignInRoute
   '/subscriptions': typeof SubscriptionsRoute
   '/.well-known/$': typeof DotwellKnownSplatRoute
@@ -187,6 +205,8 @@ export interface FileRouteTypes {
     | '/calendar'
     | '/consent'
     | '/inbox'
+    | '/integrations'
+    | '/settings'
     | '/sign-in'
     | '/subscriptions'
     | '/.well-known/$'
@@ -207,6 +227,8 @@ export interface FileRouteTypes {
     | '/calendar'
     | '/consent'
     | '/inbox'
+    | '/integrations'
+    | '/settings'
     | '/sign-in'
     | '/subscriptions'
     | '/.well-known/$'
@@ -227,6 +249,8 @@ export interface FileRouteTypes {
     | '/calendar'
     | '/consent'
     | '/inbox'
+    | '/integrations'
+    | '/settings'
     | '/sign-in'
     | '/subscriptions'
     | '/.well-known/$'
@@ -248,6 +272,8 @@ export interface RootRouteChildren {
   CalendarRoute: typeof CalendarRoute
   ConsentRoute: typeof ConsentRoute
   InboxRoute: typeof InboxRoute
+  IntegrationsRoute: typeof IntegrationsRoute
+  SettingsRoute: typeof SettingsRoute
   SignInRoute: typeof SignInRoute
   SubscriptionsRoute: typeof SubscriptionsRoute
   DotwellKnownSplatRoute: typeof DotwellKnownSplatRoute
@@ -291,6 +317,20 @@ declare module '@tanstack/react-router' {
       path: '/inbox'
       fullPath: '/inbox'
       preLoaderRoute: typeof InboxRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/integrations': {
+      id: '/integrations'
+      path: '/integrations'
+      fullPath: '/integrations'
+      preLoaderRoute: typeof IntegrationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sign-in': {
@@ -411,6 +451,8 @@ const rootRouteChildren: RootRouteChildren = {
   CalendarRoute: CalendarRoute,
   ConsentRoute: ConsentRoute,
   InboxRoute: InboxRoute,
+  IntegrationsRoute: IntegrationsRoute,
+  SettingsRoute: SettingsRoute,
   SignInRoute: SignInRoute,
   SubscriptionsRoute: SubscriptionsRoute,
   DotwellKnownSplatRoute: DotwellKnownSplatRoute,

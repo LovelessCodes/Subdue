@@ -1,8 +1,11 @@
+import { useState } from 'react'
 import { createFileRoute, redirect } from '@tanstack/react-router'
-import { ExternalLink } from 'lucide-react'
+import { ExternalLink, Pencil } from 'lucide-react'
 import { AppHeader } from '@/components/app-header'
 import { SubscriptionAvatar } from '@/components/subscription-avatar'
+import { SubscriptionForm } from '@/components/subscription-form'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,
@@ -10,9 +13,15 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { getMySettings, listMySubscriptions } from '@/lib/app.functions'
+import {
+  getMySettings,
+  listMyCategories,
+  listMyPaymentMethods,
+  listMySubscriptions,
+} from '@/lib/app.functions'
 import { getSession } from '@/lib/auth.functions'
 import { formatDate, formatMinor } from '@/lib/money'
+import type { SubscriptionWithRecurrence } from '@/server/services/subscriptions'
 
 export const Route = createFileRoute('/subscriptions')({
   beforeLoad: async () => {
@@ -23,11 +32,13 @@ export const Route = createFileRoute('/subscriptions')({
     return { user: session.user }
   },
   loader: async () => {
-    const [items, settings] = await Promise.all([
+    const [items, settings, categories, paymentMethods] = await Promise.all([
       listMySubscriptions(),
       getMySettings(),
+      listMyCategories(),
+      listMyPaymentMethods(),
     ])
-    return { items, settings }
+    return { items, settings, categories, paymentMethods }
   },
   component: Subscriptions,
 })
@@ -38,7 +49,21 @@ function cycleLabel(count: number, unit: string): string {
 }
 
 function Subscriptions() {
-  const { items, settings } = Route.useLoaderData()
+  const { items, settings, categories, paymentMethods } = Route.useLoaderData()
+  const [open, setOpen] = useState(false)
+  const [editing, setEditing] = useState<SubscriptionWithRecurrence | null>(
+    null,
+  )
+
+  function openCreate() {
+    setEditing(null)
+    setOpen(true)
+  }
+
+  function openEdit(subscription: SubscriptionWithRecurrence) {
+    setEditing(subscription)
+    setOpen(true)
+  }
 
   return (
     <div className="min-h-svh">
@@ -46,19 +71,26 @@ function Subscriptions() {
       <main className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-6 py-8">
         <Card>
           <CardHeader>
-            <CardTitle>Subscriptions</CardTitle>
-            <CardDescription>
-              {items.length} tracked
-              {settings.currency !== 'DKK'
-                ? ` · totals in ${settings.currency}`
-                : ''}
-            </CardDescription>
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <CardTitle>Subscriptions</CardTitle>
+                <CardDescription>
+                  {items.length} tracked
+                  {settings.currency !== 'DKK'
+                    ? ` · totals in ${settings.currency}`
+                    : ''}
+                </CardDescription>
+              </div>
+              <Button size="sm" onClick={openCreate}>
+                Add subscription
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
             {items.length === 0 ? (
               <p className="text-sm text-muted-foreground">
-                Nothing here yet — add subscriptions through the API or your MCP
-                client, and the create form lands next.
+                Nothing here yet — add your first subscription with the button
+                above, or import one (see “Moving your data” in the README).
               </p>
             ) : (
               <ul className="flex flex-col divide-y">
@@ -124,6 +156,14 @@ function Subscriptions() {
                       {subscription.overdue ? (
                         <Badge variant="destructive">overdue</Badge>
                       ) : null}
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        aria-label={`Edit ${subscription.name}`}
+                        onClick={() => openEdit(subscription)}
+                      >
+                        <Pencil />
+                      </Button>
                     </div>
                   </li>
                 ))}
@@ -132,6 +172,22 @@ function Subscriptions() {
           </CardContent>
         </Card>
       </main>
+
+      <SubscriptionForm
+        open={open}
+        onOpenChange={setOpen}
+        subscription={editing}
+        categories={categories.map((category) => ({
+          id: category.id,
+          name: category.name,
+        }))}
+        paymentMethods={paymentMethods.map((method) => ({
+          id: method.id,
+          name: method.name,
+        }))}
+        defaultCurrency={settings.currency}
+        defaultRemindDays={settings.remindDaysBefore}
+      />
     </div>
   )
 }

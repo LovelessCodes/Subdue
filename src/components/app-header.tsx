@@ -46,6 +46,20 @@ export function AppHeader() {
           >
             Inbox
           </Link>
+          <Link
+            to="/settings"
+            className={linkClass}
+            activeProps={{ className: activeClass }}
+          >
+            Settings
+          </Link>
+          <Link
+            to="/integrations"
+            className={linkClass}
+            activeProps={{ className: activeClass }}
+          >
+            Integrations
+          </Link>
           <Button variant="ghost" size="sm" onClick={signOut}>
             Sign out
           </Button>

@@ -1,8 +1,8 @@
 import type { BetterAuthPlugin } from 'better-auth'
 import { createAuthEndpoint, sessionMiddleware } from 'better-auth/api'
-import * as z from 'zod'
 import { db } from '../../lib/db'
 import * as settings from '../services/settings'
+import { settingsPatchSchema } from '../validation'
 
 export const settingsPlugin = () =>
   ({
@@ -45,18 +45,7 @@ export const settingsPlugin = () =>
         '/settings/update',
         {
           method: 'POST',
-          body: z.object({
-            currency: z
-              .string()
-              .regex(/^[A-Z]{3}$/)
-              .optional(),
-            locale: z.string().min(2).max(20).optional(),
-            weekStart: z.enum(settings.weekStarts).optional(),
-            theme: z.enum(settings.themes).optional(),
-            budgetAmountMinor: z.number().int().min(0).nullish(),
-            payAnchorDay: z.number().int().min(1).max(31).nullish(),
-            remindDaysBefore: z.number().int().min(0).max(60).nullish(),
-          }),
+          body: settingsPatchSchema,
           use: [sessionMiddleware],
         },
         async (ctx) => {

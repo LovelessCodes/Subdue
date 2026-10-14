@@ -40,3 +40,11 @@ export function toIsoDay(date: Date): string {
 export function fromIsoDay(day: string): Date {
   return new Date(`${day}T00:00:00.000Z`)
 }
+
+export function toMajorUnits(amountMinor: number, code: string): number {
+  return amountMinor / 10 ** minorUnitExponent(code)
+}
+
+export function fromMajorUnits(amount: number, code: string): number {
+  return Math.round(amount * 10 ** minorUnitExponent(code))
+}

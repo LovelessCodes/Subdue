@@ -6,65 +6,13 @@ import {
 } from 'better-auth/api'
 import * as z from 'zod'
 import { db } from '../../lib/db'
-import { logoExists, removeLogo } from '../logos'
-import * as paymentMethods from '../services/payment-methods'
-import { cycleUnits } from '../services/recurrence'
+import { removeLogo } from '../logos'
 import * as settings from '../services/settings'
 import * as subscriptions from '../services/subscriptions'
-
-const cycleUnitSchema = z.enum(cycleUnits)
-
-const urlField = z
-  .string()
-  .trim()
-  .max(2048)
-  .refine((value) => value === '' || /^https?:\/\//i.test(value), {
-    message: 'URL must start with http:// or https://',
-  })
-  .transform((value) => (value === '' ? null : value))
-  .nullish()
-
-const subscriptionBody = z.object({
-  name: z.string().min(1).max(200),
-  price: z.number().int().min(0),
-  currency: z
-    .string()
-    .regex(/^[A-Z]{3}$/)
-    .optional(),
-  cycleUnit: cycleUnitSchema,
-  cycleCount: z.number().int().min(1).max(365),
-  categoryId: z.string().nullish(),
-  paymentMethodId: z.string().nullish(),
-  payer: z.string().max(100).nullish(),
-  url: urlField,
-  nextPayment: z.coerce.date(),
-  notes: z.string().max(2000).nullish(),
-  remindDaysBefore: z.number().int().min(0).max(60).nullish(),
-  autoRenew: z.boolean().optional(),
-  cancelledAt: z.coerce.date().nullish(),
-  logo: z.string().trim().max(255).nullish(),
-})
-
-function assertOwnedPaymentMethod(
-  userId: string,
-  paymentMethodId?: string | null,
-) {
-  return async () => {
-    if (!paymentMethodId) {
-      return
-    }
-    const method = await paymentMethods.getPaymentMethod(
-      db,
-      userId,
-      paymentMethodId,
-    )
-    if (!method) {
-      throw new APIError('BAD_REQUEST', {
-        message: 'PAYMENT_METHOD_NOT_FOUND',
-      })
-    }
-  }
-}
+import {
+  checkSubscriptionReferences,
+  subscriptionBodySchema,
+} from '../validation'
 
 export const subscriptionsPlugin = () =>
   ({
@@ -164,14 +112,18 @@ export const subscriptionsPlugin = () =>
         '/subscriptions/create',
         {
           method: 'POST',
-          body: subscriptionBody,
+          body: subscriptionBodySchema,
           use: [sessionMiddleware],
         },
         async (ctx) => {
           const userId = ctx.context.session.user.id
-          await assertOwnedPaymentMethod(userId, ctx.body.paymentMethodId)()
-          if (ctx.body.logo && !logoExists(ctx.body.logo)) {
-            throw new APIError('BAD_REQUEST', { message: 'LOGO_NOT_FOUND' })
+          const referenceError = await checkSubscriptionReferences(
+            db,
+            userId,
+            ctx.body,
+          )
+          if (referenceError) {
+            throw new APIError('BAD_REQUEST', { message: referenceError })
           }
           const userSettings = await settings.getSettings(db, userId)
           const subscription = await subscriptions.createSubscription(
@@ -194,15 +146,19 @@ export const subscriptionsPlugin = () =>
         '/subscriptions/update',
         {
           method: 'POST',
-          body: subscriptionBody.partial().extend({ id: z.string() }),
+          body: subscriptionBodySchema.partial().extend({ id: z.string() }),
           use: [sessionMiddleware],
         },
         async (ctx) => {
           const userId = ctx.context.session.user.id
           const { id, ...patch } = ctx.body
-          await assertOwnedPaymentMethod(userId, patch.paymentMethodId)()
-          if (patch.logo && !logoExists(patch.logo)) {
-            throw new APIError('BAD_REQUEST', { message: 'LOGO_NOT_FOUND' })
+          const referenceError = await checkSubscriptionReferences(
+            db,
+            userId,
+            patch,
+          )
+          if (referenceError) {
+            throw new APIError('BAD_REQUEST', { message: referenceError })
           }
 
           const existing = await subscriptions.getSubscription(db, userId, id)
