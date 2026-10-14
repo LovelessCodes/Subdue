@@ -25,6 +25,9 @@ export const mcpResource =
 
 export const auth = betterAuth({
   appName: 'Subdue',
+  // Without a base URL the OAuth-provider plugin cannot build its issuer.
+  // Set BETTER_AUTH_URL to the URL you actually browse in production.
+  baseURL: process.env.BETTER_AUTH_URL ?? 'http://localhost:3000',
   database: drizzleAdapter(db, { provider: 'sqlite', schema }),
   emailAndPassword: {
     enabled: true,

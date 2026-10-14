@@ -1,5 +1,6 @@
 {
   "name": "subdue",
+  "version": "0.1.0",
   "private": true,
   "description": "Self-hosted subscription tracker",
   "license": "MIT",
@@ -11,6 +12,7 @@
     "dev": "vite dev --port 3000",
     "generate-routes": "tsr generate",
     "build": "vite build",
+    "start": "bun serve.ts",
     "preview": "vite preview",
     "format": "oxfmt",
     "format:check": "oxfmt --check",

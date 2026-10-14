@@ -16,6 +16,7 @@ import { Route as InboxRouteImport } from './routes/inbox'
 import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as SubscriptionsRouteImport } from './routes/subscriptions'
 import { Route as DotwellKnownSplatRouteImport } from './routes/[.]well-known/$'
+import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as ApiMcpRouteImport } from './routes/api/mcp'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiExportBackupRouteImport } from './routes/api/export/backup'
@@ -58,6 +59,11 @@ const SubscriptionsRoute = SubscriptionsRouteImport.update({
 const DotwellKnownSplatRoute = DotwellKnownSplatRouteImport.update({
   id: '/.well-known/$',
   path: '/.well-known/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiHealthRoute = ApiHealthRouteImport.update({
+  id: '/api/health',
+  path: '/api/health',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiMcpRoute = ApiMcpRouteImport.update({
@@ -109,6 +115,7 @@ export interface FileRoutesByFullPath {
   '/sign-in': typeof SignInRoute
   '/subscriptions': typeof SubscriptionsRoute
   '/.well-known/$': typeof DotwellKnownSplatRoute
+  '/api/health': typeof ApiHealthRoute
   '/api/mcp': typeof ApiMcpRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/export/backup': typeof ApiExportBackupRoute
@@ -126,6 +133,7 @@ export interface FileRoutesByTo {
   '/sign-in': typeof SignInRoute
   '/subscriptions': typeof SubscriptionsRoute
   '/.well-known/$': typeof DotwellKnownSplatRoute
+  '/api/health': typeof ApiHealthRoute
   '/api/mcp': typeof ApiMcpRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/export/backup': typeof ApiExportBackupRoute
@@ -144,6 +152,7 @@ export interface FileRoutesById {
   '/sign-in': typeof SignInRoute
   '/subscriptions': typeof SubscriptionsRoute
   '/.well-known/$': typeof DotwellKnownSplatRoute
+  '/api/health': typeof ApiHealthRoute
   '/api/mcp': typeof ApiMcpRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/export/backup': typeof ApiExportBackupRoute
@@ -163,6 +172,7 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/subscriptions'
     | '/.well-known/$'
+    | '/api/health'
     | '/api/mcp'
     | '/api/auth/$'
     | '/api/export/backup'
@@ -180,6 +190,7 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/subscriptions'
     | '/.well-known/$'
+    | '/api/health'
     | '/api/mcp'
     | '/api/auth/$'
     | '/api/export/backup'
@@ -197,6 +208,7 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/subscriptions'
     | '/.well-known/$'
+    | '/api/health'
     | '/api/mcp'
     | '/api/auth/$'
     | '/api/export/backup'
@@ -215,6 +227,7 @@ export interface RootRouteChildren {
   SignInRoute: typeof SignInRoute
   SubscriptionsRoute: typeof SubscriptionsRoute
   DotwellKnownSplatRoute: typeof DotwellKnownSplatRoute
+  ApiHealthRoute: typeof ApiHealthRoute
   ApiMcpRoute: typeof ApiMcpRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiExportBackupRoute: typeof ApiExportBackupRoute
@@ -274,6 +287,13 @@ declare module '@tanstack/react-router' {
       path: '/.well-known/$'
       fullPath: '/.well-known/$'
       preLoaderRoute: typeof DotwellKnownSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/health': {
+      id: '/api/health'
+      path: '/api/health'
+      fullPath: '/api/health'
+      preLoaderRoute: typeof ApiHealthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/mcp': {
@@ -343,6 +363,7 @@ const rootRouteChildren: RootRouteChildren = {
   SignInRoute: SignInRoute,
   SubscriptionsRoute: SubscriptionsRoute,
   DotwellKnownSplatRoute: DotwellKnownSplatRoute,
+  ApiHealthRoute: ApiHealthRoute,
   ApiMcpRoute: ApiMcpRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiExportBackupRoute: ApiExportBackupRoute,
@@ -355,12 +376,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}

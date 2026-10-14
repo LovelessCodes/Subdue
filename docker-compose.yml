@@ -1,0 +1,14 @@
+services:
+  subdue:
+    build: .
+    # Once the first release is tagged, prefer the published image:
+    # image: ghcr.io/lovelesscodes/subdue:latest
+    ports:
+      - '3000:3000'
+    environment:
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://localhost:3000}
+      # Fail fast rather than boot with an insecure default secret.
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?Set BETTER_AUTH_SECRET in .env (openssl rand -base64 32)}
+    volumes:
+      - ./data:/data
+    restart: unless-stopped
