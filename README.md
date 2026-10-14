@@ -121,9 +121,10 @@ git tag v0.1.0 && git push origin v0.1.0   # builds amd64 + arm64, writes releas
 
 Nothing needs configuring for a LAN deploy: the auth secret is generated into the data volume on first boot, and the base URL is derived from each request, so localhost, LAN names and IPs all work. Four settings are worth knowing:
 
-- `BETTER_AUTH_SECRET` — set it only if you want to control it. If you already ran Subdue with a secret, keep using the same value: changing it invalidates sessions and the stored signing keys. The generated secret lives beside the database (`/data/secret`); keep the two together.
+- `BETTER_AUTH_SECRET` — set it only if you want to control it. The generated secret lives beside the database (`/data/secret`); keep the two together. Changing the secret no longer breaks stored signing keys (they are written unencrypted at rest — the database itself is the sensitive file — and key rows from older versions are repaired on boot); existing sessions do log out.
 - `BETTER_AUTH_URL` — optional; set it to pin OAuth/MCP callback URLs to one public URL.
 - `TRUSTED_ORIGINS` — defaults to `*` (any origin), which suits self-hosting. Narrow it (comma-separated) if the instance is reachable from the internet.
+- `TRUST_PROXY_HEADERS` — set to `true` when a reverse proxy in front sets `x-forwarded-for`. Otherwise incoming values are ignored and the socket address is used, so the per-IP rate limits cannot be spoofed.
 - `MCP_RESOURCE_URL` — set it to your public `/api/mcp` if you use MCP clients.
   The container runs as root and writes to `/data`; on a NAS, pre-create that folder with your own ownership if it matters to you.
 

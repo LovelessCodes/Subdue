@@ -81,7 +81,11 @@ export const auth = betterAuth({
         maxRequests: 600,
       },
     }),
-    jwt(),
+    jwt({
+      // Signing keys stay usable if the secret changes; in a self-hosted
+      // single-file setup the database itself is the sensitive artifact.
+      jwks: { disablePrivateKeyEncryption: true },
+    }),
     openAPI(),
     categoriesPlugin(),
     channelsPlugin(),

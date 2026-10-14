@@ -6,7 +6,12 @@ declare const Bun: {
   serve: (options: {
     port: number
     hostname: string
-    fetch: (request: Request) => Response | Promise<Response>
+    fetch: (
+      request: Request,
+      server: {
+        requestIP: (request: Request) => { address: string } | null
+      },
+    ) => Response | Promise<Response>
   }) => unknown
 }
 
@@ -80,17 +85,39 @@ async function serveClientFile(request: Request): Promise<Response | null> {
   return new Response(body, { headers })
 }
 
+const trustProxyHeaders = process.env.TRUST_PROXY_HEADERS === 'true'
+
+// better-auth resolves the client IP from a single-value x-forwarded-for for
+// per-IP rate limits. We set it from the socket so clients cannot spoof it,
+// unless an operator's reverse proxy is trusted to do so.
+function withClientIp(
+  request: Request,
+  server: { requestIP: (request: Request) => { address: string } | null },
+): Request {
+  if (trustProxyHeaders) {
+    return request
+  }
+  const address = server.requestIP(request)?.address
+  if (!address) {
+    return request
+  }
+  const headers = new Headers(request.headers)
+  headers.set('x-forwarded-for', address)
+  return new Request(request, { headers })
+}
+
 const port = Number(process.env.PORT ?? 3000)
 
 Bun.serve({
   port,
   hostname: '0.0.0.0',
-  fetch: async (request) => {
-    const staticResponse = await serveClientFile(request)
+  fetch: async (request, server) => {
+    const forwarded = withClientIp(request, server)
+    const staticResponse = await serveClientFile(forwarded)
     if (staticResponse) {
       return staticResponse
     }
-    return entry.fetch(request)
+    return entry.fetch(forwarded)
   },
 })
 
