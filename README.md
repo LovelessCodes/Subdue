@@ -119,11 +119,13 @@ One volume (`/data`) holds the SQLite database — WAL mode, so the `-wal` and `
 git tag v0.1.0 && git push origin v0.1.0   # builds amd64 + arm64, writes release notes
 ```
 
-Three settings matter when the instance is not on `http://localhost:3000`:
+Nothing needs configuring for a LAN deploy: the auth secret is generated into the data volume on first boot, and the base URL is derived from each request, so localhost, LAN names and IPs all work. Four settings are worth knowing:
 
-- `BETTER_AUTH_URL` must match the URL you browse (host **and** port) — better-auth rejects requests from other origins. Multi-host setups are [#9](https://github.com/LovelessCodes/Subdue/issues/9).
-- `MCP_RESOURCE_URL` should point at your public `/api/mcp` if you use MCP clients.
-- The container runs as root and writes to `/data`; on a NAS, pre-create that folder with your own ownership if it matters to you.
+- `BETTER_AUTH_SECRET` — set it only if you want to control it. If you already ran Subdue with a secret, keep using the same value: changing it invalidates sessions and the stored signing keys. The generated secret lives beside the database (`/data/secret`); keep the two together.
+- `BETTER_AUTH_URL` — optional; set it to pin OAuth/MCP callback URLs to one public URL.
+- `TRUSTED_ORIGINS` — defaults to `*` (any origin), which suits self-hosting. Narrow it (comma-separated) if the instance is reachable from the internet.
+- `MCP_RESOURCE_URL` — set it to your public `/api/mcp` if you use MCP clients.
+  The container runs as root and writes to `/data`; on a NAS, pre-create that folder with your own ownership if it matters to you.
 
 ## API & docs
 
