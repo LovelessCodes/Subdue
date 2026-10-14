@@ -1,5 +1,6 @@
 import * as z from 'zod'
 import type { Database } from '../lib/db'
+import { isExternalLogo } from '../lib/logo-source'
 import { socialProviderIds } from '../lib/social-providers'
 import { logoExists } from './logos'
 import { channelTypes } from './services/channels'
@@ -14,6 +15,18 @@ export const urlField = z
   .refine((value) => value === '' || /^https?:\/\//i.test(value), {
     message: 'URL must start with http:// or https://',
   })
+  .transform((value) => (value === '' ? null : value))
+  .nullish()
+
+export const logoField = z
+  .string()
+  .trim()
+  .max(2048)
+  .refine(
+    (value) =>
+      value === '' || isExternalLogo(value) || /^[A-Za-z0-9._-]+$/.test(value),
+    { message: 'Logo must be an uploaded file name or an http(s) URL' },
+  )
   .transform((value) => (value === '' ? null : value))
   .nullish()
 
@@ -35,7 +48,7 @@ export const subscriptionBodySchema = z.object({
   remindDaysBefore: z.number().int().min(0).max(60).nullish(),
   autoRenew: z.boolean().optional(),
   cancelledAt: z.coerce.date().nullish(),
-  logo: z.string().trim().max(255).nullish(),
+  logo: logoField,
 })
 
 export { socialProviderIds }
@@ -98,7 +111,7 @@ export async function checkSubscriptionReferences(
       return 'PAYMENT_METHOD_NOT_FOUND'
     }
   }
-  if (input.logo && !logoExists(input.logo)) {
+  if (input.logo && !isExternalLogo(input.logo) && !logoExists(input.logo)) {
     return 'LOGO_NOT_FOUND'
   }
   return null

@@ -143,7 +143,7 @@ curl -b cookies.txt -X POST 'http://localhost:3000/api/import/csv?dryRun=1' \
 
 The Wallos importer reads the raw `wallos.db` inside a backup zip (a bare `.db` works too) and follows Wallos semantics: cycle days plus frequency become Subdue cycles, decimal prices become minor units, per-subscription reminder overrides carry over, and logos, URLs, payment methods and cancellation dates come along too. Duplicate names are skipped; inactive subscriptions and one-time payments are reported rather than imported.
 
-Logos are files in the data folder (`data/logos/`), so a complete backup is the database plus that folder; the JSON export records the filenames.
+Logos are files in the data folder (`data/logos/`), so a complete backup is the database plus that folder; the JSON export records the filenames. A logo can also be an external URL, stored as the URL and loaded by your browser straight from that host.
 
 ## Calendar feed
 

@@ -31,6 +31,7 @@ import {
   deleteSubscription,
   updateSubscription,
 } from '@/lib/app.functions'
+import { isExternalLogo } from '@/lib/logo-source'
 import { fromMajorUnits, toMajorUnits } from '@/lib/money'
 import type { SubscriptionWithRecurrence } from '@/server/services/subscriptions'
 
@@ -490,8 +491,19 @@ export function SubscriptionForm({
                 </Button>
               ) : null}
             </div>
+            <Input
+              id="subscription-logo-url"
+              value={isExternalLogo(form.logo ?? '') ? (form.logo ?? '') : ''}
+              onChange={(event) => {
+                const value = event.target.value
+                setLogoFile(null)
+                set('logo', value.trim() === '' ? null : value)
+              }}
+              placeholder="…or paste an image URL"
+            />
             <FieldDescription>
-              PNG, JPEG, GIF or WebP, up to 1 MiB.
+              Upload a PNG, JPEG, GIF or WebP (up to 1 MiB), or paste an image
+              URL — external ones load straight from that host.
             </FieldDescription>
           </Field>
         </FieldGroup>

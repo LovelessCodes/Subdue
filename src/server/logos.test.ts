@@ -9,6 +9,7 @@ import {
   saveImportedLogo,
   saveLogo,
 } from '@/server/logos'
+import { isExternalLogo, logoUrl } from '@/lib/logo-source'
 
 const PNG = new Uint8Array([
   0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 1, 2, 3,
@@ -54,5 +55,16 @@ describe('logos', () => {
   it('refuses path traversal names', () => {
     expect(logoFilePath('../secret')).toBeNull()
     expect(logoFilePath('nested/file.png')).toBeNull()
+  })
+})
+
+describe('logo sources', () => {
+  it('points external URLs at their host and file names at the logos route', () => {
+    expect(logoUrl('https://cdn.example.com/logo.png')).toBe(
+      'https://cdn.example.com/logo.png',
+    )
+    expect(logoUrl('abc-123.png')).toBe('/api/logos/abc-123.png')
+    expect(isExternalLogo('https://x.test/y.png')).toBe(true)
+    expect(isExternalLogo('local.png')).toBe(false)
   })
 })

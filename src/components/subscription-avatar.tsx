@@ -1,3 +1,5 @@
+import { logoUrl } from '@/lib/logo-source'
+
 export function SubscriptionAvatar({
   name,
   logo,
@@ -8,7 +10,7 @@ export function SubscriptionAvatar({
   if (logo) {
     return (
       <img
-        src={`/api/logos/${logo}`}
+        src={logoUrl(logo)}
         alt=""
         className="size-8 shrink-0 rounded-full border object-cover"
       />

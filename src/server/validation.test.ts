@@ -88,3 +88,31 @@ describe('channel validation', () => {
     ).toThrow()
   })
 })
+
+describe('logo sources', () => {
+  it('accepts an external URL with no local file, and still checks file names', async () => {
+    const parsed = subscriptionBodySchema.parse({
+      ...validInput,
+      logo: 'https://cdn.example.com/logo.png',
+    })
+    expect(parsed.logo).toBe('https://cdn.example.com/logo.png')
+
+    const { db } = createTestDb()
+    await insertTestUser(db, 'u1')
+
+    expect(
+      await checkSubscriptionReferences(db, 'u1', {
+        logo: 'https://cdn.example.com/logo.png',
+      }),
+    ).toBeNull()
+    expect(
+      await checkSubscriptionReferences(db, 'u1', { logo: 'missing.png' }),
+    ).toBe('LOGO_NOT_FOUND')
+  })
+
+  it('rejects paths and other odd logo values', () => {
+    expect(() =>
+      subscriptionBodySchema.parse({ ...validInput, logo: '../etc/passwd' }),
+    ).toThrow()
+  })
+})
