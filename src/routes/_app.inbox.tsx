@@ -43,7 +43,7 @@ function Inbox() {
 
   return (
     <div className="min-h-full">
-      <main className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-6 py-8">
+      <main className="flex w-full flex-col gap-6 px-6 py-8">
         <Card>
           <CardHeader>
             <div className="flex flex-wrap items-center justify-between gap-3">

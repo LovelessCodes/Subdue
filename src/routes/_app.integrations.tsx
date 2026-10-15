@@ -81,7 +81,7 @@ function Integrations() {
 
   return (
     <div className="min-h-full">
-      <main className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-6 py-8">
+      <main className="flex w-full flex-col gap-6 px-6 py-8">
         <p className="text-sm text-muted-foreground">
           The feed URL and every API key are bearer credentials — anyone who has
           one can read everything in your account. Rotate or revoke them the
