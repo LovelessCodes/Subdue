@@ -9,6 +9,7 @@ import {
   exportBundle,
   exportSubscriptionsCsv,
 } from '@/server/services/export'
+import { createIncomeSource } from '@/server/services/income-sources'
 import { createSubscription } from '@/server/services/subscriptions'
 import { createTestDb, insertTestUser } from '@/test/db'
 
@@ -28,6 +29,15 @@ async function seed() {
     nextPayment: new Date('2026-10-30T00:00:00.000Z'),
     categoryId: domainCategory?.id ?? null,
     notes: 'renews end of October',
+  })
+
+  await createIncomeSource(db, 'u1', {
+    name: 'Full-time job',
+    amountMinor: 2450000,
+    currency: 'DKK',
+    cycleUnit: 'months',
+    cycleCount: 1,
+    nextArrival: new Date('2026-10-25T00:00:00.000Z'),
   })
 
   return db
@@ -60,6 +70,17 @@ describe('export', () => {
       cancelledAt: null,
       logo: null,
     })
+    expect(bundle.incomeSources).toEqual([
+      {
+        name: 'Full-time job',
+        amountMinor: 2450000,
+        currency: 'DKK',
+        cycleUnit: 'months',
+        cycleCount: 1,
+        nextArrival: '2026-10-25',
+        archivedAt: null,
+      },
+    ])
   })
 
   it('writes round-trippable CSV', async () => {

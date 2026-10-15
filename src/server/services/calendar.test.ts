@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { getCalendarMonth } from '@/server/services/calendar'
+import { createIncomeSource } from '@/server/services/income-sources'
 import { createSubscription } from '@/server/services/subscriptions'
 import { createTestDb, insertTestUser } from '@/test/db'
 
@@ -214,6 +215,62 @@ describe('calendar service', () => {
 
     expect(summary.totalMinor).toBe(0)
     expect(summary.unconvertibleCurrencies).toEqual(['USD'])
+  })
+})
+
+describe('calendar: income arrivals', () => {
+  it('projects paydays into the month, converted and summed', async () => {
+    const { db } = createTestDb()
+    await insertTestUser(db, 'u1')
+
+    await createIncomeSource(db, 'u1', {
+      name: 'Full-time job',
+      amountMinor: 2450000,
+      currency: 'DKK',
+      cycleUnit: 'months',
+      cycleCount: 1,
+      nextArrival: new Date('2026-09-25T00:00:00.000Z'),
+    })
+    await createIncomeSource(db, 'u1', {
+      name: 'Part-time job',
+      amountMinor: 1000,
+      currency: 'EUR',
+      cycleUnit: 'weeks',
+      cycleCount: 2,
+      nextArrival: new Date('2026-09-18T00:00:00.000Z'),
+    })
+
+    const october = await getCalendarMonth(
+      db,
+      'u1',
+      { year: 2026, month: 10 },
+      options,
+    )
+
+    expect(
+      october.income.map((entry) => [
+        entry.name,
+        entry.date.toISOString().slice(0, 10),
+      ]),
+    ).toEqual([
+      ['Part-time job', '2026-10-02'],
+      ['Part-time job', '2026-10-16'],
+      ['Full-time job', '2026-10-25'],
+      ['Part-time job', '2026-10-30'],
+    ])
+    expect(october.arrivingMinor).toBe(2450000 + 3 * 7460)
+
+    const september = await getCalendarMonth(
+      db,
+      'u1',
+      { year: 2026, month: 9 },
+      options,
+    )
+    expect(september.income.map((entry) => entry.date.toISOString())).toEqual([
+      '2026-09-18T00:00:00.000Z',
+      '2026-09-25T00:00:00.000Z',
+    ])
+    expect(september.arrivingMinor).toBe(2450000 + 7460)
   })
 })
 

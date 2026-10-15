@@ -1,6 +1,7 @@
 import type { Database } from '../../lib/db'
 import { convertMinorUnits } from '../../lib/money'
 import { crossRate, ensureRates, ratesMap, type Fetcher } from './currencies'
+import { listIncomeSources, periodArrivals } from './income-sources'
 import { daysInMonth, occurrencesBetween, type CycleUnit } from './recurrence'
 import { getSettings } from './settings'
 import { listSubscriptions } from './subscriptions'
@@ -72,6 +73,10 @@ export type BudgetStatus = {
   locale: string
   period: BudgetPeriod
   budgetMinor: number | null
+  /** The manual ceiling from settings, independent of income. */
+  ceilingMinor: number | null
+  /** Expected income in the period across active sources; null without any. */
+  incomeMinor: number | null
   dueMinor: number
   remainingMinor: number | null
   overBudget: boolean
@@ -87,12 +92,15 @@ export async function getBudgetStatus(
   const settings = await getSettings(db, userId)
   const period = getBudgetPeriod(now, settings.payAnchorDay)
 
-  const page = await listSubscriptions(
-    db,
-    userId,
-    { limit: 100, offset: 0, sort: 'next-payment', order: 'asc' },
-    now,
-  )
+  const [page, sources] = await Promise.all([
+    listSubscriptions(
+      db,
+      userId,
+      { limit: 100, offset: 0, sort: 'next-payment', order: 'asc' },
+      now,
+    ),
+    listIncomeSources(db, userId),
+  ])
 
   const { rows: rateRows } = await ensureRates(db, {
     now,
@@ -140,13 +148,47 @@ export async function getBudgetStatus(
       )
   }
 
-  const budgetMinor = settings.budgetAmountMinor ?? null
+  let incomeMinor: number | null = null
+
+  if (sources.length > 0) {
+    incomeMinor = 0
+    for (const arrival of periodArrivals(sources, period.start, period.end)) {
+      const currency = arrival.source.currency
+      const rate = crossRate(currency, settings.currency, rates)
+      if (rate === null) {
+        unconvertible.add(currency)
+        continue
+      }
+      incomeMinor += convertMinorUnits(
+        arrival.source.amountMinor,
+        rate,
+        currency,
+        settings.currency,
+      )
+    }
+  }
+
+  const ceilingMinor = settings.budgetAmountMinor ?? null
+
+  /**
+   * Income drives the period's budget when any is expected; the manual
+   * ceiling then clamps it down. With no income in sight, the ceiling (if
+   * any) is all the budget there is — and without either, next to nothing.
+   */
+  const budgetMinor =
+    incomeMinor !== null && incomeMinor > 0
+      ? ceilingMinor === null
+        ? incomeMinor
+        : Math.min(ceilingMinor, incomeMinor)
+      : ceilingMinor
 
   return {
     currency: settings.currency,
     locale: settings.locale,
     period,
     budgetMinor,
+    ceilingMinor,
+    incomeMinor,
     dueMinor,
     remainingMinor: budgetMinor === null ? null : budgetMinor - dueMinor,
     overBudget: budgetMinor !== null && dueMinor > budgetMinor,

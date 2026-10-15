@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { getBudgetPeriod, getBudgetStatus } from '@/server/services/budget'
+import { createIncomeSource } from '@/server/services/income-sources'
 import { createSubscription } from '@/server/services/subscriptions'
 import { updateSettings } from '@/server/services/settings'
 import { createTestDb, insertTestUser } from '@/test/db'
@@ -200,5 +201,142 @@ describe('budget: end dates', () => {
 
     const status = await getBudgetStatus(db, 'u1', options)
     expect(status.dueMinor).toBe(0)
+  })
+})
+
+describe('budget: income sources', () => {
+  it('drives the budget from expected income when no ceiling is set', async () => {
+    const { db } = createTestDb()
+    await insertTestUser(db, 'u1')
+    await updateSettings(db, 'u1', {
+      payAnchorDay: 25,
+      budgetAmountMinor: null,
+    })
+
+    await createIncomeSource(db, 'u1', {
+      name: 'Full-time job',
+      amountMinor: 2450000,
+      currency: 'DKK',
+      cycleUnit: 'months',
+      cycleCount: 1,
+      nextArrival: new Date('2026-09-25T00:00:00.000Z'),
+    })
+    await createSubscription(
+      db,
+      'u1',
+      {
+        name: 'Rent-ish',
+        price: 900000,
+        currency: 'DKK',
+        cycleUnit: 'months',
+        cycleCount: 1,
+        nextPayment: new Date('2026-10-01T00:00:00.000Z'),
+      },
+      now,
+    )
+
+    const status = await getBudgetStatus(db, 'u1', options)
+
+    expect(status.period.start).toEqual(new Date('2026-09-25T00:00:00.000Z'))
+    expect(status.incomeMinor).toBe(2450000)
+    expect(status.budgetMinor).toBe(2450000)
+    expect(status.remainingMinor).toBe(2450000 - 900000)
+    expect(status.overBudget).toBe(false)
+  })
+
+  it('lets the manual ceiling clamp income down', async () => {
+    const { db } = createTestDb()
+    await insertTestUser(db, 'u1')
+    await updateSettings(db, 'u1', {
+      payAnchorDay: 25,
+      budgetAmountMinor: 100000,
+    })
+
+    await createIncomeSource(db, 'u1', {
+      name: 'Full-time job',
+      amountMinor: 2450000,
+      currency: 'DKK',
+      cycleUnit: 'months',
+      cycleCount: 1,
+      nextArrival: new Date('2026-09-25T00:00:00.000Z'),
+    })
+
+    const status = await getBudgetStatus(db, 'u1', options)
+
+    expect(status.incomeMinor).toBe(2450000)
+    expect(status.ceilingMinor).toBe(100000)
+    expect(status.budgetMinor).toBe(100000)
+    expect(status.remainingMinor).toBe(100000)
+  })
+
+  it('sums several sources and converts foreign currencies', async () => {
+    const { db } = createTestDb()
+    await insertTestUser(db, 'u1')
+    await updateSettings(db, 'u1', { payAnchorDay: 25 })
+
+    await createIncomeSource(db, 'u1', {
+      name: 'Full-time job',
+      amountMinor: 2450000,
+      currency: 'DKK',
+      cycleUnit: 'months',
+      cycleCount: 1,
+      nextArrival: new Date('2026-09-25T00:00:00.000Z'),
+    })
+    await createIncomeSource(db, 'u1', {
+      name: 'Part-time job',
+      amountMinor: 2000,
+      currency: 'EUR',
+      cycleUnit: 'weeks',
+      cycleCount: 2,
+      nextArrival: new Date('2026-09-18T00:00:00.000Z'),
+    })
+
+    const status = await getBudgetStatus(db, 'u1', options)
+
+    // Fortnightly EUR: two arrivals (2 + 16 Oct) convert at 7.46.
+    expect(status.incomeMinor).toBe(2450000 + 2 * 2000 * 7.46)
+  })
+
+  it('falls back to the ceiling when the source has not paid yet', async () => {
+    const { db } = createTestDb()
+    await insertTestUser(db, 'u1')
+    await updateSettings(db, 'u1', {
+      payAnchorDay: 25,
+      budgetAmountMinor: 50000,
+    })
+
+    await createIncomeSource(db, 'u1', {
+      name: 'New job',
+      amountMinor: 2450000,
+      currency: 'DKK',
+      cycleUnit: 'months',
+      cycleCount: 1,
+      nextArrival: new Date('2026-12-01T00:00:00.000Z'),
+    })
+
+    const status = await getBudgetStatus(db, 'u1', options)
+
+    expect(status.incomeMinor).toBe(0)
+    expect(status.budgetMinor).toBe(50000)
+  })
+
+  it('reports no budget when sources expect nothing and no ceiling is set', async () => {
+    const { db } = createTestDb()
+    await insertTestUser(db, 'u1')
+
+    await createIncomeSource(db, 'u1', {
+      name: 'Future job',
+      amountMinor: 2450000,
+      currency: 'DKK',
+      cycleUnit: 'months',
+      cycleCount: 1,
+      nextArrival: new Date('2027-01-01T00:00:00.000Z'),
+    })
+
+    const status = await getBudgetStatus(db, 'u1', options)
+
+    expect(status.incomeMinor).toBe(0)
+    expect(status.budgetMinor).toBeNull()
+    expect(status.remainingMinor).toBeNull()
   })
 })

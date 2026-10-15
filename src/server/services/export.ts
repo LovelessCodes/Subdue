@@ -1,5 +1,10 @@
 import { asc, eq } from 'drizzle-orm'
-import { category, paymentMethod, subscription } from '../../lib/auth-schema'
+import {
+  category,
+  incomeSource,
+  paymentMethod,
+  subscription,
+} from '../../lib/auth-schema'
 import { toCsv } from '../../lib/csv'
 import type { Database } from '../../lib/db'
 import { toIsoDay } from '../../lib/money'
@@ -25,6 +30,16 @@ export type ExportedSubscription = {
   logo: string | null
 }
 
+export type ExportedIncomeSource = {
+  name: string
+  amountMinor: number
+  currency: string
+  cycleUnit: string
+  cycleCount: number
+  nextArrival: string
+  archivedAt: string | null
+}
+
 export type ExportBundle = {
   app: 'subdue'
   version: number
@@ -33,13 +48,14 @@ export type ExportBundle = {
   categories: { name: string; color: string | null }[]
   paymentMethods: { name: string; icon: string | null }[]
   subscriptions: ExportedSubscription[]
+  incomeSources: ExportedIncomeSource[]
 }
 
 export async function exportBundle(
   db: Database,
   userId: string,
 ): Promise<ExportBundle> {
-  const [settings, categories, paymentMethods, subscriptions] =
+  const [settings, categories, paymentMethods, subscriptions, sources] =
     await Promise.all([
       getSettings(db, userId),
       db
@@ -57,6 +73,11 @@ export async function exportBundle(
         .from(subscription)
         .where(eq(subscription.userId, userId))
         .orderBy(asc(subscription.name)),
+      db
+        .select()
+        .from(incomeSource)
+        .where(eq(incomeSource.userId, userId))
+        .orderBy(asc(incomeSource.name)),
     ])
 
   const categoryNames = new Map(categories.map((row) => [row.id, row.name]))
@@ -94,6 +115,15 @@ export async function exportBundle(
       autoRenew: row.autoRenew ?? true,
       cancelledAt: row.cancelledAt ? toIsoDay(row.cancelledAt) : null,
       logo: row.logo,
+    })),
+    incomeSources: sources.map((row) => ({
+      name: row.name,
+      amountMinor: row.amountMinor,
+      currency: row.currency,
+      cycleUnit: row.cycleUnit,
+      cycleCount: row.cycleCount,
+      nextArrival: toIsoDay(row.nextArrival),
+      archivedAt: row.archivedAt ? toIsoDay(row.archivedAt) : null,
     })),
   }
 }

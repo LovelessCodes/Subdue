@@ -2,6 +2,11 @@ import { eq } from 'drizzle-orm'
 import { userSetting } from '../../lib/auth-schema'
 import type { Database } from '../../lib/db'
 import { formatMinor, toIsoDay } from '../../lib/money'
+import {
+  arrivalsBetween,
+  listIncomeSources,
+  type IncomeSource,
+} from './income-sources'
 import { occurrencesBetween, type CycleUnit } from './recurrence'
 import { getSettings, updateSettings, type Settings } from './settings'
 import {
@@ -10,7 +15,7 @@ import {
 } from './subscriptions'
 
 export const FEED_MONTHS = 12
-export const MAX_OCCURRENCES_PER_SUBSCRIPTION = 24
+export const MAX_OCCURRENCES_PER_ITEM = 24
 
 export function generateIcalToken(): string {
   const bytes = crypto.getRandomValues(new Uint8Array(16))
@@ -58,6 +63,7 @@ export type IcalEvent = {
 
 export function buildIcalEvents(
   subscriptions: SubscriptionWithRecurrence[],
+  sources: IncomeSource[],
   settings: Settings,
   now: Date,
 ): IcalEvent[] {
@@ -84,7 +90,7 @@ export function buildIcalEvents(
       cycle,
       from,
       to,
-    ).slice(0, MAX_OCCURRENCES_PER_SUBSCRIPTION)
+    ).slice(0, MAX_OCCURRENCES_PER_ITEM)
 
     for (const occurrence of occurrences) {
       if (
@@ -100,6 +106,23 @@ export function buildIcalEvents(
         description: subscription.notes,
         alarmDaysBefore:
           subscription.remindDaysBefore ?? settings.remindDaysBefore,
+      })
+    }
+  }
+
+  for (const source of sources) {
+    const arrivals = arrivalsBetween([source], from, to).slice(
+      0,
+      MAX_OCCURRENCES_PER_ITEM,
+    )
+
+    for (const arrival of arrivals) {
+      events.push({
+        uid: `${source.id}-${toIsoDay(arrival.date).replace(/-/g, '')}@subdue`,
+        date: arrival.date,
+        summary: `${source.name} → ${formatMinor(source.amountMinor, source.currency, settings.locale)}`,
+        description: null,
+        alarmDaysBefore: 0,
       })
     }
   }
@@ -208,6 +231,7 @@ export async function buildUserIcalFeed(
     { limit: 100, offset: 0, sort: 'next-payment', order: 'asc' },
     now,
   )
-  const events = buildIcalEvents(page.items, settings, now)
+  const sources = await listIncomeSources(db, userId)
+  const events = buildIcalEvents(page.items, sources, settings, now)
   return renderIcal(events, { now })
 }

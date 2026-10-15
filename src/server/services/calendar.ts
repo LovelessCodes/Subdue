@@ -1,5 +1,6 @@
 import { convertMinorUnits } from '../../lib/money'
 import { crossRate, ensureRates, ratesMap, type Fetcher } from './currencies'
+import { arrivalsBetween, listIncomeSources } from './income-sources'
 import { occurrencesBetween, type CycleUnit } from './recurrence'
 import { getSettings } from './settings'
 import { listSubscriptions } from './subscriptions'
@@ -13,6 +14,14 @@ export type CalendarEntry = {
   overdue: boolean
 }
 
+export type CalendarIncomeEntry = {
+  sourceId: string
+  name: string
+  amountMinor: number
+  currency: string
+  date: Date
+}
+
 export type CalendarMonth = {
   year: number
   month: number
@@ -20,8 +29,10 @@ export type CalendarMonth = {
   currency: string
   locale: string
   totalMinor: number
+  arrivingMinor: number
   unconvertibleCurrencies: string[]
   entries: CalendarEntry[]
+  income: CalendarIncomeEntry[]
 }
 
 export async function getCalendarMonth(
@@ -52,6 +63,7 @@ export async function getCalendarMonth(
     { limit: 100, offset: 0, sort: 'next-payment', order: 'asc' },
     now,
   )
+  const sources = await listIncomeSources(db, userId)
 
   const entries: CalendarEntry[] = []
 
@@ -89,6 +101,23 @@ export async function getCalendarMonth(
       a.date.getTime() - b.date.getTime() || a.name.localeCompare(b.name),
   )
 
+  const income: CalendarIncomeEntry[] = arrivalsBetween(
+    sources,
+    monthStart,
+    monthEnd,
+  )
+    .map((arrival) => ({
+      sourceId: arrival.source.id,
+      name: arrival.source.name,
+      amountMinor: arrival.source.amountMinor,
+      currency: arrival.source.currency,
+      date: arrival.date,
+    }))
+    .sort(
+      (a, b) =>
+        a.date.getTime() - b.date.getTime() || a.name.localeCompare(b.name),
+    )
+
   const { rows: rateRows } = await ensureRates(db, {
     now,
     fetchFn: options.fetchFn,
@@ -96,6 +125,7 @@ export async function getCalendarMonth(
   const rates = ratesMap(rateRows)
 
   let totalMinor = 0
+  let arrivingMinor = 0
   const unconvertible = new Set<string>()
 
   for (const entry of entries) {
@@ -112,6 +142,20 @@ export async function getCalendarMonth(
     )
   }
 
+  for (const arrival of income) {
+    const rate = crossRate(arrival.currency, settings.currency, rates)
+    if (rate === null) {
+      unconvertible.add(arrival.currency)
+      continue
+    }
+    arrivingMinor += convertMinorUnits(
+      arrival.amountMinor,
+      rate,
+      arrival.currency,
+      settings.currency,
+    )
+  }
+
   return {
     year: params.year,
     month: params.month,
@@ -119,7 +163,9 @@ export async function getCalendarMonth(
     currency: settings.currency,
     locale: settings.locale,
     totalMinor,
+    arrivingMinor,
     unconvertibleCurrencies: [...unconvertible].sort(),
     entries,
+    income,
   }
 }

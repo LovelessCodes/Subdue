@@ -10,6 +10,7 @@ import {
   rotateIcal,
 } from '@/server/services/ical'
 import { updateSettings } from '@/server/services/settings'
+import { createIncomeSource } from '@/server/services/income-sources'
 import { createSubscription } from '@/server/services/subscriptions'
 import { createTestDb, insertTestUser } from '@/test/db'
 
@@ -150,5 +151,28 @@ describe('ical: end dates', () => {
     expect(feed).toContain('DTSTART;VALUE=DATE:20261020')
     expect(feed).not.toContain('DTSTART;VALUE=DATE:20261120')
     expect(feed.match(/BEGIN:VEVENT/g)?.length).toBe(1)
+  })
+})
+
+describe('ical: income arrivals', () => {
+  it('renders paydays as events without alarms', async () => {
+    const { db } = createTestDb()
+    await insertTestUser(db, 'u1')
+    await createIncomeSource(db, 'u1', {
+      name: 'Full-time job',
+      amountMinor: 2450000,
+      currency: 'DKK',
+      cycleUnit: 'months',
+      cycleCount: 1,
+      nextArrival: new Date('2026-10-25T00:00:00.000Z'),
+    })
+
+    const feed = await buildUserIcalFeed(db, 'u1', now)
+
+    expect(feed).toContain('DTSTART;VALUE=DATE:20261025')
+    expect(feed).toMatch(/SUMMARY:Full-time job → /)
+    // The feed spans twelve months, so a monthly salary lands twelve times.
+    expect(feed.match(/BEGIN:VEVENT/g)?.length).toBe(12)
+    expect(feed).not.toContain('BEGIN:VALARM')
   })
 })
