@@ -194,6 +194,8 @@ export const category = sqliteTable(
     id: text('id').primaryKey(),
     name: text('name').notNull(),
     color: text('color'),
+    position: integer('position').notNull().default(0),
+    archivedAt: integer('archived_at', { mode: 'timestamp_ms' }),
     userId: text('user_id')
       .notNull()
       .references(() => user.id, { onDelete: 'cascade' }),
@@ -311,6 +313,8 @@ export const paymentMethod = sqliteTable(
     id: text('id').primaryKey(),
     name: text('name').notNull(),
     icon: text('icon'),
+    position: integer('position').notNull().default(0),
+    archivedAt: integer('archived_at', { mode: 'timestamp_ms' }),
     userId: text('user_id')
       .notNull()
       .references(() => user.id, { onDelete: 'cascade' }),
@@ -331,6 +335,7 @@ export const userSetting = sqliteTable(
     payAnchorDay: integer('pay_anchor_day'),
     remindDaysBefore: integer('remind_days_before'),
     icalToken: text('ical_token'),
+    onboardedAt: integer('onboarded_at', { mode: 'timestamp_ms' }),
     userId: text('user_id')
       .notNull()
       .unique()
