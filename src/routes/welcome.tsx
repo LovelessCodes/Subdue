@@ -2,8 +2,9 @@ import { ThemeToggle } from '@/components/theme-toggle'
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import type { FormEvent } from 'react'
 import { useMemo, useState, useSyncExternalStore } from 'react'
-import { CircleAlert, Landmark, LoaderCircle } from 'lucide-react'
+import { CircleAlert, LoaderCircle } from 'lucide-react'
 import { cn } from 'cn'
+import { PaymentMethodIcon } from '@/components/payment-method-icon'
 import { SubdueMark } from '@/components/subdue-mark'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -211,15 +212,7 @@ function Welcome() {
                 >
                   {preview.paymentMethods.map((method) => (
                     <span key={method.name} className={chip}>
-                      {method.icon ? (
-                        <img
-                          src={method.icon}
-                          alt=""
-                          className="size-3.5 shrink-0"
-                        />
-                      ) : (
-                        <Landmark className="size-3.5 shrink-0 text-muted-foreground" />
-                      )}
+                      <PaymentMethodIcon icon={method.icon} />
                       {method.name}
                     </span>
                   ))}
