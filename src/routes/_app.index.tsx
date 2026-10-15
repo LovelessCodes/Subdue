@@ -140,13 +140,34 @@ function Dashboard() {
                   />
                 </div>
                 <p className="mt-2 text-xs text-muted-foreground">
-                  of{' '}
-                  {formatMinor(
-                    budget.budgetMinor,
-                    budget.currency,
-                    budget.locale,
-                  )}{' '}
-                  budget ·{' '}
+                  {budget.incomeMinor !== null ? (
+                    <>
+                      {formatMinor(
+                        budget.incomeMinor,
+                        budget.currency,
+                        budget.locale,
+                      )}{' '}
+                      arriving this period
+                      {budget.ceilingMinor !== null
+                        ? ` · capped at ${formatMinor(
+                            budget.ceilingMinor,
+                            budget.currency,
+                            budget.locale,
+                          )}`
+                        : ''}{' '}
+                      ·{' '}
+                    </>
+                  ) : (
+                    <>
+                      of{' '}
+                      {formatMinor(
+                        budget.budgetMinor ?? 0,
+                        budget.currency,
+                        budget.locale,
+                      )}{' '}
+                      budget ·{' '}
+                    </>
+                  )}
                   {budget.overBudget
                     ? `over by ${formatMinor(
                         -(budget.remainingMinor ?? 0),

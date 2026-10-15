@@ -17,6 +17,7 @@
   },
   "budget": {
     "due": "{amount} förfaller",
+    "arriving": "väntas {amount}",
     "noBudget": "Ingen budget för den här perioden.",
     "overBy": "{amount} för mycket",
     "left": "{amount} kvar"

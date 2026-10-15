@@ -15,6 +15,7 @@ import * as setupService from '../server/services/setup'
 import * as socialAuth from '../server/services/social-auth'
 import { getDashboardSummary } from '../server/services/dashboard'
 import * as ical from '../server/services/ical'
+import * as incomeSources from '../server/services/income-sources'
 import * as paymentMethods from '../server/services/payment-methods'
 import {
   listNotifications,
@@ -34,6 +35,8 @@ import {
   channelBodySchema,
   channelPatchSchema,
   checkSubscriptionReferences,
+  incomeSourceBodySchema,
+  incomeSourcePatchSchema,
   onboardingBodySchema,
   paymentMethodBodySchema,
   paymentMethodPatchSchema,
@@ -245,6 +248,93 @@ export const purgeMyCategory = createServerFn({ method: 'POST' })
       throw new Error('CATEGORY_NOT_FOUND')
     }
     return result
+  })
+
+export const listMyIncomeSources = createServerFn({ method: 'GET' })
+  .validator((input: { includeArchived?: boolean } | undefined) => input ?? {})
+  .handler(async ({ data }) => {
+    const userId = await requireUserId()
+    const now = new Date()
+    const items = await incomeSources.listIncomeSources(db, userId, {
+      includeArchived: data.includeArchived === true,
+    })
+    return items.map((source) => ({
+      ...source,
+      nextPayday: incomeSources.nextArrival(source, now),
+    }))
+  })
+
+export const createMyIncomeSource = createServerFn({ method: 'POST' })
+  .validator((input: unknown) => incomeSourceBodySchema.parse(input))
+  .handler(async ({ data }) => {
+    const userId = await requireUserId()
+    const settings = await getSettings(db, userId)
+    const created = await incomeSources.createIncomeSource(db, userId, {
+      ...data,
+      currency: data.currency ?? settings.currency,
+    })
+    if (!created) {
+      throw new Error('INCOME_SOURCE_CREATE_FAILED')
+    }
+    return created
+  })
+
+export const updateMyIncomeSource = createServerFn({ method: 'POST' })
+  .validator((input: unknown) => incomeSourcePatchSchema.parse(input))
+  .handler(async ({ data }) => {
+    const userId = await requireUserId()
+    const { id, ...patch } = data
+    const updated = await incomeSources.updateIncomeSource(
+      db,
+      userId,
+      id,
+      patch,
+    )
+    if (!updated) {
+      throw new Error('INCOME_SOURCE_NOT_FOUND')
+    }
+    return updated
+  })
+
+export const archiveMyIncomeSource = createServerFn({ method: 'POST' })
+  .validator((input: { id: string }) => input)
+  .handler(async ({ data }) => {
+    const userId = await requireUserId()
+    const archived = await incomeSources.archiveIncomeSource(
+      db,
+      userId,
+      data.id,
+    )
+    if (!archived) {
+      throw new Error('INCOME_SOURCE_NOT_FOUND')
+    }
+    return archived
+  })
+
+export const restoreMyIncomeSource = createServerFn({ method: 'POST' })
+  .validator((input: { id: string }) => input)
+  .handler(async ({ data }) => {
+    const userId = await requireUserId()
+    const restored = await incomeSources.restoreIncomeSource(
+      db,
+      userId,
+      data.id,
+    )
+    if (!restored) {
+      throw new Error('INCOME_SOURCE_NOT_FOUND')
+    }
+    return restored
+  })
+
+export const deleteMyIncomeSource = createServerFn({ method: 'POST' })
+  .validator((input: { id: string }) => input)
+  .handler(async ({ data }) => {
+    const userId = await requireUserId()
+    const deleted = await incomeSources.deleteIncomeSource(db, userId, data.id)
+    if (!deleted) {
+      throw new Error('INCOME_SOURCE_NOT_FOUND')
+    }
+    return { success: true }
   })
 
 export const listMyPaymentMethods = createServerFn({ method: 'GET' })

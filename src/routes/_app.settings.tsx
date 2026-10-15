@@ -7,6 +7,7 @@ import {
 } from '@tanstack/react-router'
 import { Check, ChevronDown, Loader2 } from 'lucide-react'
 import { cn } from 'cn'
+import { IncomeSourcesCard } from '@/components/income-sources-card'
 import { ManagedListsCard } from '@/components/managed-lists-card'
 import { PasskeyCard } from '@/components/passkey-card'
 import { TwoFactorCard } from '@/components/two-factor-card'
@@ -92,7 +93,7 @@ const SECTION_LABELS: Record<Section, string> = {
 
 const SECTION_DESCRIPTIONS: Record<Section, string> = {
   preferences: 'How amounts and dates are shown, and how the app looks.',
-  budget: 'A ceiling for the dashboard’s spend bar.',
+  budget: 'Your income sources, and the ceiling for the spend bar.',
   reminders: 'When to start nudging before a charge.',
   lists: 'Categories and payment methods across the app.',
   security: 'Ways to sign in, and keeping the account safe.',
@@ -376,8 +377,12 @@ function SettingsPage() {
                       value={form.budget}
                       onChange={(event) => change('budget', event.target.value)}
                       inputMode="decimal"
-                      placeholder="Empty = no budget"
+                      placeholder="Empty = income sets the pace"
                     />
+                    <FieldDescription>
+                      With income sources below, expected income drives the
+                      period — and this ceiling clamps it down.
+                    </FieldDescription>
                   </Field>
                   <Field>
                     <FieldLabel htmlFor="settings-anchor">
@@ -394,6 +399,10 @@ function SettingsPage() {
                 </div>
                 <AnchorNote />
               </FieldGroup>
+              <IncomeSourcesCard
+                currency={settings.currency}
+                locale={settings.locale}
+              />
             </TabsPanel>
 
             <TabsPanel value="reminders" className="flex flex-col gap-5">

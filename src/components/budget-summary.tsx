@@ -8,6 +8,7 @@ import { formatMinor } from '@/lib/money'
 type Budget = {
   dueMinor: number
   budgetMinor: number | null
+  incomeMinor?: number | null
   remainingMinor: number | null
   overBudget: boolean
   currency: string
@@ -35,6 +36,11 @@ export function BudgetSummary({ budget }: { budget: Budget }) {
       <p className="mt-0.5 truncate text-sm font-medium">
         {t('due', { amount: money(budget.dueMinor) })}
       </p>
+      {budget.incomeMinor != null ? (
+        <p className="mt-0.5 truncate text-[11px] text-muted-foreground">
+          {t('arriving', { amount: money(budget.incomeMinor) })}
+        </p>
+      ) : null}
       {budget.budgetMinor === null ? (
         <p className="mt-1 text-[11px] text-muted-foreground">
           {t('noBudget')}

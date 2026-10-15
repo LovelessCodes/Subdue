@@ -17,6 +17,7 @@
   },
   "budget": {
     "due": "{amount} due",
+    "arriving": "arriving {amount}",
     "noBudget": "No budget set for this period.",
     "overBy": "over by {amount}",
     "left": "{amount} left"

@@ -17,6 +17,7 @@
   },
   "budget": {
     "due": "{amount} forfalder",
+    "arriving": "forventet {amount}",
     "noBudget": "Intet budget for denne periode.",
     "overBy": "{amount} for meget",
     "left": "{amount} tilbage"

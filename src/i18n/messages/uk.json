@@ -17,6 +17,7 @@
   },
   "budget": {
     "due": "{amount} до сплати",
+    "arriving": "очікується {amount}",
     "noBudget": "Бюджет на цей період не встановлено.",
     "overBy": "{amount} понад бюджет",
     "left": "{amount} залишилось"

@@ -17,6 +17,7 @@
   },
   "budget": {
     "due": "{amount} da pagare",
+    "arriving": "previsto {amount}",
     "noBudget": "Nessun budget per questo periodo.",
     "overBy": "{amount} in eccesso",
     "left": "{amount} rimanenti"

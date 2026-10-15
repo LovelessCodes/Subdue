@@ -17,6 +17,7 @@
   },
   "budget": {
     "due": "{amount} te betalen",
+    "arriving": "verwacht {amount}",
     "noBudget": "Geen budget voor deze periode.",
     "overBy": "{amount} te veel",
     "left": "{amount} over"

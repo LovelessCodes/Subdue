@@ -17,6 +17,7 @@
   },
   "budget": {
     "due": "{amount} forfallin",
+    "arriving": "væntað {amount}",
     "noBudget": "Ongin fíggjarætlan fyri hesa tíðina.",
     "overBy": "{amount} ov nógv",
     "left": "{amount} eftir"

@@ -65,6 +65,14 @@ function Calendar() {
     entriesByDay.set(day, list)
   }
 
+  const incomeByDay = new Map<number, typeof calendar.income>()
+  for (const entry of calendar.income) {
+    const day = entry.date.getUTCDate()
+    const list = incomeByDay.get(day) ?? []
+    list.push(entry)
+    incomeByDay.set(day, list)
+  }
+
   const monthLabel = new Intl.DateTimeFormat(locale, {
     month: 'long',
     year: 'numeric',
@@ -87,6 +95,9 @@ function Calendar() {
                 <CardDescription>
                   {formatMinor(calendar.totalMinor, currency, locale)} due this
                   month
+                  {calendar.arrivingMinor > 0
+                    ? ` · ${formatMinor(calendar.arrivingMinor, currency, locale)} arriving`
+                    : ''}
                   {calendar.unconvertibleCurrencies.length > 0
                     ? ` · no rates for ${calendar.unconvertibleCurrencies.join(', ')}`
                     : ''}
@@ -138,6 +149,24 @@ function Calendar() {
                         {day}
                       </span>
                       <div className="mt-1 flex flex-col gap-1">
+                        {(incomeByDay.get(day) ?? []).map((entry) => (
+                          <div
+                            key={`${entry.sourceId}-${entry.date.getTime()}`}
+                            className="rounded bg-primary/10 px-1.5 py-1 text-[11px] leading-tight text-primary"
+                          >
+                            <span className="block truncate font-medium">
+                              {entry.name}
+                            </span>
+                            <span className="block">
+                              +
+                              {formatMinor(
+                                entry.amountMinor,
+                                entry.currency,
+                                locale,
+                              )}
+                            </span>
+                          </div>
+                        ))}
                         {(entriesByDay.get(day) ?? []).map((entry) => (
                           <div
                             key={`${entry.subscriptionId}-${entry.date.getTime()}`}

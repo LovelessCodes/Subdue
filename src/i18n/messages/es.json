@@ -17,6 +17,7 @@
   },
   "budget": {
     "due": "{amount} pendiente",
+    "arriving": "esperado {amount}",
     "noBudget": "No hay presupuesto para este período.",
     "overBy": "{amount} de más",
     "left": "{amount} restante"
