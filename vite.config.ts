@@ -33,6 +33,14 @@ const config = defineConfig({
     // Subdue accepts any host in production (dynamic base URL); the dev
     // server should not be stricter than the real thing.
     allowedHosts: true,
+    // Vite auto-enables client-console forwarding to the terminal when it
+    // detects an agent environment. Combined with TanStack Devtools' virtual
+    // console (which captures the server process console and echoes it back
+    // into the browser as `[Server] …`), that closes a relay: browser log →
+    // terminal → devtools echo → browser log → … Each lap re-wraps the
+    // message, so a single console.error can balloon to gigabytes of output
+    // and kill the dev server (ENOBUFS). Keep browser logs in the browser.
+    forwardConsole: false,
   },
 })
 
