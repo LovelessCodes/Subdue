@@ -2,6 +2,7 @@ import { McpServer, type AuthInfo } from '@modelcontextprotocol/server'
 import * as z from 'zod'
 import { db } from '../../lib/db'
 import * as categories from '../services/categories'
+import * as incomeSources from '../services/income-sources'
 import * as subscriptions from '../services/subscriptions'
 
 function userIdFrom(authInfo?: AuthInfo): string {
@@ -76,6 +77,28 @@ export function createSubdueMcpServer(authInfo?: AuthInfo) {
       const userId = userIdFrom(authInfo)
       return json(
         await categories.listCategories(db, userId, { limit: 100, offset: 0 }),
+      )
+    },
+  )
+
+  server.registerTool(
+    'list_income_sources',
+    {
+      description:
+        'List income sources such as salaries and side jobs, with their amount, pay cadence and rolled-forward next payday. Use includeArchived to see paused sources.',
+      inputSchema: z.object({
+        includeArchived: z.boolean().default(false),
+      }),
+    },
+    async (args) => {
+      const userId = userIdFrom(authInfo)
+      const now = new Date()
+      const items = await incomeSources.listIncomeSources(db, userId, args)
+      return json(
+        items.map((source) => ({
+          ...source,
+          nextPayday: incomeSources.nextArrival(source, now),
+        })),
       )
     },
   )

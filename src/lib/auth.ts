@@ -15,6 +15,7 @@ import { channelsPlugin } from '../server/plugins/channels'
 import { currenciesPlugin } from '../server/plugins/currencies'
 import { dashboardPlugin } from '../server/plugins/dashboard'
 import { icalPlugin } from '../server/plugins/ical'
+import { incomeSourcesPlugin } from '../server/plugins/income-sources'
 import { notificationsPlugin } from '../server/plugins/notifications'
 import { paymentMethodsPlugin } from '../server/plugins/payment-methods'
 import { settingsPlugin } from '../server/plugins/settings'
@@ -156,6 +157,7 @@ export const auth = betterAuth({
     currenciesPlugin(),
     dashboardPlugin(),
     icalPlugin(),
+    incomeSourcesPlugin(),
     notificationsPlugin(),
     paymentMethodsPlugin(),
     settingsPlugin(),

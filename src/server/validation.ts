@@ -99,6 +99,22 @@ export const paymentMethodPatchSchema = paymentMethodBodySchema
   .partial()
   .extend({ id: z.string() })
 
+export const incomeSourceBodySchema = z.object({
+  name: z.string().trim().min(1).max(100),
+  amountMinor: z.number().int().min(0),
+  currency: z
+    .string()
+    .regex(/^[A-Z]{3}$/)
+    .optional(),
+  cycleUnit: z.enum(cycleUnits),
+  cycleCount: z.number().int().min(1).max(365),
+  nextArrival: z.coerce.date(),
+})
+
+export const incomeSourcePatchSchema = incomeSourceBodySchema
+  .partial()
+  .extend({ id: z.string() })
+
 export const reorderIdsSchema = z.object({ ids: z.array(z.string()).max(500) })
 
 export const localeField = z.string().min(2).max(20)

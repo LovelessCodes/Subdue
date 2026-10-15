@@ -279,6 +279,25 @@ export const costSnapshot = sqliteTable(
   ],
 )
 
+export const incomeSource = sqliteTable(
+  'income_source',
+  {
+    id: text('id').primaryKey(),
+    name: text('name').notNull(),
+    amountMinor: integer('amount_minor').notNull(),
+    currency: text('currency').notNull(),
+    cycleUnit: text('cycle_unit').notNull(),
+    cycleCount: integer('cycle_count').notNull(),
+    nextArrival: integer('next_arrival', { mode: 'timestamp_ms' }).notNull(),
+    archivedAt: integer('archived_at', { mode: 'timestamp_ms' }),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
+  },
+  (table) => [index('incomeSource_userId_idx').on(table.userId)],
+)
+
 export const notification = sqliteTable(
   'notification',
   {
@@ -602,6 +621,7 @@ export const userRelations = relations(user, ({ one, many }) => ({
   channels: many(channel),
   notificationDeliverys: many(notificationDelivery),
   costSnapshots: many(costSnapshot),
+  incomeSources: many(incomeSource),
   notifications: many(notification),
   paymentMethods: many(paymentMethod),
   userSetting: one(userSetting),
@@ -679,6 +699,13 @@ export const notificationDeliveryRelations = relations(
 export const costSnapshotRelations = relations(costSnapshot, ({ one }) => ({
   user: one(user, {
     fields: [costSnapshot.userId],
+    references: [user.id],
+  }),
+}))
+
+export const incomeSourceRelations = relations(incomeSource, ({ one }) => ({
+  user: one(user, {
+    fields: [incomeSource.userId],
     references: [user.id],
   }),
 }))

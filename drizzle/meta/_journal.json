@@ -127,6 +127,13 @@
       "when": 1792051132726,
       "tag": "0017_jazzy_mad_thinker",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "6",
+      "when": 1792102023919,
+      "tag": "0018_income-sources",
+      "breakpoints": true
     }
   ]
 }
