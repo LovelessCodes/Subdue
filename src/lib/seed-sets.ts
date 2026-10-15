@@ -11,17 +11,24 @@ const MASTERCARD: SeedPaymentMethod = {
   name: 'MasterCard',
   icon: '/brands/mastercard.svg',
 }
+const PAYPAL: SeedPaymentMethod = { name: 'PayPal', icon: '/brands/paypal.svg' }
+const STRIPE: SeedPaymentMethod = { name: 'Stripe', icon: '/brands/stripe.svg' }
 
-// Brand names are proper nouns and stay as they are — the cards, and the local
-// app where a language has one — while the descriptive methods and the category
-// names are translated. An app is only added where it is the everyday way
-// people pay: nobody is handed a service they have never heard of.
+// Brand names are proper nouns and stay as they are — the cards, PayPal and
+// Stripe everywhere, and the local app where a language has one — while the
+// descriptive methods and the category names are translated. An app is only
+// added where it is the everyday way people pay: nobody is handed a service
+// they have never heard of. Insurance sits with the shared categories in every
+// language, since it is as ordinary a bill as a subscription, and a few
+// languages get one more row that only exists where they speak it.
 const SEED_SETS: Record<string, SeedSet> = {
   en: {
     paymentMethods: [
       VISA,
       MASTERCARD,
       { name: 'Debit card', icon: '/brands/debit.svg' },
+      PAYPAL,
+      STRIPE,
       { name: 'Bank transfer', icon: null },
     ],
     categories: [
@@ -30,6 +37,7 @@ const SEED_SETS: Record<string, SeedSet> = {
       { name: 'Software', color: '#0f766e' },
       { name: 'Housing', color: '#b45309' },
       { name: 'Subscriptions', color: '#be123c' },
+      { name: 'Insurance', color: '#15803d' },
     ],
   },
   de: {
@@ -37,6 +45,8 @@ const SEED_SETS: Record<string, SeedSet> = {
       VISA,
       MASTERCARD,
       { name: 'EC-Karte', icon: '/brands/debit.svg' },
+      PAYPAL,
+      STRIPE,
       { name: 'Überweisung', icon: null },
     ],
     categories: [
@@ -45,6 +55,8 @@ const SEED_SETS: Record<string, SeedSet> = {
       { name: 'Software', color: '#0f766e' },
       { name: 'Wohnen', color: '#b45309' },
       { name: 'Abonnements', color: '#be123c' },
+      { name: 'Versicherung', color: '#15803d' },
+      { name: 'Rundfunkbeitrag', color: '#a21caf' },
     ],
   },
   zh: {
@@ -52,8 +64,10 @@ const SEED_SETS: Record<string, SeedSet> = {
       VISA,
       MASTERCARD,
       { name: '借记卡', icon: '/brands/debit.svg' },
-      { name: '支付宝', icon: '/brands/qr-pay.svg' },
-      { name: '微信支付', icon: '/brands/qr-pay.svg' },
+      { name: '支付宝', icon: '/brands/alipay.svg' },
+      { name: '微信支付', icon: '/brands/wechat-pay.svg' },
+      PAYPAL,
+      STRIPE,
       { name: '银行转账', icon: null },
     ],
     categories: [
@@ -62,14 +76,20 @@ const SEED_SETS: Record<string, SeedSet> = {
       { name: '软件', color: '#0f766e' },
       { name: '住房', color: '#b45309' },
       { name: '订阅', color: '#be123c' },
+      { name: '保险', color: '#15803d' },
+      { name: '话费', color: '#0891b2' },
     ],
   },
+  // In Denmark the debit card is the Dankort, so the set names it that way
+  // instead of carrying a generic card row next to it.
   da: {
     paymentMethods: [
       VISA,
       MASTERCARD,
-      { name: 'Debetkort', icon: '/brands/debit.svg' },
-      { name: 'MobilePay', icon: '/brands/wallet.svg' },
+      { name: 'Dankort', icon: '/brands/dankort.png' },
+      { name: 'MobilePay', icon: '/brands/mobilepay.svg' },
+      PAYPAL,
+      STRIPE,
       { name: 'Bankoverførsel', icon: null },
     ],
     categories: [
@@ -78,6 +98,8 @@ const SEED_SETS: Record<string, SeedSet> = {
       { name: 'Software', color: '#0f766e' },
       { name: 'Bolig', color: '#b45309' },
       { name: 'Abonnementer', color: '#be123c' },
+      { name: 'Forsikring', color: '#15803d' },
+      { name: 'Fagforening', color: '#4f46e5' },
     ],
   },
   fr: {
@@ -85,6 +107,8 @@ const SEED_SETS: Record<string, SeedSet> = {
       VISA,
       MASTERCARD,
       { name: 'Carte de débit', icon: '/brands/debit.svg' },
+      PAYPAL,
+      STRIPE,
       { name: 'Virement bancaire', icon: null },
     ],
     categories: [
@@ -93,6 +117,8 @@ const SEED_SETS: Record<string, SeedSet> = {
       { name: 'Logiciels', color: '#0f766e' },
       { name: 'Logement', color: '#b45309' },
       { name: 'Abonnements', color: '#be123c' },
+      { name: 'Assurance', color: '#15803d' },
+      { name: 'Mutuelle', color: '#65a30d' },
     ],
   },
   sv: {
@@ -100,7 +126,9 @@ const SEED_SETS: Record<string, SeedSet> = {
       VISA,
       MASTERCARD,
       { name: 'Betalkort', icon: '/brands/debit.svg' },
-      { name: 'Swish', icon: '/brands/wallet.svg' },
+      { name: 'Swish', icon: '/brands/swish.png' },
+      PAYPAL,
+      STRIPE,
       { name: 'Banköverföring', icon: null },
     ],
     categories: [
@@ -109,6 +137,8 @@ const SEED_SETS: Record<string, SeedSet> = {
       { name: 'Programvara', color: '#0f766e' },
       { name: 'Boende', color: '#b45309' },
       { name: 'Prenumerationer', color: '#be123c' },
+      { name: 'Försäkring', color: '#15803d' },
+      { name: 'A-kassa', color: '#4f46e5' },
     ],
   },
   nb: {
@@ -116,7 +146,9 @@ const SEED_SETS: Record<string, SeedSet> = {
       VISA,
       MASTERCARD,
       { name: 'Debetkort', icon: '/brands/debit.svg' },
-      { name: 'Vipps', icon: '/brands/wallet.svg' },
+      { name: 'Vipps', icon: '/brands/vipps.svg' },
+      PAYPAL,
+      STRIPE,
       { name: 'Bankoverføring', icon: null },
     ],
     categories: [
@@ -125,6 +157,8 @@ const SEED_SETS: Record<string, SeedSet> = {
       { name: 'Programvare', color: '#0f766e' },
       { name: 'Bolig', color: '#b45309' },
       { name: 'Abonnementer', color: '#be123c' },
+      { name: 'Forsikring', color: '#15803d' },
+      { name: 'Fagforening', color: '#4f46e5' },
     ],
   },
   // Faroese is the one set I am least sure of — worth a native check before
@@ -135,6 +169,8 @@ const SEED_SETS: Record<string, SeedSet> = {
       VISA,
       MASTERCARD,
       { name: 'Debetkort', icon: '/brands/debit.svg' },
+      PAYPAL,
+      STRIPE,
       { name: 'Bankgreiðsla', icon: null },
     ],
     categories: [
@@ -143,13 +179,19 @@ const SEED_SETS: Record<string, SeedSet> = {
       { name: 'Tólbúnaður', color: '#0f766e' },
       { name: 'Bústaður', color: '#b45309' },
       { name: 'Áskriftir', color: '#be123c' },
+      { name: 'Trygging', color: '#15803d' },
     ],
   },
+  // Privat24 is the guess for the everyday app: it is the one most people have
+  // on their phone, and it is the app that shares a name with the bank.
   uk: {
     paymentMethods: [
       VISA,
       MASTERCARD,
       { name: 'Дебетова картка', icon: '/brands/debit.svg' },
+      { name: 'Приват24', icon: '/brands/privat24.png' },
+      PAYPAL,
+      STRIPE,
       { name: 'Банківський переказ', icon: null },
     ],
     categories: [
@@ -158,6 +200,7 @@ const SEED_SETS: Record<string, SeedSet> = {
       { name: 'Програми', color: '#0f766e' },
       { name: 'Житло', color: '#b45309' },
       { name: 'Підписки', color: '#be123c' },
+      { name: 'Страхування', color: '#15803d' },
     ],
   },
   es: {
@@ -165,7 +208,9 @@ const SEED_SETS: Record<string, SeedSet> = {
       VISA,
       MASTERCARD,
       { name: 'Tarjeta de débito', icon: '/brands/debit.svg' },
-      { name: 'Bizum', icon: '/brands/wallet.svg' },
+      { name: 'Bizum', icon: '/brands/bizum.svg' },
+      PAYPAL,
+      STRIPE,
       { name: 'Transferencia bancaria', icon: null },
     ],
     categories: [
@@ -174,6 +219,8 @@ const SEED_SETS: Record<string, SeedSet> = {
       { name: 'Software', color: '#0f766e' },
       { name: 'Vivienda', color: '#b45309' },
       { name: 'Suscripciones', color: '#be123c' },
+      { name: 'Seguro', color: '#15803d' },
+      { name: 'Comunidad de vecinos', color: '#4f46e5' },
     ],
   },
 }
