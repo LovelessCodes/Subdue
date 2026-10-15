@@ -1,7 +1,9 @@
+import { existsSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { eq } from 'drizzle-orm'
 import { category, paymentMethod, userSetting } from '@/lib/auth-schema'
-import { defaultSeedSet } from '@/lib/seed-sets'
+import { SEED_LOCALES, defaultSeedSet } from '@/lib/seed-sets'
 import { seedDefaults } from '@/server/services/defaults'
 import { createTestDb, insertTestUser } from '@/test/db'
 
@@ -13,25 +15,49 @@ describe('defaultSeedSet', () => {
     expect(defaultSeedSet('xx-YY').categories[0]?.name).toBe('Entertainment')
   })
 
-  it('keeps the two brand methods untranslated in every language', () => {
-    for (const locale of [
-      'en',
-      'de',
-      'zh',
-      'da',
-      'fr',
-      'sv',
-      'nb',
-      'fo',
-      'uk',
-      'es',
-    ]) {
+  it('keeps the cards and the transfer in every language', () => {
+    for (const locale of SEED_LOCALES) {
       const set = defaultSeedSet(locale)
       expect(set.paymentMethods[0]?.name).toBe('Visa')
       expect(set.paymentMethods[1]?.name).toBe('MasterCard')
       expect(set.paymentMethods[0]?.icon).toBe('/brands/visa.svg')
-      expect(set.paymentMethods[3]?.icon).toBeNull()
+      expect(set.paymentMethods.at(-1)?.icon).toBeNull()
       expect(set.categories).toHaveLength(5)
+    }
+  })
+
+  it('adds the everyday app where a language has one', () => {
+    const everyday: Record<string, string[]> = {
+      da: ['MobilePay'],
+      sv: ['Swish'],
+      nb: ['Vipps'],
+      es: ['Bizum'],
+      zh: ['支付宝', '微信支付'],
+    }
+
+    for (const [locale, names] of Object.entries(everyday)) {
+      const methods = defaultSeedSet(locale).paymentMethods.map(
+        (method) => method.name,
+      )
+      for (const name of names) {
+        expect(methods).toContain(name)
+      }
+    }
+
+    expect(defaultSeedSet('da').paymentMethods).toHaveLength(5)
+    expect(defaultSeedSet('zh').paymentMethods).toHaveLength(6)
+    for (const locale of ['en', 'de', 'fr', 'fo', 'uk']) {
+      expect(defaultSeedSet(locale).paymentMethods).toHaveLength(4)
+    }
+  })
+
+  it('points every icon at a file that exists', () => {
+    for (const locale of SEED_LOCALES) {
+      for (const method of defaultSeedSet(locale).paymentMethods) {
+        if (!method.icon) continue
+        const file = resolve('public', method.icon.replace(/^\//, ''))
+        expect(existsSync(file), `${locale}: ${method.icon}`).toBe(true)
+      }
     }
   })
 })

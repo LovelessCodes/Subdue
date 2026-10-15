@@ -12,8 +12,10 @@ const MASTERCARD: SeedPaymentMethod = {
   icon: '/brands/mastercard.svg',
 }
 
-// Brand names are proper nouns and stay as they are; the two descriptive
-// methods are translated, as are the category names.
+// Brand names are proper nouns and stay as they are — the cards, and the local
+// app where a language has one — while the descriptive methods and the category
+// names are translated. An app is only added where it is the everyday way
+// people pay: nobody is handed a service they have never heard of.
 const SEED_SETS: Record<string, SeedSet> = {
   en: {
     paymentMethods: [
@@ -50,6 +52,8 @@ const SEED_SETS: Record<string, SeedSet> = {
       VISA,
       MASTERCARD,
       { name: '借记卡', icon: '/brands/debit.svg' },
+      { name: '支付宝', icon: '/brands/qr-pay.svg' },
+      { name: '微信支付', icon: '/brands/qr-pay.svg' },
       { name: '银行转账', icon: null },
     ],
     categories: [
@@ -65,6 +69,7 @@ const SEED_SETS: Record<string, SeedSet> = {
       VISA,
       MASTERCARD,
       { name: 'Debetkort', icon: '/brands/debit.svg' },
+      { name: 'MobilePay', icon: '/brands/wallet.svg' },
       { name: 'Bankoverførsel', icon: null },
     ],
     categories: [
@@ -95,6 +100,7 @@ const SEED_SETS: Record<string, SeedSet> = {
       VISA,
       MASTERCARD,
       { name: 'Betalkort', icon: '/brands/debit.svg' },
+      { name: 'Swish', icon: '/brands/wallet.svg' },
       { name: 'Banköverföring', icon: null },
     ],
     categories: [
@@ -110,6 +116,7 @@ const SEED_SETS: Record<string, SeedSet> = {
       VISA,
       MASTERCARD,
       { name: 'Debetkort', icon: '/brands/debit.svg' },
+      { name: 'Vipps', icon: '/brands/wallet.svg' },
       { name: 'Bankoverføring', icon: null },
     ],
     categories: [
@@ -121,7 +128,8 @@ const SEED_SETS: Record<string, SeedSet> = {
     ],
   },
   // Faroese is the one set I am least sure of — worth a native check before
-  // anyone relies on it.
+  // anyone relies on it. No local app on purpose: MobilePay is not available in
+  // the Faroe Islands, so the set stays generic.
   fo: {
     paymentMethods: [
       VISA,
@@ -157,6 +165,7 @@ const SEED_SETS: Record<string, SeedSet> = {
       VISA,
       MASTERCARD,
       { name: 'Tarjeta de débito', icon: '/brands/debit.svg' },
+      { name: 'Bizum', icon: '/brands/wallet.svg' },
       { name: 'Transferencia bancaria', icon: null },
     ],
     categories: [
