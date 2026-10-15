@@ -9,7 +9,11 @@ import {
 } from '@/lib/segmented-control'
 import { cn } from 'cn'
 
-type TabsVariant = 'default' | 'underline'
+/**
+ * `square` is the Base UI folder-tab strip (horizontal only): a rule under
+ * the tabs, the active tab wearing its own outline.
+ */
+type TabsVariant = 'default' | 'underline' | 'square'
 type TabsSize = SegmentedControlSize
 
 const TabsListContext: React.Context<TabsSize> =
@@ -48,7 +52,9 @@ export function TabsList({
         'data-[orientation=vertical]:flex-col',
         variant === 'default'
           ? 'rounded-lg bg-muted p-0.5 text-muted-foreground/72'
-          : 'data-[orientation=vertical]:px-1 data-[orientation=horizontal]:py-1 *:data-[slot=tabs-tab]:hover:bg-accent',
+          : variant === 'square'
+            ? 'border-b border-border *:data-[slot=tabs-tab]:rounded-none *:data-[slot=tabs-tab]:hover:text-foreground'
+            : 'data-[orientation=vertical]:px-1 data-[orientation=horizontal]:py-1 *:data-[slot=tabs-tab]:hover:bg-accent',
         className,
       )}
       data-size={size}
@@ -60,10 +66,12 @@ export function TabsList({
       </TabsListContext.Provider>
       <TabsPrimitive.Indicator
         className={cn(
-          'absolute bottom-0 left-0 h-(--active-tab-height) w-(--active-tab-width) translate-x-(--active-tab-left) -translate-y-(--active-tab-bottom) transition-[width,translate] duration-200 ease-in-out',
+          'absolute left-0 w-(--active-tab-width) translate-x-(--active-tab-left) transition-[width,translate] duration-200 ease-in-out',
           variant === 'underline'
-            ? 'z-10 bg-primary data-[orientation=horizontal]:h-0.5 data-[orientation=vertical]:w-0.5 data-[orientation=vertical]:-translate-x-px data-[orientation=horizontal]:translate-y-px'
-            : '-z-1 rounded-md bg-background shadow-sm/5 dark:bg-input',
+            ? 'z-10 bottom-0 h-(--active-tab-height) -translate-y-(--active-tab-bottom) bg-primary data-[orientation=horizontal]:h-0.5 data-[orientation=vertical]:w-0.5 data-[orientation=vertical]:-translate-x-px data-[orientation=horizontal]:translate-y-px'
+            : variant === 'square'
+              ? '-z-1 top-0 h-full border-x border-t border-border bg-background'
+              : '-z-1 bottom-0 h-(--active-tab-height) -translate-y-(--active-tab-bottom) rounded-md bg-background shadow-sm/5 dark:bg-input',
         )}
         data-slot="tab-indicator"
       />
