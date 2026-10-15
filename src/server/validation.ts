@@ -81,12 +81,39 @@ export const channelPatchSchema = z.object({
   enabled: z.boolean().optional(),
 })
 
+export const categoryBodySchema = z.object({
+  name: z.string().trim().min(1).max(100),
+  color: z.string().max(20).nullish(),
+})
+
+export const categoryPatchSchema = categoryBodySchema
+  .partial()
+  .extend({ id: z.string() })
+
+export const paymentMethodBodySchema = z.object({
+  name: z.string().trim().min(1).max(100),
+  icon: z.string().max(200).nullish(),
+})
+
+export const paymentMethodPatchSchema = paymentMethodBodySchema
+  .partial()
+  .extend({ id: z.string() })
+
+export const reorderIdsSchema = z.object({ ids: z.array(z.string()).max(500) })
+
+export const localeField = z.string().min(2).max(20)
+
+export const onboardingBodySchema = z.object({
+  locale: localeField,
+  seed: z.boolean().default(true),
+})
+
 export const settingsPatchSchema = z.object({
   currency: z
     .string()
     .regex(/^[A-Z]{3}$/)
     .optional(),
-  locale: z.string().min(2).max(20).optional(),
+  locale: localeField.optional(),
   weekStart: z.enum(weekStarts).optional(),
   theme: z.enum(themes).optional(),
   budgetAmountMinor: z.number().int().min(0).nullish(),

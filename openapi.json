@@ -13519,9 +13519,6 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "id": {
-                    "type": "string"
-                  },
                   "name": {
                     "type": "string",
                     "minLength": 1,
@@ -13533,6 +13530,9 @@
                       "null"
                     ],
                     "maxLength": 20
+                  },
+                  "id": {
+                    "type": "string"
                   }
                 },
                 "required": [
@@ -16396,9 +16396,6 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "id": {
-                    "type": "string"
-                  },
                   "name": {
                     "type": "string",
                     "minLength": 1,
@@ -16410,6 +16407,9 @@
                       "null"
                     ],
                     "maxLength": 200
+                  },
+                  "id": {
+                    "type": "string"
                   }
                 },
                 "required": [

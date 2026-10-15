@@ -7,6 +7,11 @@ import {
 import * as z from 'zod'
 import { db } from '../../lib/db'
 import * as paymentMethods from '../services/payment-methods'
+import {
+  paymentMethodBodySchema,
+  paymentMethodPatchSchema,
+  reorderIdsSchema,
+} from '../validation'
 
 export const paymentMethodsPlugin = () =>
   ({
@@ -73,10 +78,7 @@ export const paymentMethodsPlugin = () =>
         '/payment-methods/create',
         {
           method: 'POST',
-          body: z.object({
-            name: z.string().min(1).max(100),
-            icon: z.string().max(200).nullish(),
-          }),
+          body: paymentMethodBodySchema,
           use: [sessionMiddleware],
         },
         async (ctx) => {
@@ -98,11 +100,7 @@ export const paymentMethodsPlugin = () =>
         '/payment-methods/update',
         {
           method: 'POST',
-          body: z.object({
-            id: z.string(),
-            name: z.string().min(1).max(100).optional(),
-            icon: z.string().max(200).nullish(),
-          }),
+          body: paymentMethodPatchSchema,
           use: [sessionMiddleware],
         },
         async (ctx) => {
@@ -170,7 +168,7 @@ export const paymentMethodsPlugin = () =>
         '/payment-methods/reorder',
         {
           method: 'POST',
-          body: z.object({ ids: z.array(z.string()).max(500) }),
+          body: reorderIdsSchema,
           use: [sessionMiddleware],
         },
         async (ctx) => {

@@ -7,6 +7,11 @@ import {
 import * as z from 'zod'
 import { db } from '../../lib/db'
 import * as categories from '../services/categories'
+import {
+  categoryBodySchema,
+  categoryPatchSchema,
+  reorderIdsSchema,
+} from '../validation'
 
 export const categoriesPlugin = () =>
   ({
@@ -71,10 +76,7 @@ export const categoriesPlugin = () =>
         '/categories/create',
         {
           method: 'POST',
-          body: z.object({
-            name: z.string().min(1).max(100),
-            color: z.string().max(20).nullish(),
-          }),
+          body: categoryBodySchema,
           use: [sessionMiddleware],
         },
         async (ctx) => {
@@ -92,11 +94,7 @@ export const categoriesPlugin = () =>
         '/categories/update',
         {
           method: 'POST',
-          body: z.object({
-            id: z.string(),
-            name: z.string().min(1).max(100).optional(),
-            color: z.string().max(20).nullish(),
-          }),
+          body: categoryPatchSchema,
           use: [sessionMiddleware],
         },
         async (ctx) => {
@@ -158,7 +156,7 @@ export const categoriesPlugin = () =>
         '/categories/reorder',
         {
           method: 'POST',
-          body: z.object({ ids: z.array(z.string()).max(500) }),
+          body: reorderIdsSchema,
           use: [sessionMiddleware],
         },
         async (ctx) => {
