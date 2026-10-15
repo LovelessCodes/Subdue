@@ -66,7 +66,7 @@ export const Route = createRootRoute({
 function RootComponent() {
   const { locale, messages } = Route.useLoaderData()
   return (
-    <IntlProvider locale={locale} messages={messages}>
+    <IntlProvider locale={locale} messages={messages} timeZone="UTC">
       <Outlet />
     </IntlProvider>
   )
@@ -74,8 +74,10 @@ function RootComponent() {
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   const { locale } = Route.useLoaderData()
+  // The theme script below adds `dark` before hydration; that class
+  // difference is intentional, not a mismatch.
   return (
-    <html lang={locale}>
+    <html lang={locale} suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{
