@@ -1,4 +1,4 @@
-import { eq, sql } from 'drizzle-orm'
+import { count, eq, sql } from 'drizzle-orm'
 import { category, paymentMethod, userSetting } from '../../lib/auth-schema'
 import type { Database } from '../../lib/db'
 
@@ -214,8 +214,18 @@ export async function seedDefaults(
   }
 
   const wanted = options.seed !== false
+  const [methodTotals, categoryTotals] = await Promise.all([
+    db
+      .select({ value: count() })
+      .from(paymentMethod)
+      .where(eq(paymentMethod.userId, userId)),
+    db
+      .select({ value: count() })
+      .from(category)
+      .where(eq(category.userId, userId)),
+  ])
   const hasOwnRows =
-    (row?.paymentMethods ?? 0) > 0 || (row?.categories ?? 0) > 0
+    (methodTotals[0]?.value ?? 0) > 0 || (categoryTotals[0]?.value ?? 0) > 0
   const set = defaultSeedSet(locale)
   const seed = wanted && !hasOwnRows
 
