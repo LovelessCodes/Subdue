@@ -14,5 +14,11 @@
     "openNavigation": "Avaa valikko",
     "toggleSidebar": "Näytä tai piilota sivupalkki",
     "signOut": "Kirjaudu ulos"
+  },
+  "budget": {
+    "due": "{amount} erääntyy",
+    "noBudget": "Tälle kaudelle ei ole asetettu budjettia.",
+    "overBy": "{amount} yli budjetin",
+    "left": "{amount} jäljellä"
   }
 }

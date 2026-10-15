@@ -14,5 +14,11 @@
     "openNavigation": "Abrir la navegación",
     "toggleSidebar": "Mostrar u ocultar la barra lateral",
     "signOut": "Cerrar sesión"
+  },
+  "budget": {
+    "due": "{amount} pendiente",
+    "noBudget": "No hay presupuesto para este período.",
+    "overBy": "{amount} de más",
+    "left": "{amount} restante"
   }
 }

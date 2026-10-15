@@ -14,5 +14,11 @@
     "openNavigation": "Navigation öffnen",
     "toggleSidebar": "Seitenleiste ein- oder ausblenden",
     "signOut": "Abmelden"
+  },
+  "budget": {
+    "due": "{amount} fällig",
+    "noBudget": "Für diesen Zeitraum ist kein Budget festgelegt.",
+    "overBy": "{amount} zu viel",
+    "left": "{amount} übrig"
   }
 }

@@ -14,5 +14,11 @@
     "openNavigation": "Ouvrir la navigation",
     "toggleSidebar": "Afficher ou masquer le panneau latéral",
     "signOut": "Se déconnecter"
+  },
+  "budget": {
+    "due": "{amount} dû",
+    "noBudget": "Aucun budget défini pour cette période.",
+    "overBy": "{amount} de trop",
+    "left": "{amount} restants"
   }
 }

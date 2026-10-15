@@ -14,5 +14,11 @@
     "openNavigation": "Opna navigatión",
     "toggleSidebar": "Vís ella dyl síðupanelin",
     "signOut": "Rita út"
+  },
+  "budget": {
+    "due": "{amount} forfallin",
+    "noBudget": "Ongin fíggjarætlan fyri hesa tíðina.",
+    "overBy": "{amount} ov nógv",
+    "left": "{amount} eftir"
   }
 }

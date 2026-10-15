@@ -1,3 +1,4 @@
+import { useTranslations } from 'use-intl'
 import { formatMinor } from '@/lib/money'
 
 /**
@@ -15,6 +16,7 @@ type Budget = {
 }
 
 export function BudgetSummary({ budget }: { budget: Budget }) {
+  const t = useTranslations('budget')
   const money = (minor: number) =>
     formatMinor(minor, budget.currency, budget.locale)
   const month = new Intl.DateTimeFormat(budget.locale, {
@@ -31,11 +33,11 @@ export function BudgetSummary({ budget }: { budget: Budget }) {
         {month}
       </p>
       <p className="mt-0.5 truncate text-sm font-medium">
-        {money(budget.dueMinor)} due
+        {t('due', { amount: money(budget.dueMinor) })}
       </p>
       {budget.budgetMinor === null ? (
         <p className="mt-1 text-[11px] text-muted-foreground">
-          No budget set for this period.
+          {t('noBudget')}
         </p>
       ) : (
         <>
@@ -49,8 +51,8 @@ export function BudgetSummary({ budget }: { budget: Budget }) {
           </div>
           <p className="mt-1.5 truncate text-[11px] text-muted-foreground">
             {budget.overBudget
-              ? `over by ${money(-(budget.remainingMinor ?? 0))}`
-              : `${money(budget.remainingMinor ?? 0)} left`}
+              ? t('overBy', { amount: money(-(budget.remainingMinor ?? 0)) })
+              : t('left', { amount: money(budget.remainingMinor ?? 0) })}
           </p>
         </>
       )}

@@ -14,5 +14,11 @@
     "openNavigation": "Otwórz nawigację",
     "toggleSidebar": "Pokaż lub ukryj panel boczny",
     "signOut": "Wyloguj się"
+  },
+  "budget": {
+    "due": "{amount} do zapłaty",
+    "noBudget": "Brak budżetu na ten okres.",
+    "overBy": "{amount} za dużo",
+    "left": "{amount} pozostało"
   }
 }

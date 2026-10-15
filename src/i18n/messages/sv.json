@@ -14,5 +14,11 @@
     "openNavigation": "Öppna navigeringen",
     "toggleSidebar": "Visa eller dölj sidopanelen",
     "signOut": "Logga ut"
+  },
+  "budget": {
+    "due": "{amount} förfaller",
+    "noBudget": "Ingen budget för den här perioden.",
+    "overBy": "{amount} för mycket",
+    "left": "{amount} kvar"
   }
 }

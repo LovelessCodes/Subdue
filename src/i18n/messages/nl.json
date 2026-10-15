@@ -14,5 +14,11 @@
     "openNavigation": "Navigatie openen",
     "toggleSidebar": "Zijbalk tonen of verbergen",
     "signOut": "Uitloggen"
+  },
+  "budget": {
+    "due": "{amount} te betalen",
+    "noBudget": "Geen budget voor deze periode.",
+    "overBy": "{amount} te veel",
+    "left": "{amount} over"
   }
 }

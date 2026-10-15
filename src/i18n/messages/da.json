@@ -14,5 +14,11 @@
     "openNavigation": "Åbn navigation",
     "toggleSidebar": "Vis eller skjul sidepanelet",
     "signOut": "Log ud"
+  },
+  "budget": {
+    "due": "{amount} forfalder",
+    "noBudget": "Intet budget for denne periode.",
+    "overBy": "{amount} for meget",
+    "left": "{amount} tilbage"
   }
 }

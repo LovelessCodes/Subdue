@@ -10,10 +10,16 @@ import {
 const dir = new URL('./messages/', import.meta.url)
 const catalogFiles = readdirSync(dir).sort()
 
-function load(file: string): { nav: Record<string, string> } {
-  return JSON.parse(readFileSync(new URL(file, dir), 'utf8')) as {
-    nav: Record<string, string>
-  }
+type Catalog = Record<string, Record<string, string>>
+
+function load(file: string): Catalog {
+  return JSON.parse(readFileSync(new URL(file, dir), 'utf8')) as Catalog
+}
+
+function placeholders(message: string): string[] {
+  return [...message.matchAll(/\{(\w+)\}/g)]
+    .map((match) => match[1] ?? '')
+    .sort()
 }
 
 describe('messages', () => {
@@ -24,15 +30,27 @@ describe('messages', () => {
   })
 
   it('keeps every catalog on the same keys as English', () => {
-    const reference = Object.keys(load('en.json').nav).sort()
-    expect(reference.length).toBeGreaterThan(0)
+    const reference = load('en.json')
+    const namespaces = Object.keys(reference).sort()
+    expect(namespaces.length).toBeGreaterThan(0)
 
     for (const file of catalogFiles) {
-      const entries = load(file).nav
-      expect(Object.keys(entries).sort(), file).toEqual(reference)
-      for (const [key, value] of Object.entries(entries)) {
-        expect(typeof value, `${file}: ${key}`).toBe('string')
-        expect(value.length, `${file}: ${key}`).toBeGreaterThan(0)
+      const catalog = load(file)
+      expect(Object.keys(catalog).sort(), file).toEqual(namespaces)
+      for (const namespace of namespaces) {
+        const entries = catalog[namespace] ?? {}
+        const expected = reference[namespace] ?? {}
+        expect(Object.keys(entries).sort(), `${file}: ${namespace}`).toEqual(
+          Object.keys(expected).sort(),
+        )
+        for (const [key, value] of Object.entries(entries)) {
+          const where = `${file}: ${namespace}.${key}`
+          expect(typeof value, where).toBe('string')
+          expect(value.length, where).toBeGreaterThan(0)
+          expect(placeholders(value), where).toEqual(
+            placeholders(expected[key] ?? ''),
+          )
+        }
       }
     }
   })
