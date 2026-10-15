@@ -22,7 +22,11 @@ import {
   maybeRunReminders,
   unreadCount,
 } from '../server/services/reminders'
-import { getSettings, updateSettings } from '../server/services/settings'
+import {
+  getOnboardedAt,
+  getSettings,
+  updateSettings,
+} from '../server/services/settings'
 import * as subscriptions from '../server/services/subscriptions'
 import {
   categoryBodySchema,
@@ -346,6 +350,14 @@ export const completeOnboarding = createServerFn({ method: 'POST' })
     const userId = await requireUserId()
     return seedDefaults(db, userId, data.locale, { seed: data.seed })
   })
+
+/** Drives the welcome redirect: false until onboarding is completed or skipped. */
+export const getOnboardingStatus = createServerFn({ method: 'GET' }).handler(
+  async () => {
+    const userId = await requireUserId()
+    return { onboarded: (await getOnboardedAt(db, userId)) !== null }
+  },
+)
 
 export const getMySettings = createServerFn({ method: 'GET' }).handler(
   async () => {

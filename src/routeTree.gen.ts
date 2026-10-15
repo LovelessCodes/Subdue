@@ -14,6 +14,7 @@ import { Route as ConsentRouteImport } from './routes/consent'
 import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as SignUpRouteImport } from './routes/sign-up'
 import { Route as TwoFactorRouteImport } from './routes/two-factor'
+import { Route as WelcomeRouteImport } from './routes/welcome'
 import { Route as DotwellKnownSplatRouteImport } from './routes/[.]well-known/$'
 import { Route as AppIndexRouteImport } from './routes/_app.index'
 import { Route as AppAdminRouteImport } from './routes/_app.admin'
@@ -58,6 +59,11 @@ const SignUpRoute = SignUpRouteImport.update({
 const TwoFactorRoute = TwoFactorRouteImport.update({
   id: '/two-factor',
   path: '/two-factor',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WelcomeRoute = WelcomeRouteImport.update({
+  id: '/welcome',
+  path: '/welcome',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DotwellKnownSplatRoute = DotwellKnownSplatRouteImport.update({
@@ -172,6 +178,7 @@ export interface FileRoutesByFullPath {
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
   '/two-factor': typeof TwoFactorRoute
+  '/welcome': typeof WelcomeRoute
   '/.well-known/$': typeof DotwellKnownSplatRoute
   '/admin': typeof AppAdminRoute
   '/calendar': typeof AppCalendarRoute
@@ -198,6 +205,7 @@ export interface FileRoutesByTo {
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
   '/two-factor': typeof TwoFactorRoute
+  '/welcome': typeof WelcomeRoute
   '/.well-known/$': typeof DotwellKnownSplatRoute
   '/admin': typeof AppAdminRoute
   '/calendar': typeof AppCalendarRoute
@@ -227,6 +235,7 @@ export interface FileRoutesById {
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
   '/two-factor': typeof TwoFactorRoute
+  '/welcome': typeof WelcomeRoute
   '/.well-known/$': typeof DotwellKnownSplatRoute
   '/_app/admin': typeof AppAdminRoute
   '/_app/calendar': typeof AppCalendarRoute
@@ -257,6 +266,7 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/sign-up'
     | '/two-factor'
+    | '/welcome'
     | '/.well-known/$'
     | '/admin'
     | '/calendar'
@@ -283,6 +293,7 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/sign-up'
     | '/two-factor'
+    | '/welcome'
     | '/.well-known/$'
     | '/admin'
     | '/calendar'
@@ -311,6 +322,7 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/sign-up'
     | '/two-factor'
+    | '/welcome'
     | '/.well-known/$'
     | '/_app/admin'
     | '/_app/calendar'
@@ -340,6 +352,7 @@ export interface RootRouteChildren {
   SignInRoute: typeof SignInRoute
   SignUpRoute: typeof SignUpRoute
   TwoFactorRoute: typeof TwoFactorRoute
+  WelcomeRoute: typeof WelcomeRoute
   DotwellKnownSplatRoute: typeof DotwellKnownSplatRoute
   ApiHealthRoute: typeof ApiHealthRoute
   ApiLogosRoute: typeof ApiLogosRouteWithChildren
@@ -388,6 +401,13 @@ declare module '@tanstack/react-router' {
       path: '/two-factor'
       fullPath: '/two-factor'
       preLoaderRoute: typeof TwoFactorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/welcome': {
+      id: '/welcome'
+      path: '/welcome'
+      fullPath: '/welcome'
+      preLoaderRoute: typeof WelcomeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/.well-known/$': {
@@ -584,6 +604,7 @@ const rootRouteChildren: RootRouteChildren = {
   SignInRoute: SignInRoute,
   SignUpRoute: SignUpRoute,
   TwoFactorRoute: TwoFactorRoute,
+  WelcomeRoute: WelcomeRoute,
   DotwellKnownSplatRoute: DotwellKnownSplatRoute,
   ApiHealthRoute: ApiHealthRoute,
   ApiLogosRoute: ApiLogosRouteWithChildren,

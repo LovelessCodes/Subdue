@@ -61,6 +61,20 @@ export async function getSettings(
   }
 }
 
+/** Null until the welcome step has been completed or skipped. */
+export async function getOnboardedAt(
+  db: Database,
+  userId: string,
+): Promise<Date | null> {
+  const rows = await db
+    .select({ onboardedAt: userSetting.onboardedAt })
+    .from(userSetting)
+    .where(eq(userSetting.userId, userId))
+    .limit(1)
+
+  return rows[0]?.onboardedAt ?? null
+}
+
 export async function updateSettings(
   db: Database,
   userId: string,

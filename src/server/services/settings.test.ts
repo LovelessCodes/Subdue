@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
+import { seedDefaults } from '@/server/services/defaults'
 import {
   defaultSettings,
+  getOnboardedAt,
   getSettings,
   updateSettings,
 } from '@/server/services/settings'
@@ -12,6 +14,17 @@ describe('settings service', () => {
     await insertTestUser(db, 'u1')
 
     expect(await getSettings(db, 'u1')).toEqual(defaultSettings)
+  })
+
+  it('reports onboarding as unset until the stamp is written', async () => {
+    const { db } = createTestDb()
+    await insertTestUser(db, 'u1')
+
+    expect(await getOnboardedAt(db, 'u1')).toBeNull()
+
+    await seedDefaults(db, 'u1', 'da', { seed: false })
+
+    expect(await getOnboardedAt(db, 'u1')).toBeInstanceOf(Date)
   })
 
   it('creates a settings row on first update and patches it after', async () => {

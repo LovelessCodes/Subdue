@@ -68,7 +68,7 @@ function SignUp() {
     try {
       await authClient.signIn.social({
         provider,
-        callbackURL: '/setup',
+        callbackURL: '/welcome',
       } as Parameters<typeof authClient.signIn.social>[0])
     } catch {
       setError('Social sign-in failed to start.')
@@ -140,7 +140,7 @@ function SignUp() {
         setError(result.error.message ?? 'Could not create the account.')
         return
       }
-      window.location.assign('/setup')
+      window.location.assign('/welcome')
     } catch {
       setError('Something went wrong. Please try again.')
     } finally {
