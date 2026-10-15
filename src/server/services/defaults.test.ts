@@ -44,7 +44,7 @@ describe('defaultSeedSet', () => {
       de: ['Rundfunkbeitrag'],
       da: ['Fagforening', 'A-kasse'],
       sv: ['A-kassa'],
-      nb: ['Fagforening'],
+      nb: ['Fagforening', 'A-kasse'],
       fr: ['Mutuelle'],
       es: ['Comunidad de vecinos'],
       zh: ['话费'],
