@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 import { authClient } from '@/lib/auth-client'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { BudgetSummary } from '@/components/budget-summary'
 import { SubdueMark } from '@/components/subdue-mark'
 import {
   Drawer,
@@ -145,10 +146,12 @@ function SignOutRow() {
 export function AppShell({
   isAdmin,
   counts,
+  budget,
   children,
 }: {
   isAdmin: boolean
   counts: Record<string, number>
+  budget: Parameters<typeof BudgetSummary>[0]['budget']
   children: ReactNode
 }) {
   const session = authClient.useSession()
@@ -190,6 +193,10 @@ export function AppShell({
         </SidebarContent>
 
         <SidebarFooter className="gap-0 p-0 pb-2">
+          <div className="px-3 pb-2 group-data-[collapsible=icon]:hidden">
+            <BudgetSummary budget={budget} />
+          </div>
+
           <div className="px-3">
             <UserMenu>
               <MenuTrigger
@@ -259,6 +266,10 @@ export function AppShell({
                     <SignOutRow />
                   </SidebarMenu>
                 </div>
+                <div className="mt-4">
+                  <BudgetSummary budget={budget} />
+                </div>
+
                 <div className="mt-3 flex items-center gap-2.5 px-2">
                   <AccountRows name={name} email={email} />
                 </div>

@@ -1,5 +1,5 @@
 import { Outlet, createFileRoute, redirect } from '@tanstack/react-router'
-import { getDashboard, getInbox } from '@/lib/app.functions'
+import { getBudget, getDashboard, getInbox } from '@/lib/app.functions'
 import { getSession } from '@/lib/auth.functions'
 import { AppShell } from '@/components/app-shell'
 
@@ -9,7 +9,11 @@ export const Route = createFileRoute('/_app')({
     if (!session) {
       throw redirect({ to: '/sign-in' })
     }
-    const [dashboard, inbox] = await Promise.all([getDashboard(), getInbox()])
+    const [dashboard, budget, inbox] = await Promise.all([
+      getDashboard(),
+      getBudget(),
+      getInbox(),
+    ])
     return {
       user: session.user,
       counts: {
@@ -18,6 +22,7 @@ export const Route = createFileRoute('/_app')({
         '/subscriptions': dashboard.subscriptionCount,
         '/inbox': inbox.unread,
       },
+      budget,
     }
   },
   component: AppLayout,
@@ -25,9 +30,9 @@ export const Route = createFileRoute('/_app')({
 
 /** Everything behind the sign-in wall shares one shell. */
 function AppLayout() {
-  const { user, counts } = Route.useRouteContext()
+  const { user, counts, budget } = Route.useRouteContext()
   return (
-    <AppShell isAdmin={user.role === 'admin'} counts={counts}>
+    <AppShell isAdmin={user.role === 'admin'} counts={counts} budget={budget}>
       <Outlet />
     </AppShell>
   )
