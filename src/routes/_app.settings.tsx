@@ -254,7 +254,10 @@ function SettingsPage() {
           onValueChange={(value) => setSection(value as Section)}
           className="gap-6"
         >
-          <TabsList variant="square" className="w-full max-sm:overflow-x-auto">
+          <TabsList
+            variant="square"
+            className="w-auto -mx-6 px-6 max-sm:overflow-x-auto"
+          >
             {SECTIONS.map((id) => (
               <TabsTab key={id} value={id} className="sm:basis-0">
                 {SECTION_LABELS[id]}

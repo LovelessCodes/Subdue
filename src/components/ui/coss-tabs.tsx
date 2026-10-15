@@ -53,7 +53,7 @@ export function TabsList({
         variant === 'default'
           ? 'rounded-lg bg-muted p-0.5 text-muted-foreground/72'
           : variant === 'square'
-            ? 'shadow-[inset_0_-1px_0_0_var(--border)] *:data-[slot=tabs-tab]:rounded-none *:data-[slot=tabs-tab]:hover:text-foreground'
+            ? 'shadow-[inset_0_-1px_0_0_color-mix(in_oklab,var(--foreground)_20%,transparent)] *:data-[slot=tabs-tab]:rounded-none *:data-[slot=tabs-tab]:hover:text-foreground'
             : 'data-[orientation=vertical]:px-1 data-[orientation=horizontal]:py-1 *:data-[slot=tabs-tab]:hover:bg-accent',
         className,
       )}
@@ -70,7 +70,7 @@ export function TabsList({
           variant === 'underline'
             ? 'z-10 bottom-0 h-(--active-tab-height) -translate-y-(--active-tab-bottom) bg-primary data-[orientation=horizontal]:h-0.5 data-[orientation=vertical]:w-0.5 data-[orientation=vertical]:-translate-x-px data-[orientation=horizontal]:translate-y-px'
             : variant === 'square'
-              ? '-z-1 top-0 h-full border-x border-t border-border bg-background'
+              ? '-z-1 top-0 h-full border-x border-t border-foreground/20 bg-background'
               : '-z-1 bottom-0 h-(--active-tab-height) -translate-y-(--active-tab-bottom) rounded-md bg-background shadow-sm/5 dark:bg-input',
         )}
         data-slot="tab-indicator"
