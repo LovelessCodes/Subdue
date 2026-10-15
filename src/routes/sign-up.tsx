@@ -204,28 +204,37 @@ function SignUp() {
                     onFocus={() => setPickedIndex(index)}
                     onClick={() => runMethod(method)}
                     className={cn(
-                      'relative flex h-10 w-full items-center gap-3 rounded-lg px-2.5 text-left text-sm transition-colors duration-150 ease-out disabled:opacity-50',
+                      'relative flex h-10 w-full items-center rounded-lg px-2.5 text-left text-sm transition-colors duration-150 ease-out disabled:opacity-50',
                       isActive ? 'text-foreground' : 'text-muted-foreground',
-                      rise,
                     )}
-                    style={{ animationDelay: `${60 + index * 35}ms` }}
                   >
-                    <ProviderMark id={method.id} className="size-4 shrink-0" />
-                    <span className="flex-1 truncate font-medium">
-                      {method.label}
+                    {/* The entrance slides the row's contents, not the row: a
+                        translated row box would grow the scroll container and
+                        flash a scrollbar for the length of the animation. */}
+                    <span
+                      className={cn('flex w-full items-center gap-3', rise)}
+                      style={{ animationDelay: `${60 + index * 35}ms` }}
+                    >
+                      <ProviderMark
+                        id={method.id}
+                        className="size-4 shrink-0"
+                      />
+                      <span className="flex-1 truncate font-medium">
+                        {method.label}
+                      </span>
+                      {isPending ? (
+                        <LoaderCircle className="size-4 shrink-0 animate-spin" />
+                      ) : (
+                        <Kbd
+                          className={cn(
+                            'transition-opacity duration-150 ease-out',
+                            isActive ? 'opacity-100' : 'opacity-0',
+                          )}
+                        >
+                          ⏎
+                        </Kbd>
+                      )}
                     </span>
-                    {isPending ? (
-                      <LoaderCircle className="size-4 shrink-0 animate-spin" />
-                    ) : (
-                      <Kbd
-                        className={cn(
-                          'transition-opacity duration-150 ease-out',
-                          isActive ? 'opacity-100' : 'opacity-0',
-                        )}
-                      >
-                        ⏎
-                      </Kbd>
-                    )}
                   </button>
                 )
               })}
