@@ -1,5 +1,5 @@
 import { createServerFn } from '@tanstack/react-start'
-import { getRequestHeaders } from '@tanstack/react-start/server'
+import { getRequestHeaders, setCookie } from '@tanstack/react-start/server'
 import { eq } from 'drizzle-orm'
 import * as z from 'zod'
 import { user } from '../lib/auth-schema'
@@ -43,6 +43,7 @@ import {
   subscriptionBodySchema,
 } from '../server/validation'
 import { removeLogo } from '../server/logos'
+import { LOCALE_COOKIE } from '../i18n'
 import { auth } from './auth'
 import { db } from './db'
 
@@ -370,6 +371,15 @@ export const updateMySettings = createServerFn({ method: 'POST' })
   .validator((input: unknown) => settingsPatchSchema.parse(input))
   .handler(async ({ data }) => {
     const userId = await requireUserId()
+    if (data.locale) {
+      // Mirror the choice so signed-out pages keep this browser's language.
+      setCookie(LOCALE_COOKIE, data.locale, {
+        path: '/',
+        maxAge: 60 * 60 * 24 * 365,
+        sameSite: 'lax',
+        httpOnly: true,
+      })
+    }
     return updateSettings(db, userId, data)
   })
 

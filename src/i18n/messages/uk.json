@@ -1,0 +1,18 @@
+{
+  "nav": {
+    "track": "Відстеження",
+    "configure": "Конфігурація",
+    "dashboard": "Панель",
+    "calendar": "Календар",
+    "subscriptions": "Підписки",
+    "inbox": "Вхідні",
+    "channels": "Канали",
+    "integrations": "Інтеграції",
+    "settings": "Налаштування",
+    "admin": "Адмін",
+    "accountMenu": "Меню облікового запису",
+    "openNavigation": "Відкрити навігацію",
+    "toggleSidebar": "Показати або приховати бічну панель",
+    "signOut": "Вийти"
+  }
+}

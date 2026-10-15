@@ -1,0 +1,18 @@
+{
+  "nav": {
+    "track": "Seguimiento",
+    "configure": "Configuración",
+    "dashboard": "Panel",
+    "calendar": "Calendario",
+    "subscriptions": "Suscripciones",
+    "inbox": "Bandeja de entrada",
+    "channels": "Canales",
+    "integrations": "Integraciones",
+    "settings": "Ajustes",
+    "admin": "Admin",
+    "accountMenu": "Menú de la cuenta",
+    "openNavigation": "Abrir la navegación",
+    "toggleSidebar": "Mostrar u ocultar la barra lateral",
+    "signOut": "Cerrar sesión"
+  }
+}

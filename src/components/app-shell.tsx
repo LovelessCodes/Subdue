@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { Link, useMatchRoute } from '@tanstack/react-router'
+import { useTranslations } from 'use-intl'
 import {
   BellRing,
   CalendarDays,
@@ -51,17 +52,17 @@ import {
 } from '@/components/ui/sidebar'
 
 const PRIMARY = [
-  { to: '/', label: 'Dashboard', Icon: LayoutDashboard },
-  { to: '/calendar', label: 'Calendar', Icon: CalendarDays },
-  { to: '/subscriptions', label: 'Subscriptions', Icon: CreditCard },
-  { to: '/inbox', label: 'Inbox', Icon: Inbox },
+  { to: '/', labelKey: 'dashboard', Icon: LayoutDashboard },
+  { to: '/calendar', labelKey: 'calendar', Icon: CalendarDays },
+  { to: '/subscriptions', labelKey: 'subscriptions', Icon: CreditCard },
+  { to: '/inbox', labelKey: 'inbox', Icon: Inbox },
 ] as const
 
 const SECONDARY = [
-  { to: '/channels', label: 'Channels', Icon: BellRing },
-  { to: '/integrations', label: 'Integrations', Icon: Plug },
-  { to: '/settings', label: 'Settings', Icon: Settings },
-  { to: '/admin', label: 'Admin', Icon: ShieldCheck },
+  { to: '/channels', labelKey: 'channels', Icon: BellRing },
+  { to: '/integrations', labelKey: 'integrations', Icon: Plug },
+  { to: '/settings', labelKey: 'settings', Icon: Settings },
+  { to: '/admin', labelKey: 'admin', Icon: ShieldCheck },
 ] as const
 
 function Wordmark({ className }: { className?: string }) {
@@ -87,19 +88,21 @@ function NavItem({
   entry: (typeof PRIMARY)[number] | (typeof SECONDARY)[number]
   counts: Record<string, number>
 }) {
+  const t = useTranslations('nav')
   const matchRoute = useMatchRoute()
   const active = Boolean(matchRoute({ to: entry.to, fuzzy: entry.to !== '/' }))
   const count = counts[entry.to] ?? 0
+  const label = t(entry.labelKey)
 
   return (
     <SidebarMenuItem>
       <SidebarMenuButton
-        render={<Link to={entry.to} aria-label={entry.label} />}
+        render={<Link to={entry.to} aria-label={label} />}
         isActive={active}
-        tooltip={entry.label}
+        tooltip={label}
       >
         <entry.Icon />
-        <span className="truncate">{entry.label}</span>
+        <span className="truncate">{label}</span>
         {count > 0 && <SidebarMenuBadge>{count}</SidebarMenuBadge>}
       </SidebarMenuButton>
     </SidebarMenuItem>
@@ -130,6 +133,8 @@ function AccountRows({ name, email }: { name: string; email: string }) {
 }
 
 function SignOutRow() {
+  const t = useTranslations('nav')
+
   return (
     <SidebarMenuItem>
       <SidebarMenuButton
@@ -137,7 +142,7 @@ function SignOutRow() {
         onClick={signOut}
       >
         <LogOut />
-        <span>Sign out</span>
+        <span>{t('signOut')}</span>
       </SidebarMenuButton>
     </SidebarMenuItem>
   )
@@ -156,6 +161,7 @@ export function AppShell({
   children: ReactNode
 }) {
   const session = authClient.useSession()
+  const t = useTranslations('nav')
   const secondary = isAdmin
     ? SECONDARY
     : SECONDARY.filter((entry) => entry.to !== '/admin')
@@ -171,7 +177,7 @@ export function AppShell({
 
         <SidebarContent>
           <SidebarGroup>
-            <SidebarGroupLabel>Track</SidebarGroupLabel>
+            <SidebarGroupLabel>{t('track')}</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {PRIMARY.map((entry) => (
@@ -182,7 +188,7 @@ export function AppShell({
           </SidebarGroup>
 
           <SidebarGroup>
-            <SidebarGroupLabel>Configure</SidebarGroupLabel>
+            <SidebarGroupLabel>{t('configure')}</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {secondary.map((entry) => (
@@ -204,7 +210,7 @@ export function AppShell({
                 render={
                   <button
                     type="button"
-                    aria-label="Account menu"
+                    aria-label={t('accountMenu')}
                     className="flex w-full min-w-0 items-center gap-2.5 rounded-lg px-2 py-1.5 text-left transition-colors duration-150 ease-out hover:bg-sidebar-accent focus-visible:ring-2 focus-visible:ring-sidebar-ring focus-visible:outline-none group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0"
                   />
                 }
@@ -215,15 +221,15 @@ export function AppShell({
                 <MenuGroup>
                   <MenuGroupLabel>{email}</MenuGroupLabel>
                   <MenuItem
-                    render={<Link to="/settings" aria-label="Settings" />}
+                    render={<Link to="/settings" aria-label={t('settings')} />}
                   >
-                    Settings
+                    {t('settings')}
                   </MenuItem>
                 </MenuGroup>
                 <MenuSeparator />
                 <MenuItem variant="destructive" closeOnClick onClick={signOut}>
                   <LogOut />
-                  Sign out
+                  {t('signOut')}
                 </MenuItem>
               </MenuPopup>
             </UserMenu>
@@ -241,7 +247,7 @@ export function AppShell({
               render={
                 <button
                   type="button"
-                  aria-label="Open navigation"
+                  aria-label={t('openNavigation')}
                   className="-ml-1.5 flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors duration-150 ease-out hover:bg-muted hover:text-foreground md:hidden"
                 />
               }

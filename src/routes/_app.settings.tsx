@@ -48,6 +48,24 @@ const LOCALES = [
   'it',
   'pl',
 ]
+
+/** Own-language names, so the list reads the same wherever you are. */
+const ENDONYMS: Record<string, string> = {
+  en: 'English',
+  da: 'Dansk',
+  de: 'Deutsch',
+  sv: 'Svenska',
+  nb: 'Norsk bokmål',
+  fi: 'Suomi',
+  nl: 'Nederlands',
+  fr: 'Français',
+  es: 'Español',
+  it: 'Italiano',
+  pl: 'Polski',
+  zh: '简体中文',
+  fo: 'Føroyskt',
+  uk: 'Українська',
+}
 const THEMES = ['light', 'dark', 'system'] as const
 const WEEK_STARTS = ['monday', 'sunday'] as const
 
@@ -83,6 +101,10 @@ function SettingsPage() {
   const [error, setError] = useState<string | null>(null)
   const [pending, setPending] = useState(false)
   const [form, setForm] = useState(() => formFrom(settings))
+
+  const localeOptions = [...new Set([settings.locale, ...LOCALES])].map(
+    (code) => ({ value: code, label: ENDONYMS[code] ?? code }),
+  )
 
   function set(key: keyof typeof form, value: string) {
     setSaved(false)
@@ -162,24 +184,27 @@ function SettingsPage() {
                   </FieldDescription>
                 </Field>
                 <Field>
-                  <FieldLabel>Language for formatting</FieldLabel>
+                  <FieldLabel>Language</FieldLabel>
                   <Select
                     value={form.locale}
+                    items={localeOptions}
                     onValueChange={(value) => set('locale', String(value))}
                   >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {[...new Set([settings.locale, ...LOCALES])].map(
-                        (locale) => (
-                          <SelectItem key={locale} value={locale}>
-                            {locale}
-                          </SelectItem>
-                        ),
-                      )}
+                      {localeOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
+                  <FieldDescription>
+                    Applies to the app&rsquo;s text and to how amounts and dates
+                    are shown.
+                  </FieldDescription>
                 </Field>
               </div>
 

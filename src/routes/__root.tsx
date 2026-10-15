@@ -1,10 +1,22 @@
-import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
+import {
+  HeadContent,
+  Outlet,
+  Scripts,
+  createRootRoute,
+} from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
+import { IntlProvider } from 'use-intl'
 
+import { loadMessages } from '@/i18n'
+import { getMessageLocale } from '@/lib/i18n.functions'
 import appCss from '../styles.css?url'
 
 export const Route = createRootRoute({
+  loader: async () => {
+    const locale = await getMessageLocale()
+    return { locale, messages: await loadMessages(locale) }
+  },
   head: () => ({
     meta: [
       {
@@ -47,11 +59,23 @@ export const Route = createRootRoute({
     ],
   }),
   shellComponent: RootDocument,
+  component: RootComponent,
 })
 
-function RootDocument({ children }: { children: React.ReactNode }) {
+/** Every route renders inside the message provider. */
+function RootComponent() {
+  const { locale, messages } = Route.useLoaderData()
   return (
-    <html lang="en">
+    <IntlProvider locale={locale} messages={messages}>
+      <Outlet />
+    </IntlProvider>
+  )
+}
+
+function RootDocument({ children }: { children: React.ReactNode }) {
+  const { locale } = Route.useLoaderData()
+  return (
+    <html lang={locale}>
       <head>
         <script
           dangerouslySetInnerHTML={{

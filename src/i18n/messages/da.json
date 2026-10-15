@@ -1,0 +1,18 @@
+{
+  "nav": {
+    "track": "Overvågning",
+    "configure": "Opsætning",
+    "dashboard": "Overblik",
+    "calendar": "Kalender",
+    "subscriptions": "Abonnementer",
+    "inbox": "Indbakke",
+    "channels": "Kanaler",
+    "integrations": "Integrationer",
+    "settings": "Indstillinger",
+    "admin": "Admin",
+    "accountMenu": "Kontomenu",
+    "openNavigation": "Åbn navigation",
+    "toggleSidebar": "Vis eller skjul sidepanelet",
+    "signOut": "Log ud"
+  }
+}

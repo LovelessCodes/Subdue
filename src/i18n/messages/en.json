@@ -1,0 +1,18 @@
+{
+  "nav": {
+    "track": "Track",
+    "configure": "Configure",
+    "dashboard": "Dashboard",
+    "calendar": "Calendar",
+    "subscriptions": "Subscriptions",
+    "inbox": "Inbox",
+    "channels": "Channels",
+    "integrations": "Integrations",
+    "settings": "Settings",
+    "admin": "Admin",
+    "accountMenu": "Account menu",
+    "openNavigation": "Open navigation",
+    "toggleSidebar": "Toggle sidebar",
+    "signOut": "Sign out"
+  }
+}

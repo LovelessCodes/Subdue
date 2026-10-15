@@ -1,0 +1,18 @@
+{
+  "nav": {
+    "track": "追踪",
+    "configure": "配置",
+    "dashboard": "仪表盘",
+    "calendar": "日历",
+    "subscriptions": "订阅",
+    "inbox": "收件箱",
+    "channels": "渠道",
+    "integrations": "集成",
+    "settings": "设置",
+    "admin": "管理",
+    "accountMenu": "账户菜单",
+    "openNavigation": "打开导航",
+    "toggleSidebar": "显示或隐藏侧边栏",
+    "signOut": "退出登录"
+  }
+}

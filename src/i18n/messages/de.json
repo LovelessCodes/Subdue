@@ -1,0 +1,18 @@
+{
+  "nav": {
+    "track": "Überwachung",
+    "configure": "Einrichtung",
+    "dashboard": "Übersicht",
+    "calendar": "Kalender",
+    "subscriptions": "Abonnements",
+    "inbox": "Posteingang",
+    "channels": "Kanäle",
+    "integrations": "Integrationen",
+    "settings": "Einstellungen",
+    "admin": "Admin",
+    "accountMenu": "Kontomenü",
+    "openNavigation": "Navigation öffnen",
+    "toggleSidebar": "Seitenleiste ein- oder ausblenden",
+    "signOut": "Abmelden"
+  }
+}

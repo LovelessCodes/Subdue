@@ -1,0 +1,18 @@
+{
+  "nav": {
+    "track": "Övervakning",
+    "configure": "Konfiguration",
+    "dashboard": "Översikt",
+    "calendar": "Kalender",
+    "subscriptions": "Prenumerationer",
+    "inbox": "Inkorg",
+    "channels": "Kanaler",
+    "integrations": "Integrationer",
+    "settings": "Inställningar",
+    "admin": "Admin",
+    "accountMenu": "Kontomeny",
+    "openNavigation": "Öppna navigeringen",
+    "toggleSidebar": "Visa eller dölj sidopanelen",
+    "signOut": "Logga ut"
+  }
+}
