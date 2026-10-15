@@ -104,13 +104,41 @@ export function TabsTab({
   )
 }
 
+/**
+ * Stack wrapper for animated panels: puts every panel in one grid cell so the
+ * leaving panel cross-fades in place, and clips the direction slides. The
+ * `-mx-1`/`px-1` pair pushes the clip edge off the content edge so focus rings
+ * sitting on it stay uncut.
+ */
+export function TabsPanels({
+  className,
+  ...props
+}: React.ComponentProps<'div'>): React.ReactElement {
+  return (
+    <div
+      className={cn('-mx-1 grid flex-1 overflow-x-clip px-1', className)}
+      data-slot="tabs-panels"
+      {...props}
+    />
+  )
+}
+
 export function TabsPanel({
   className,
   ...props
 }: TabsPrimitive.Panel.Props): React.ReactElement {
   return (
     <TabsPrimitive.Panel
-      className={cn('flex-1 outline-none', className)}
+      className={cn(
+        // One grid cell for every panel (see TabsPanels): entering and leaving
+        // panels overlap so they can cross-fade in place.
+        'col-start-1 row-start-1 flex-1 outline-none',
+        // Base UI animated-panels pattern: the fade runs short, the slide runs
+        // longer on a strong ease-out, and it trails in the tab's direction.
+        '[transition:opacity_175ms_ease,translate_350ms_cubic-bezier(0.22,1,0.36,1)] data-starting-style:opacity-0 data-ending-style:opacity-0',
+        'motion-safe:data-starting-style:data-[activation-direction=left]:-translate-x-8 motion-safe:data-starting-style:data-[activation-direction=right]:translate-x-8 motion-safe:data-ending-style:data-[activation-direction=left]:translate-x-8 motion-safe:data-ending-style:data-[activation-direction=right]:-translate-x-8',
+        className,
+      )}
       data-slot="tabs-content"
       {...props}
     />

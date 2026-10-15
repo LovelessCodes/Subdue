@@ -24,7 +24,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Tabs, TabsList, TabsPanel, TabsTab } from '@/components/ui/coss-tabs'
+import {
+  Tabs,
+  TabsList,
+  TabsPanel,
+  TabsPanels,
+  TabsTab,
+} from '@/components/ui/coss-tabs'
 import { getMySettings, updateMySettings } from '@/lib/app.functions'
 import { getSession } from '@/lib/auth.functions'
 import { fromMajorUnits, toMajorUnits } from '@/lib/money'
@@ -265,162 +271,164 @@ function SettingsPage() {
             ))}
           </TabsList>
 
-          <TabsPanel value="preferences" className="flex flex-col gap-5">
-            <SectionLead section="preferences" />
-            <FieldGroup>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Field>
-                  <FieldLabel htmlFor="settings-currency">
-                    Main currency
-                  </FieldLabel>
-                  <Input
-                    id="settings-currency"
-                    value={form.currency}
-                    onChange={(event) =>
-                      change('currency', event.target.value.toUpperCase())
-                    }
-                    maxLength={3}
-                  />
-                  <FieldDescription>
-                    Everything converts into this currency using daily ECB
-                    rates.
-                  </FieldDescription>
-                </Field>
-                <Field>
-                  <FieldLabel>Language</FieldLabel>
-                  <Select
-                    value={form.locale}
-                    items={localeOptions}
-                    onValueChange={(value) => change('locale', String(value))}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {localeOptions.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FieldDescription>
-                    Applies to the app&rsquo;s text and to how amounts and dates
-                    are shown.
-                  </FieldDescription>
-                </Field>
+          <TabsPanels>
+            <TabsPanel value="preferences" className="flex flex-col gap-5">
+              <SectionLead section="preferences" />
+              <FieldGroup>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <Field>
+                    <FieldLabel htmlFor="settings-currency">
+                      Main currency
+                    </FieldLabel>
+                    <Input
+                      id="settings-currency"
+                      value={form.currency}
+                      onChange={(event) =>
+                        change('currency', event.target.value.toUpperCase())
+                      }
+                      maxLength={3}
+                    />
+                    <FieldDescription>
+                      Everything converts into this currency using daily ECB
+                      rates.
+                    </FieldDescription>
+                  </Field>
+                  <Field>
+                    <FieldLabel>Language</FieldLabel>
+                    <Select
+                      value={form.locale}
+                      items={localeOptions}
+                      onValueChange={(value) => change('locale', String(value))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {localeOptions.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FieldDescription>
+                      Applies to the app&rsquo;s text and to how amounts and
+                      dates are shown.
+                    </FieldDescription>
+                  </Field>
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <Field>
+                    <FieldLabel>Week starts on</FieldLabel>
+                    <Select
+                      value={form.weekStart}
+                      items={weekOptions}
+                      onValueChange={(value) =>
+                        change('weekStart', String(value))
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {weekOptions.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                  <Field>
+                    <FieldLabel>Theme</FieldLabel>
+                    <Select
+                      value={form.theme}
+                      items={themeOptions}
+                      onValueChange={(value) => change('theme', String(value))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {themeOptions.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                </div>
+              </FieldGroup>
+            </TabsPanel>
+
+            <TabsPanel value="budget" className="flex flex-col gap-5">
+              <SectionLead section="budget" />
+              <FieldGroup>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <Field>
+                    <FieldLabel htmlFor="settings-budget">
+                      Budget per period ({form.currency})
+                    </FieldLabel>
+                    <Input
+                      id="settings-budget"
+                      value={form.budget}
+                      onChange={(event) => change('budget', event.target.value)}
+                      inputMode="decimal"
+                      placeholder="Empty = no budget"
+                    />
+                  </Field>
+                  <Field>
+                    <FieldLabel htmlFor="settings-anchor">
+                      Pay day anchor (1–31)
+                    </FieldLabel>
+                    <Input
+                      id="settings-anchor"
+                      value={form.anchor}
+                      onChange={(event) => change('anchor', event.target.value)}
+                      inputMode="numeric"
+                      placeholder="Empty = calendar months"
+                    />
+                  </Field>
+                </div>
+                <AnchorNote />
+              </FieldGroup>
+            </TabsPanel>
+
+            <TabsPanel value="reminders" className="flex flex-col gap-5">
+              <SectionLead section="reminders" />
+              <Field>
+                <FieldLabel htmlFor="settings-remind">
+                  Days before a charge
+                </FieldLabel>
+                <Input
+                  id="settings-remind"
+                  value={form.remindDays}
+                  onChange={(event) => change('remindDays', event.target.value)}
+                  inputMode="numeric"
+                  placeholder="Empty = default (3)"
+                  className="max-w-40"
+                />
+                <FieldDescription>
+                  Per-subscription overrides win over this default.
+                </FieldDescription>
+              </Field>
+            </TabsPanel>
+
+            <TabsPanel value="lists" className="flex flex-col gap-5">
+              <SectionLead section="lists" />
+              <ManagedListsCard />
+            </TabsPanel>
+
+            <TabsPanel value="security" className="flex flex-col gap-5">
+              <SectionLead section="security" />
+              <div className="flex flex-col gap-4">
+                <PasskeyCard />
+                <TwoFactorCard />
               </div>
-
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Field>
-                  <FieldLabel>Week starts on</FieldLabel>
-                  <Select
-                    value={form.weekStart}
-                    items={weekOptions}
-                    onValueChange={(value) =>
-                      change('weekStart', String(value))
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {weekOptions.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </Field>
-                <Field>
-                  <FieldLabel>Theme</FieldLabel>
-                  <Select
-                    value={form.theme}
-                    items={themeOptions}
-                    onValueChange={(value) => change('theme', String(value))}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {themeOptions.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </Field>
-              </div>
-            </FieldGroup>
-          </TabsPanel>
-
-          <TabsPanel value="budget" className="flex flex-col gap-5">
-            <SectionLead section="budget" />
-            <FieldGroup>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Field>
-                  <FieldLabel htmlFor="settings-budget">
-                    Budget per period ({form.currency})
-                  </FieldLabel>
-                  <Input
-                    id="settings-budget"
-                    value={form.budget}
-                    onChange={(event) => change('budget', event.target.value)}
-                    inputMode="decimal"
-                    placeholder="Empty = no budget"
-                  />
-                </Field>
-                <Field>
-                  <FieldLabel htmlFor="settings-anchor">
-                    Pay day anchor (1–31)
-                  </FieldLabel>
-                  <Input
-                    id="settings-anchor"
-                    value={form.anchor}
-                    onChange={(event) => change('anchor', event.target.value)}
-                    inputMode="numeric"
-                    placeholder="Empty = calendar months"
-                  />
-                </Field>
-              </div>
-              <AnchorNote />
-            </FieldGroup>
-          </TabsPanel>
-
-          <TabsPanel value="reminders" className="flex flex-col gap-5">
-            <SectionLead section="reminders" />
-            <Field>
-              <FieldLabel htmlFor="settings-remind">
-                Days before a charge
-              </FieldLabel>
-              <Input
-                id="settings-remind"
-                value={form.remindDays}
-                onChange={(event) => change('remindDays', event.target.value)}
-                inputMode="numeric"
-                placeholder="Empty = default (3)"
-                className="max-w-40"
-              />
-              <FieldDescription>
-                Per-subscription overrides win over this default.
-              </FieldDescription>
-            </Field>
-          </TabsPanel>
-
-          <TabsPanel value="lists" className="flex flex-col gap-5">
-            <SectionLead section="lists" />
-            <ManagedListsCard />
-          </TabsPanel>
-
-          <TabsPanel value="security" className="flex flex-col gap-5">
-            <SectionLead section="security" />
-            <div className="flex flex-col gap-4">
-              <PasskeyCard />
-              <TwoFactorCard />
-            </div>
-          </TabsPanel>
+            </TabsPanel>
+          </TabsPanels>
         </Tabs>
 
         <p className="text-sm text-muted-foreground">
