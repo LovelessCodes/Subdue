@@ -1,0 +1,18 @@
+{
+  "nav": {
+    "track": "Bijhouden",
+    "configure": "Beheren",
+    "dashboard": "Overzicht",
+    "calendar": "Kalender",
+    "subscriptions": "Abonnementen",
+    "inbox": "Postvak in",
+    "channels": "Kanalen",
+    "integrations": "Integraties",
+    "settings": "Instellingen",
+    "admin": "Admin",
+    "accountMenu": "Accountmenu",
+    "openNavigation": "Navigatie openen",
+    "toggleSidebar": "Zijbalk tonen of verbergen",
+    "signOut": "Uitloggen"
+  }
+}

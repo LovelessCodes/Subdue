@@ -43,18 +43,20 @@ describe('locale matching', () => {
     expect(matchLocale('da-DK')).toBe('da')
     expect(matchLocale('zh-CN')).toBe('zh')
     expect(matchLocale('uk_UA')).toBe('uk')
-    expect(matchLocale('fi')).toBeNull()
+    expect(matchLocale('fi')).toBe('fi')
+    expect(matchLocale('nl-BE')).toBe('nl')
+    expect(matchLocale('ja')).toBeNull()
     expect(matchLocale(null)).toBeNull()
   })
 
   it('resolves unsupported or empty values to English', () => {
-    expect(resolveMessageLocale('fi')).toBe('en')
+    expect(resolveMessageLocale('ja')).toBe('en')
     expect(resolveMessageLocale('')).toBe('en')
   })
 
   it('picks the best supported language from Accept-Language', () => {
     expect(pickFromAcceptLanguage('da-DK,da;q=0.9,en;q=0.8')).toBe('da')
-    expect(pickFromAcceptLanguage('fi,da;q=0.9')).toBe('da')
+    expect(pickFromAcceptLanguage('ja,da;q=0.9')).toBe('da')
     expect(pickFromAcceptLanguage('de')).toBe('de')
     expect(pickFromAcceptLanguage('*')).toBe('en')
     expect(pickFromAcceptLanguage(null)).toBe('en')

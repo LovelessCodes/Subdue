@@ -1,0 +1,18 @@
+{
+  "nav": {
+    "track": "Eftirlit",
+    "configure": "Uppsetning",
+    "dashboard": "Yvirlit",
+    "calendar": "Kalendari",
+    "subscriptions": "Áskriftir",
+    "inbox": "Innbakki",
+    "channels": "Rásir",
+    "integrations": "Sambindingar",
+    "settings": "Innstillingar",
+    "admin": "Admin",
+    "accountMenu": "Kontomeny",
+    "openNavigation": "Opna navigatión",
+    "toggleSidebar": "Vís ella dyl síðupanelin",
+    "signOut": "Rita út"
+  }
+}

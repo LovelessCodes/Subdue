@@ -1,0 +1,18 @@
+{
+  "nav": {
+    "track": "Seuranta",
+    "configure": "Määritykset",
+    "dashboard": "Yleiskatsaus",
+    "calendar": "Kalenteri",
+    "subscriptions": "Tilaukset",
+    "inbox": "Saapuneet",
+    "channels": "Kanavat",
+    "integrations": "Integraatiot",
+    "settings": "Asetukset",
+    "admin": "Ylläpito",
+    "accountMenu": "Tilivalikko",
+    "openNavigation": "Avaa valikko",
+    "toggleSidebar": "Näytä tai piilota sivupalkki",
+    "signOut": "Kirjaudu ulos"
+  }
+}

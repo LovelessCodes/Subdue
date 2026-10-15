@@ -14,6 +14,11 @@ export const SUPPORTED_LOCALES = [
   'es',
   'zh',
   'uk',
+  'fi',
+  'nl',
+  'it',
+  'pl',
+  'fo',
 ] as const
 export type MessageLocale = (typeof SUPPORTED_LOCALES)[number]
 
@@ -30,6 +35,11 @@ const loaders: Record<MessageLocale, () => Promise<{ default: unknown }>> = {
   es: () => import('./messages/es.json'),
   zh: () => import('./messages/zh.json'),
   uk: () => import('./messages/uk.json'),
+  fi: () => import('./messages/fi.json'),
+  nl: () => import('./messages/nl.json'),
+  it: () => import('./messages/it.json'),
+  pl: () => import('./messages/pl.json'),
+  fo: () => import('./messages/fo.json'),
 }
 
 export async function loadMessages(locale: MessageLocale): Promise<Messages> {
