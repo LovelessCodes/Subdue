@@ -53,7 +53,7 @@ export function TabsList({
         variant === 'default'
           ? 'rounded-lg bg-muted p-0.5 text-muted-foreground/72'
           : variant === 'square'
-            ? 'border-b border-border *:data-[slot=tabs-tab]:rounded-none *:data-[slot=tabs-tab]:hover:text-foreground'
+            ? 'shadow-[inset_0_-1px_0_0_var(--border)] *:data-[slot=tabs-tab]:rounded-none *:data-[slot=tabs-tab]:hover:text-foreground'
             : 'data-[orientation=vertical]:px-1 data-[orientation=horizontal]:py-1 *:data-[slot=tabs-tab]:hover:bg-accent',
         className,
       )}
