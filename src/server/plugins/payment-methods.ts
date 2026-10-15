@@ -16,6 +16,8 @@ export const paymentMethodsPlugin = () =>
         fields: {
           name: { type: 'string', required: true },
           icon: { type: 'string', required: false },
+          position: { type: 'number', required: true },
+          archivedAt: { type: 'date', required: false },
           userId: {
             type: 'string',
             required: true,
@@ -34,6 +36,7 @@ export const paymentMethodsPlugin = () =>
           query: z.object({
             limit: z.coerce.number().int().min(1).max(100).default(50),
             offset: z.coerce.number().int().min(0).default(0),
+            includeArchived: z.stringbool().default(false),
           }),
           use: [sessionMiddleware],
         },
@@ -119,8 +122,8 @@ export const paymentMethodsPlugin = () =>
           return ctx.json(paymentMethod)
         },
       ),
-      deletePaymentMethod: createAuthEndpoint(
-        '/payment-methods/delete',
+      archivePaymentMethod: createAuthEndpoint(
+        '/payment-methods/archive',
         {
           method: 'POST',
           body: z.object({ id: z.string() }),
@@ -128,14 +131,85 @@ export const paymentMethodsPlugin = () =>
         },
         async (ctx) => {
           const userId = ctx.context.session.user.id
-          const deleted = await paymentMethods.deletePaymentMethod(
+          const paymentMethod = await paymentMethods.archivePaymentMethod(
             db,
             userId,
             ctx.body.id,
           )
-          if (!deleted) {
+          if (!paymentMethod) {
             throw new APIError('NOT_FOUND', {
               message: 'PAYMENT_METHOD_NOT_FOUND',
+            })
+          }
+          return ctx.json(paymentMethod)
+        },
+      ),
+      restorePaymentMethod: createAuthEndpoint(
+        '/payment-methods/restore',
+        {
+          method: 'POST',
+          body: z.object({ id: z.string() }),
+          use: [sessionMiddleware],
+        },
+        async (ctx) => {
+          const userId = ctx.context.session.user.id
+          const paymentMethod = await paymentMethods.restorePaymentMethod(
+            db,
+            userId,
+            ctx.body.id,
+          )
+          if (!paymentMethod) {
+            throw new APIError('NOT_FOUND', {
+              message: 'PAYMENT_METHOD_NOT_FOUND',
+            })
+          }
+          return ctx.json(paymentMethod)
+        },
+      ),
+      reorderPaymentMethods: createAuthEndpoint(
+        '/payment-methods/reorder',
+        {
+          method: 'POST',
+          body: z.object({ ids: z.array(z.string()).max(500) }),
+          use: [sessionMiddleware],
+        },
+        async (ctx) => {
+          const userId = ctx.context.session.user.id
+          const reordered = await paymentMethods.reorderPaymentMethods(
+            db,
+            userId,
+            ctx.body.ids,
+          )
+          if (!reordered) {
+            throw new APIError('BAD_REQUEST', {
+              message: 'PAYMENT_METHOD_IDS_INVALID',
+            })
+          }
+          return ctx.json({ success: true })
+        },
+      ),
+      purgePaymentMethod: createAuthEndpoint(
+        '/payment-methods/purge',
+        {
+          method: 'POST',
+          body: z.object({ id: z.string() }),
+          use: [sessionMiddleware],
+        },
+        async (ctx) => {
+          const userId = ctx.context.session.user.id
+          const result = await paymentMethods.purgePaymentMethod(
+            db,
+            userId,
+            ctx.body.id,
+          )
+          if (result.status === 'not-found') {
+            throw new APIError('NOT_FOUND', {
+              message: 'PAYMENT_METHOD_NOT_FOUND',
+            })
+          }
+          if (result.status === 'in-use') {
+            throw new APIError('CONFLICT', {
+              message: 'PAYMENT_METHOD_IN_USE',
             })
           }
           return ctx.json({ success: true })

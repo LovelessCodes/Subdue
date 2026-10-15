@@ -69,7 +69,7 @@ export function createSubdueMcpServer(authInfo?: AuthInfo) {
   server.registerTool(
     'list_categories',
     {
-      description: 'List all categories.',
+      description: 'List active categories in display order.',
       inputSchema: z.object({}),
     },
     async () => {

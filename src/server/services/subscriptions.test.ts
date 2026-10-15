@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createCategory, deleteCategory } from '@/server/services/categories'
+import { archiveCategory, createCategory } from '@/server/services/categories'
 import {
   createSubscription,
   deleteSubscription,
@@ -87,7 +87,7 @@ describe('subscriptions service', () => {
     expect(scopedList.total).toBe(0)
   })
 
-  it('nulls the category reference when a category is deleted', async () => {
+  it('keeps the category reference when a category is archived', async () => {
     const { db } = createTestDb()
     await insertTestUser(db, 'u1')
 
@@ -100,11 +100,11 @@ describe('subscriptions service', () => {
 
     expect(created?.categoryId).toBe(category!.id)
 
-    await deleteCategory(db, 'u1', category!.id)
+    await archiveCategory(db, 'u1', category!.id)
 
     const fetched = await getSubscription(db, 'u1', created!.id)
     expect(fetched).not.toBeNull()
-    expect(fetched?.categoryId).toBeNull()
+    expect(fetched?.categoryId).toBe(category!.id)
   })
 
   it('reports rolled next due dates and overdue flags', async () => {
