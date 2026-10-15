@@ -1,6 +1,5 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { ExternalLink } from 'lucide-react'
-import { AppHeader } from '@/components/app-header'
 import { SubscriptionAvatar } from '@/components/subscription-avatar'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -14,7 +13,7 @@ import { getBudget, getDashboard } from '@/lib/app.functions'
 import { getSession } from '@/lib/auth.functions'
 import { formatDate, formatMinor } from '@/lib/money'
 
-export const Route = createFileRoute('/')({
+export const Route = createFileRoute('/_app/')({
   beforeLoad: async () => {
     const session = await getSession()
     if (!session) {
@@ -64,8 +63,7 @@ function Dashboard() {
       : 100
 
   return (
-    <div className="min-h-svh">
-      <AppHeader />
+    <div className="min-h-full">
       <main className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-6 py-8">
         <div className="grid gap-4 sm:grid-cols-3">
           <Card>

@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
-import { AppHeader } from '@/components/app-header'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -23,7 +22,7 @@ import {
 } from '@/lib/app.functions'
 import { getSession } from '@/lib/auth.functions'
 
-export const Route = createFileRoute('/integrations')({
+export const Route = createFileRoute('/_app/integrations')({
   beforeLoad: async () => {
     const session = await getSession()
     if (!session) {
@@ -81,8 +80,7 @@ function Integrations() {
   }
 
   return (
-    <div className="min-h-svh">
-      <AppHeader />
+    <div className="min-h-full">
       <main className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-6 py-8">
         <p className="text-sm text-muted-foreground">
           The feed URL and every API key are bearer credentials — anyone who has

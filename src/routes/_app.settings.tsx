@@ -5,7 +5,6 @@ import {
   redirect,
   useRouter,
 } from '@tanstack/react-router'
-import { AppHeader } from '@/components/app-header'
 import { PasskeyCard } from '@/components/passkey-card'
 import { TwoFactorCard } from '@/components/two-factor-card'
 import { Button } from '@/components/ui/button'
@@ -51,7 +50,7 @@ const LOCALES = [
 const THEMES = ['light', 'dark', 'system'] as const
 const WEEK_STARTS = ['monday', 'sunday'] as const
 
-export const Route = createFileRoute('/settings')({
+export const Route = createFileRoute('/_app/settings')({
   beforeLoad: async () => {
     const session = await getSession()
     if (!session) {
@@ -132,8 +131,7 @@ function SettingsPage() {
   }
 
   return (
-    <div className="min-h-svh">
-      <AppHeader />
+    <div className="min-h-full">
       <main className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-6 py-8">
         <Card>
           <CardHeader>

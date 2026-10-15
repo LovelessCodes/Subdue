@@ -9,20 +9,21 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as AdminRouteImport } from './routes/admin'
-import { Route as CalendarRouteImport } from './routes/calendar'
-import { Route as ChannelsRouteImport } from './routes/channels'
+import { Route as AppRouteImport } from './routes/_app'
 import { Route as ConsentRouteImport } from './routes/consent'
-import { Route as InboxRouteImport } from './routes/inbox'
-import { Route as IntegrationsRouteImport } from './routes/integrations'
-import { Route as SettingsRouteImport } from './routes/settings'
-import { Route as SetupRouteImport } from './routes/setup'
 import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as SignUpRouteImport } from './routes/sign-up'
-import { Route as SubscriptionsRouteImport } from './routes/subscriptions'
 import { Route as TwoFactorRouteImport } from './routes/two-factor'
 import { Route as DotwellKnownSplatRouteImport } from './routes/[.]well-known/$'
+import { Route as AppIndexRouteImport } from './routes/_app.index'
+import { Route as AppAdminRouteImport } from './routes/_app.admin'
+import { Route as AppCalendarRouteImport } from './routes/_app.calendar'
+import { Route as AppChannelsRouteImport } from './routes/_app.channels'
+import { Route as AppInboxRouteImport } from './routes/_app.inbox'
+import { Route as AppIntegrationsRouteImport } from './routes/_app.integrations'
+import { Route as AppSettingsRouteImport } from './routes/_app.settings'
+import { Route as AppSetupRouteImport } from './routes/_app.setup'
+import { Route as AppSubscriptionsRouteImport } from './routes/_app.subscriptions'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as ApiLogosRouteImport } from './routes/api/logos'
 import { Route as ApiMcpRouteImport } from './routes/api/mcp'
@@ -35,49 +36,13 @@ import { Route as ApiImportCsvRouteImport } from './routes/api/import/csv'
 import { Route as ApiImportWallosRouteImport } from './routes/api/import/wallos'
 import { Route as ApiLogosFileRouteImport } from './routes/api/logos/$file'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminRoute = AdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CalendarRoute = CalendarRouteImport.update({
-  id: '/calendar',
-  path: '/calendar',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ChannelsRoute = ChannelsRouteImport.update({
-  id: '/channels',
-  path: '/channels',
+const AppRoute = AppRouteImport.update({
+  id: '/_app',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ConsentRoute = ConsentRouteImport.update({
   id: '/consent',
   path: '/consent',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const InboxRoute = InboxRouteImport.update({
-  id: '/inbox',
-  path: '/inbox',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const IntegrationsRoute = IntegrationsRouteImport.update({
-  id: '/integrations',
-  path: '/integrations',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SettingsRoute = SettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SetupRoute = SetupRouteImport.update({
-  id: '/setup',
-  path: '/setup',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SignInRoute = SignInRouteImport.update({
@@ -90,11 +55,6 @@ const SignUpRoute = SignUpRouteImport.update({
   path: '/sign-up',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SubscriptionsRoute = SubscriptionsRouteImport.update({
-  id: '/subscriptions',
-  path: '/subscriptions',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const TwoFactorRoute = TwoFactorRouteImport.update({
   id: '/two-factor',
   path: '/two-factor',
@@ -104,6 +64,51 @@ const DotwellKnownSplatRoute = DotwellKnownSplatRouteImport.update({
   id: '/.well-known/$',
   path: '/.well-known/$',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AppIndexRoute = AppIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAdminRoute = AppAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppCalendarRoute = AppCalendarRouteImport.update({
+  id: '/calendar',
+  path: '/calendar',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppChannelsRoute = AppChannelsRouteImport.update({
+  id: '/channels',
+  path: '/channels',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppInboxRoute = AppInboxRouteImport.update({
+  id: '/inbox',
+  path: '/inbox',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppIntegrationsRoute = AppIntegrationsRouteImport.update({
+  id: '/integrations',
+  path: '/integrations',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSettingsRoute = AppSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSetupRoute = AppSetupRouteImport.update({
+  id: '/setup',
+  path: '/setup',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSubscriptionsRoute = AppSubscriptionsRouteImport.update({
+  id: '/subscriptions',
+  path: '/subscriptions',
+  getParentRoute: () => AppRoute,
 } as any)
 const ApiHealthRoute = ApiHealthRouteImport.update({
   id: '/api/health',
@@ -162,20 +167,20 @@ const ApiLogosFileRoute = ApiLogosFileRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
-  '/calendar': typeof CalendarRoute
-  '/channels': typeof ChannelsRoute
+  '/': typeof AppIndexRoute
   '/consent': typeof ConsentRoute
-  '/inbox': typeof InboxRoute
-  '/integrations': typeof IntegrationsRoute
-  '/settings': typeof SettingsRoute
-  '/setup': typeof SetupRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
-  '/subscriptions': typeof SubscriptionsRoute
   '/two-factor': typeof TwoFactorRoute
   '/.well-known/$': typeof DotwellKnownSplatRoute
+  '/admin': typeof AppAdminRoute
+  '/calendar': typeof AppCalendarRoute
+  '/channels': typeof AppChannelsRoute
+  '/inbox': typeof AppInboxRoute
+  '/integrations': typeof AppIntegrationsRoute
+  '/settings': typeof AppSettingsRoute
+  '/setup': typeof AppSetupRoute
+  '/subscriptions': typeof AppSubscriptionsRoute
   '/api/health': typeof ApiHealthRoute
   '/api/logos': typeof ApiLogosRouteWithChildren
   '/api/mcp': typeof ApiMcpRoute
@@ -189,23 +194,23 @@ export interface FileRoutesByFullPath {
   '/api/logos/$file': typeof ApiLogosFileRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
-  '/calendar': typeof CalendarRoute
-  '/channels': typeof ChannelsRoute
   '/consent': typeof ConsentRoute
-  '/inbox': typeof InboxRoute
-  '/integrations': typeof IntegrationsRoute
-  '/settings': typeof SettingsRoute
-  '/setup': typeof SetupRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
-  '/subscriptions': typeof SubscriptionsRoute
   '/two-factor': typeof TwoFactorRoute
   '/.well-known/$': typeof DotwellKnownSplatRoute
+  '/admin': typeof AppAdminRoute
+  '/calendar': typeof AppCalendarRoute
+  '/channels': typeof AppChannelsRoute
+  '/inbox': typeof AppInboxRoute
+  '/integrations': typeof AppIntegrationsRoute
+  '/settings': typeof AppSettingsRoute
+  '/setup': typeof AppSetupRoute
+  '/subscriptions': typeof AppSubscriptionsRoute
   '/api/health': typeof ApiHealthRoute
   '/api/logos': typeof ApiLogosRouteWithChildren
   '/api/mcp': typeof ApiMcpRoute
+  '/': typeof AppIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/export/backup': typeof ApiExportBackupRoute
   '/api/export/csv': typeof ApiExportCsvRoute
@@ -217,23 +222,24 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
-  '/calendar': typeof CalendarRoute
-  '/channels': typeof ChannelsRoute
+  '/_app': typeof AppRouteWithChildren
   '/consent': typeof ConsentRoute
-  '/inbox': typeof InboxRoute
-  '/integrations': typeof IntegrationsRoute
-  '/settings': typeof SettingsRoute
-  '/setup': typeof SetupRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
-  '/subscriptions': typeof SubscriptionsRoute
   '/two-factor': typeof TwoFactorRoute
   '/.well-known/$': typeof DotwellKnownSplatRoute
+  '/_app/admin': typeof AppAdminRoute
+  '/_app/calendar': typeof AppCalendarRoute
+  '/_app/channels': typeof AppChannelsRoute
+  '/_app/inbox': typeof AppInboxRoute
+  '/_app/integrations': typeof AppIntegrationsRoute
+  '/_app/settings': typeof AppSettingsRoute
+  '/_app/setup': typeof AppSetupRoute
+  '/_app/subscriptions': typeof AppSubscriptionsRoute
   '/api/health': typeof ApiHealthRoute
   '/api/logos': typeof ApiLogosRouteWithChildren
   '/api/mcp': typeof ApiMcpRoute
+  '/_app/': typeof AppIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/export/backup': typeof ApiExportBackupRoute
   '/api/export/csv': typeof ApiExportCsvRoute
@@ -247,19 +253,19 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/consent'
+    | '/sign-in'
+    | '/sign-up'
+    | '/two-factor'
+    | '/.well-known/$'
     | '/admin'
     | '/calendar'
     | '/channels'
-    | '/consent'
     | '/inbox'
     | '/integrations'
     | '/settings'
     | '/setup'
-    | '/sign-in'
-    | '/sign-up'
     | '/subscriptions'
-    | '/two-factor'
-    | '/.well-known/$'
     | '/api/health'
     | '/api/logos'
     | '/api/mcp'
@@ -273,23 +279,23 @@ export interface FileRouteTypes {
     | '/api/logos/$file'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/'
+    | '/consent'
+    | '/sign-in'
+    | '/sign-up'
+    | '/two-factor'
+    | '/.well-known/$'
     | '/admin'
     | '/calendar'
     | '/channels'
-    | '/consent'
     | '/inbox'
     | '/integrations'
     | '/settings'
     | '/setup'
-    | '/sign-in'
-    | '/sign-up'
     | '/subscriptions'
-    | '/two-factor'
-    | '/.well-known/$'
     | '/api/health'
     | '/api/logos'
     | '/api/mcp'
+    | '/'
     | '/api/auth/$'
     | '/api/export/backup'
     | '/api/export/csv'
@@ -300,23 +306,24 @@ export interface FileRouteTypes {
     | '/api/logos/$file'
   id:
     | '__root__'
-    | '/'
-    | '/admin'
-    | '/calendar'
-    | '/channels'
+    | '/_app'
     | '/consent'
-    | '/inbox'
-    | '/integrations'
-    | '/settings'
-    | '/setup'
     | '/sign-in'
     | '/sign-up'
-    | '/subscriptions'
     | '/two-factor'
     | '/.well-known/$'
+    | '/_app/admin'
+    | '/_app/calendar'
+    | '/_app/channels'
+    | '/_app/inbox'
+    | '/_app/integrations'
+    | '/_app/settings'
+    | '/_app/setup'
+    | '/_app/subscriptions'
     | '/api/health'
     | '/api/logos'
     | '/api/mcp'
+    | '/_app/'
     | '/api/auth/$'
     | '/api/export/backup'
     | '/api/export/csv'
@@ -328,18 +335,10 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  AdminRoute: typeof AdminRoute
-  CalendarRoute: typeof CalendarRoute
-  ChannelsRoute: typeof ChannelsRoute
+  AppRoute: typeof AppRouteWithChildren
   ConsentRoute: typeof ConsentRoute
-  InboxRoute: typeof InboxRoute
-  IntegrationsRoute: typeof IntegrationsRoute
-  SettingsRoute: typeof SettingsRoute
-  SetupRoute: typeof SetupRoute
   SignInRoute: typeof SignInRoute
   SignUpRoute: typeof SignUpRoute
-  SubscriptionsRoute: typeof SubscriptionsRoute
   TwoFactorRoute: typeof TwoFactorRoute
   DotwellKnownSplatRoute: typeof DotwellKnownSplatRoute
   ApiHealthRoute: typeof ApiHealthRoute
@@ -356,32 +355,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
+    '/_app': {
+      id: '/_app'
+      path: ''
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin': {
-      id: '/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AdminRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/calendar': {
-      id: '/calendar'
-      path: '/calendar'
-      fullPath: '/calendar'
-      preLoaderRoute: typeof CalendarRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/channels': {
-      id: '/channels'
-      path: '/channels'
-      fullPath: '/channels'
-      preLoaderRoute: typeof ChannelsRouteImport
+      preLoaderRoute: typeof AppRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/consent': {
@@ -389,34 +367,6 @@ declare module '@tanstack/react-router' {
       path: '/consent'
       fullPath: '/consent'
       preLoaderRoute: typeof ConsentRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inbox': {
-      id: '/inbox'
-      path: '/inbox'
-      fullPath: '/inbox'
-      preLoaderRoute: typeof InboxRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/integrations': {
-      id: '/integrations'
-      path: '/integrations'
-      fullPath: '/integrations'
-      preLoaderRoute: typeof IntegrationsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/settings': {
-      id: '/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof SettingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/setup': {
-      id: '/setup'
-      path: '/setup'
-      fullPath: '/setup'
-      preLoaderRoute: typeof SetupRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sign-in': {
@@ -433,13 +383,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignUpRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/subscriptions': {
-      id: '/subscriptions'
-      path: '/subscriptions'
-      fullPath: '/subscriptions'
-      preLoaderRoute: typeof SubscriptionsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/two-factor': {
       id: '/two-factor'
       path: '/two-factor'
@@ -453,6 +396,69 @@ declare module '@tanstack/react-router' {
       fullPath: '/.well-known/$'
       preLoaderRoute: typeof DotwellKnownSplatRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_app/': {
+      id: '/_app/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/admin': {
+      id: '/_app/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AppAdminRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/calendar': {
+      id: '/_app/calendar'
+      path: '/calendar'
+      fullPath: '/calendar'
+      preLoaderRoute: typeof AppCalendarRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/channels': {
+      id: '/_app/channels'
+      path: '/channels'
+      fullPath: '/channels'
+      preLoaderRoute: typeof AppChannelsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/inbox': {
+      id: '/_app/inbox'
+      path: '/inbox'
+      fullPath: '/inbox'
+      preLoaderRoute: typeof AppInboxRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/integrations': {
+      id: '/_app/integrations'
+      path: '/integrations'
+      fullPath: '/integrations'
+      preLoaderRoute: typeof AppIntegrationsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/settings': {
+      id: '/_app/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AppSettingsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/setup': {
+      id: '/_app/setup'
+      path: '/setup'
+      fullPath: '/setup'
+      preLoaderRoute: typeof AppSetupRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/subscriptions': {
+      id: '/_app/subscriptions'
+      path: '/subscriptions'
+      fullPath: '/subscriptions'
+      preLoaderRoute: typeof AppSubscriptionsRouteImport
+      parentRoute: typeof AppRoute
     }
     '/api/health': {
       id: '/api/health'
@@ -534,6 +540,32 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AppRouteChildren {
+  AppAdminRoute: typeof AppAdminRoute
+  AppCalendarRoute: typeof AppCalendarRoute
+  AppChannelsRoute: typeof AppChannelsRoute
+  AppInboxRoute: typeof AppInboxRoute
+  AppIntegrationsRoute: typeof AppIntegrationsRoute
+  AppSettingsRoute: typeof AppSettingsRoute
+  AppSetupRoute: typeof AppSetupRoute
+  AppSubscriptionsRoute: typeof AppSubscriptionsRoute
+  AppIndexRoute: typeof AppIndexRoute
+}
+
+const AppRouteChildren: AppRouteChildren = {
+  AppAdminRoute: AppAdminRoute,
+  AppCalendarRoute: AppCalendarRoute,
+  AppChannelsRoute: AppChannelsRoute,
+  AppInboxRoute: AppInboxRoute,
+  AppIntegrationsRoute: AppIntegrationsRoute,
+  AppSettingsRoute: AppSettingsRoute,
+  AppSetupRoute: AppSetupRoute,
+  AppSubscriptionsRoute: AppSubscriptionsRoute,
+  AppIndexRoute: AppIndexRoute,
+}
+
+const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
+
 interface ApiLogosRouteChildren {
   ApiLogosFileRoute: typeof ApiLogosFileRoute
 }
@@ -547,18 +579,10 @@ const ApiLogosRouteWithChildren = ApiLogosRoute._addFileChildren(
 )
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  AdminRoute: AdminRoute,
-  CalendarRoute: CalendarRoute,
-  ChannelsRoute: ChannelsRoute,
+  AppRoute: AppRouteWithChildren,
   ConsentRoute: ConsentRoute,
-  InboxRoute: InboxRoute,
-  IntegrationsRoute: IntegrationsRoute,
-  SettingsRoute: SettingsRoute,
-  SetupRoute: SetupRoute,
   SignInRoute: SignInRoute,
   SignUpRoute: SignUpRoute,
-  SubscriptionsRoute: SubscriptionsRoute,
   TwoFactorRoute: TwoFactorRoute,
   DotwellKnownSplatRoute: DotwellKnownSplatRoute,
   ApiHealthRoute: ApiHealthRoute,

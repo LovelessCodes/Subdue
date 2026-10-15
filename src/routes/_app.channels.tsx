@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
 import { Pencil } from 'lucide-react'
-import { AppHeader } from '@/components/app-header'
 import { ChannelForm } from '@/components/channel-form'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -23,7 +22,7 @@ import {
 import { getSession } from '@/lib/auth.functions'
 import type { ChannelView } from '@/server/services/channels'
 
-export const Route = createFileRoute('/channels')({
+export const Route = createFileRoute('/_app/channels')({
   beforeLoad: async () => {
     const session = await getSession()
     if (!session) {
@@ -87,8 +86,7 @@ function Channels() {
   }
 
   return (
-    <div className="min-h-svh">
-      <AppHeader />
+    <div className="min-h-full">
       <main className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-6 py-8">
         {error ? (
           <p role="alert" className="text-sm text-destructive">

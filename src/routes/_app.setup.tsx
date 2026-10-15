@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
-import { AppHeader } from '@/components/app-header'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -14,7 +13,7 @@ import { Input } from '@/components/ui/input'
 import { claimSetup, getSetupStatus } from '@/lib/app.functions'
 import { getSession } from '@/lib/auth.functions'
 
-export const Route = createFileRoute('/setup')({
+export const Route = createFileRoute('/_app/setup')({
   validateSearch: (search: Record<string, unknown>): { token?: string } =>
     typeof search.token === 'string' ? { token: search.token } : {},
   beforeLoad: async () => {
@@ -55,8 +54,7 @@ function SetupPage() {
   }
 
   return (
-    <div className="min-h-svh">
-      <AppHeader />
+    <div className="min-h-full">
       <main className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-6 py-8">
         <Card>
           <CardHeader>

@@ -1,5 +1,4 @@
 import { createFileRoute, Link, redirect } from '@tanstack/react-router'
-import { AppHeader } from '@/components/app-header'
 import {
   Card,
   CardContent,
@@ -11,7 +10,7 @@ import { getCalendar } from '@/lib/app.functions'
 import { getSession } from '@/lib/auth.functions'
 import { formatMinor } from '@/lib/money'
 
-export const Route = createFileRoute('/calendar')({
+export const Route = createFileRoute('/_app/calendar')({
   validateSearch: (search: Record<string, unknown>) => {
     const month =
       typeof search.month === 'string' && /^\d{4}-\d{2}$/.test(search.month)
@@ -78,8 +77,7 @@ function Calendar() {
     month === 12 ? monthString(year + 1, 1) : monthString(year, month + 1)
 
   return (
-    <div className="min-h-svh">
-      <AppHeader />
+    <div className="min-h-full">
       <main className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-6 py-8">
         <Card>
           <CardHeader>

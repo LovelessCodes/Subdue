@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { ExternalLink, Pencil } from 'lucide-react'
-import { AppHeader } from '@/components/app-header'
 import { SubscriptionAvatar } from '@/components/subscription-avatar'
 import { SubscriptionForm } from '@/components/subscription-form'
 import { Badge } from '@/components/ui/badge'
@@ -23,7 +22,7 @@ import { getSession } from '@/lib/auth.functions'
 import { formatDate, formatMinor } from '@/lib/money'
 import type { SubscriptionWithRecurrence } from '@/server/services/subscriptions'
 
-export const Route = createFileRoute('/subscriptions')({
+export const Route = createFileRoute('/_app/subscriptions')({
   beforeLoad: async () => {
     const session = await getSession()
     if (!session) {
@@ -66,8 +65,7 @@ function Subscriptions() {
   }
 
   return (
-    <div className="min-h-svh">
-      <AppHeader />
+    <div className="min-h-full">
       <main className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-6 py-8">
         <Card>
           <CardHeader>
