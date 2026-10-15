@@ -16,6 +16,7 @@ import { authClient } from '@/lib/auth-client'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { BudgetSummary } from '@/components/budget-summary'
 import { SubdueMark } from '@/components/subdue-mark'
+import { ThemeToggle } from '@/components/theme-toggle'
 import {
   Drawer,
   DrawerPanel,
@@ -277,6 +278,9 @@ export function AppShell({
             </DrawerPopup>
           </Drawer>
           <span className="text-sm font-medium md:hidden">Subdue</span>
+          <div className="ml-auto flex items-center">
+            <ThemeToggle />
+          </div>
         </header>
         <ScrollArea scrollFade className="min-h-0 flex-1">
           {children}
