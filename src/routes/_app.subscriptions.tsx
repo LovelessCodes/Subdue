@@ -34,8 +34,8 @@ export const Route = createFileRoute('/_app/subscriptions')({
     const [items, settings, categories, paymentMethods] = await Promise.all([
       listMySubscriptions(),
       getMySettings(),
-      listMyCategories(),
-      listMyPaymentMethods(),
+      listMyCategories({ data: { includeArchived: true } }),
+      listMyPaymentMethods({ data: { includeArchived: true } }),
     ])
     return { items, settings, categories, paymentMethods }
   },
@@ -188,10 +188,13 @@ function Subscriptions() {
         categories={categories.map((category) => ({
           id: category.id,
           name: category.name,
+          archivedAt: category.archivedAt,
         }))}
         paymentMethods={paymentMethods.map((method) => ({
           id: method.id,
           name: method.name,
+          icon: method.icon,
+          archivedAt: method.archivedAt,
         }))}
         defaultCurrency={settings.currency}
         defaultRemindDays={settings.remindDaysBefore}

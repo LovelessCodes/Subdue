@@ -59,12 +59,14 @@ describe('logos', () => {
 })
 
 describe('logo sources', () => {
-  it('points external URLs at their host and file names at the logos route', () => {
+  it('passes external URLs and own assets through, file names through the logos route', () => {
     expect(logoUrl('https://cdn.example.com/logo.png')).toBe(
       'https://cdn.example.com/logo.png',
     )
+    expect(logoUrl('/brands/visa.svg')).toBe('/brands/visa.svg')
     expect(logoUrl('abc-123.png')).toBe('/api/logos/abc-123.png')
     expect(isExternalLogo('https://x.test/y.png')).toBe(true)
+    expect(isExternalLogo('/brands/visa.svg')).toBe(true)
     expect(isExternalLogo('local.png')).toBe(false)
   })
 })

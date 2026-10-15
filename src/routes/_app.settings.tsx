@@ -5,6 +5,7 @@ import {
   redirect,
   useRouter,
 } from '@tanstack/react-router'
+import { ManagedListsCard } from '@/components/managed-lists-card'
 import { PasskeyCard } from '@/components/passkey-card'
 import { TwoFactorCard } from '@/components/two-factor-card'
 import { Button } from '@/components/ui/button'
@@ -295,6 +296,8 @@ function SettingsPage() {
             </Field>
           </CardContent>
         </Card>
+
+        <ManagedListsCard />
 
         <PasskeyCard />
 

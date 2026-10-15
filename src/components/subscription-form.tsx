@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
+import { PaymentMethodIcon } from '@/components/payment-method-icon'
 import { SubscriptionAvatar } from '@/components/subscription-avatar'
 import { Button } from '@/components/ui/button'
 import {
@@ -134,8 +135,13 @@ export function SubscriptionForm({
   open: boolean
   onOpenChange: (open: boolean) => void
   subscription: SubscriptionWithRecurrence | null
-  categories: { id: string; name: string }[]
-  paymentMethods: { id: string; name: string }[]
+  categories: { id: string; name: string; archivedAt?: string | Date | null }[]
+  paymentMethods: {
+    id: string
+    name: string
+    icon?: string | null
+    archivedAt?: string | Date | null
+  }[]
   defaultCurrency: string
   defaultRemindDays: number
 }) {
@@ -147,6 +153,15 @@ export function SubscriptionForm({
   const [error, setError] = useState<string | null>(null)
   const [pending, setPending] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
+
+  // Archived rows are hidden, but the one already chosen stays visible so the
+  // form never loses a value it was opened with.
+  const shownCategories = categories.filter(
+    (category) => !category.archivedAt || category.id === form.categoryId,
+  )
+  const shownMethods = paymentMethods.filter(
+    (method) => !method.archivedAt || method.id === form.paymentMethodId,
+  )
 
   useEffect(() => {
     if (open) {
@@ -359,6 +374,15 @@ export function SubscriptionForm({
               <FieldLabel>Category</FieldLabel>
               <Select
                 value={form.categoryId}
+                items={[
+                  { label: 'None', value: NONE },
+                  ...shownCategories.map((category) => ({
+                    label: category.archivedAt
+                      ? `${category.name} (archived)`
+                      : category.name,
+                    value: category.id,
+                  })),
+                ]}
                 onValueChange={(value) => set('categoryId', String(value))}
               >
                 <SelectTrigger>
@@ -366,18 +390,39 @@ export function SubscriptionForm({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value={NONE}>None</SelectItem>
-                  {categories.map((category) => (
+                  {shownCategories.map((category) => (
                     <SelectItem key={category.id} value={category.id}>
                       {category.name}
+                      {category.archivedAt ? ' (archived)' : ''}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
+              {shownCategories.length === 0 ? (
+                <FieldDescription>
+                  None yet — add categories in Settings.
+                </FieldDescription>
+              ) : null}
             </Field>
             <Field>
               <FieldLabel>Payment method</FieldLabel>
               <Select
                 value={form.paymentMethodId}
+                items={[
+                  { label: 'None', value: NONE },
+                  ...shownMethods.map((method) => ({
+                    label: (
+                      <span className="flex items-center gap-1.5">
+                        <PaymentMethodIcon icon={method.icon ?? null} />
+                        <span>
+                          {method.name}
+                          {method.archivedAt ? ' (archived)' : ''}
+                        </span>
+                      </span>
+                    ),
+                    value: method.id,
+                  })),
+                ]}
                 onValueChange={(value) => set('paymentMethodId', String(value))}
               >
                 <SelectTrigger>
@@ -385,13 +430,24 @@ export function SubscriptionForm({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value={NONE}>None</SelectItem>
-                  {paymentMethods.map((method) => (
+                  {shownMethods.map((method) => (
                     <SelectItem key={method.id} value={method.id}>
-                      {method.name}
+                      <span className="flex items-center gap-1.5">
+                        <PaymentMethodIcon icon={method.icon ?? null} />
+                        <span>
+                          {method.name}
+                          {method.archivedAt ? ' (archived)' : ''}
+                        </span>
+                      </span>
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
+              {shownMethods.length === 0 ? (
+                <FieldDescription>
+                  None yet — add payment methods in Settings.
+                </FieldDescription>
+              ) : null}
             </Field>
           </div>
 
