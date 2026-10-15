@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { eq } from 'drizzle-orm'
 import { category, paymentMethod, userSetting } from '@/lib/auth-schema'
-import { defaultSeedSet, seedDefaults } from '@/server/services/defaults'
+import { defaultSeedSet } from '@/lib/seed-sets'
+import { seedDefaults } from '@/server/services/defaults'
 import { createTestDb, insertTestUser } from '@/test/db'
 
 describe('defaultSeedSet', () => {
