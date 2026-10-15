@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
+import { PasswordInput } from '@/components/password-input'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -148,9 +149,8 @@ export function SocialProviderForm({
             <FieldLabel htmlFor="social-client-secret">
               Client secret
             </FieldLabel>
-            <Input
+            <PasswordInput
               id="social-client-secret"
-              type="password"
               value={clientSecret}
               onChange={(event) => setClientSecret(event.target.value)}
               placeholder={
