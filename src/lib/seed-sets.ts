@@ -100,6 +100,7 @@ const SEED_SETS: Record<string, SeedSet> = {
       { name: 'Abonnementer', color: '#be123c' },
       { name: 'Forsikring', color: '#15803d' },
       { name: 'Fagforening', color: '#4f46e5' },
+      { name: 'A-kasse', color: '#a21caf' },
     ],
   },
   fr: {

@@ -27,7 +27,7 @@ describe('defaultSeedSet', () => {
     }
   })
 
-  it('adds insurance everywhere and one local category where it fits', () => {
+  it('adds insurance everywhere and the local categories where they fit', () => {
     const insurance: Record<string, string> = {
       en: 'Insurance',
       de: 'Versicherung',
@@ -40,21 +40,22 @@ describe('defaultSeedSet', () => {
       uk: 'Страхування',
       es: 'Seguro',
     }
-    const local: Record<string, string> = {
-      de: 'Rundfunkbeitrag',
-      da: 'Fagforening',
-      sv: 'A-kassa',
-      nb: 'Fagforening',
-      fr: 'Mutuelle',
-      es: 'Comunidad de vecinos',
-      zh: '话费',
+    const local: Record<string, string[]> = {
+      de: ['Rundfunkbeitrag'],
+      da: ['Fagforening', 'A-kasse'],
+      sv: ['A-kassa'],
+      nb: ['Fagforening'],
+      fr: ['Mutuelle'],
+      es: ['Comunidad de vecinos'],
+      zh: ['话费'],
     }
 
     for (const locale of SEED_LOCALES) {
       const names = defaultSeedSet(locale).categories.map((entry) => entry.name)
       expect(names).toContain(insurance[locale])
-      expect(names).toHaveLength(local[locale] ? 7 : 6)
-      if (local[locale]) expect(names).toContain(local[locale])
+      const localNames = local[locale] ?? []
+      expect(names).toHaveLength(6 + localNames.length)
+      for (const name of localNames) expect(names).toContain(name)
     }
   })
 
