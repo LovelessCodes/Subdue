@@ -37,6 +37,7 @@ export type ExportedIncomeSource = {
   cycleUnit: string
   cycleCount: number
   nextArrival: string
+  startDate: string | null
   archivedAt: string | null
 }
 
@@ -123,6 +124,7 @@ export async function exportBundle(
       cycleUnit: row.cycleUnit,
       cycleCount: row.cycleCount,
       nextArrival: toIsoDay(row.nextArrival),
+      startDate: row.startDate ? toIsoDay(row.startDate) : null,
       archivedAt: row.archivedAt ? toIsoDay(row.archivedAt) : null,
     })),
   }

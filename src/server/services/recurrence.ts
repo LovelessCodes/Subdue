@@ -91,8 +91,13 @@ export function previousOccurrence(
   anchor: Date,
   cycle: Cycle,
   date: Date,
+  floor?: Date | null,
 ): Date | null {
-  if (anchor.getTime() >= date.getTime()) {
+  if (floor) {
+    if (floor.getTime() >= date.getTime()) {
+      return null
+    }
+  } else if (anchor.getTime() >= date.getTime()) {
     return null
   }
 
@@ -106,33 +111,46 @@ export function previousOccurrence(
     index += 1
   }
 
-  return index < 0 ? null : occurrenceAt(anchor, cycle, index)
+  if (index < 0 && !floor) {
+    return null
+  }
+
+  const occurrence = occurrenceAt(anchor, cycle, index)
+  return floor && occurrence.getTime() < floor.getTime() ? null : occurrence
 }
 
+/**
+ * Occurrences in [from, to]. Without a floor the stream starts at the anchor
+ * (index 0); with one it reaches backward through the anchor — every
+ * occurrence at or after the floor counts, which lets a cadence describe
+ * income that began before its next recorded payday.
+ */
 export function occurrencesBetween(
   anchor: Date,
   cycle: Cycle,
   from: Date,
   to: Date,
+  floor?: Date | null,
 ): Date[] {
   const result: Date[] = []
 
-  if (to.getTime() < anchor.getTime()) {
+  const lower = floor && floor.getTime() > from.getTime() ? floor : from
+  if (to.getTime() < lower.getTime()) {
     return result
   }
 
-  let index = estimateIndex(anchor, cycle, from)
+  let index = estimateIndex(anchor, cycle, lower)
 
   while (
-    index > 0 &&
-    occurrenceAt(anchor, cycle, index - 1).getTime() >= from.getTime()
+    (floor != null || index > 0) &&
+    occurrenceAt(anchor, cycle, index - 1).getTime() >= lower.getTime()
   ) {
     index -= 1
   }
 
   let occurrence = occurrenceAt(anchor, cycle, index)
 
-  while (occurrence.getTime() < from.getTime()) {
+  while (occurrence.getTime() < lower.getTime()) {
     index += 1
     occurrence = occurrenceAt(anchor, cycle, index)
   }

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { toIsoDay } from '@/lib/money'
 import { getCalendarMonth } from '@/server/services/calendar'
 import { createIncomeSource } from '@/server/services/income-sources'
 import { createSubscription } from '@/server/services/subscriptions'
@@ -271,6 +272,41 @@ describe('calendar: income arrivals', () => {
       '2026-09-25T00:00:00.000Z',
     ])
     expect(september.arrivingMinor).toBe(2450000 + 7460)
+  })
+
+  it('shows the pay before the recorded next arrival, floored by the start date', async () => {
+    const { db } = createTestDb()
+    await insertTestUser(db, 'u1')
+
+    await createIncomeSource(db, 'u1', {
+      name: 'Full-time job',
+      amountMinor: 99900,
+      currency: 'DKK',
+      cycleUnit: 'months',
+      cycleCount: 1,
+      nextArrival: new Date('2026-11-01T00:00:00.000Z'),
+      startDate: new Date('2026-10-01T00:00:00.000Z'),
+    })
+
+    const october = await getCalendarMonth(
+      db,
+      'u1',
+      { year: 2026, month: 10 },
+      options,
+    )
+    expect(
+      october.income.map((entry) => [entry.name, toIsoDay(entry.date)]),
+    ).toEqual([['Full-time job', '2026-10-01']])
+    expect(october.arrivingMinor).toBe(99900)
+
+    const september = await getCalendarMonth(
+      db,
+      'u1',
+      { year: 2026, month: 9 },
+      options,
+    )
+    expect(september.income).toEqual([])
+    expect(september.arrivingMinor).toBe(0)
   })
 })
 

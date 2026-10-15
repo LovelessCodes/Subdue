@@ -134,6 +134,13 @@
       "when": 1792102023919,
       "tag": "0018_income-sources",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "6",
+      "when": 1792103607587,
+      "tag": "0019_income-source-start-date",
+      "breakpoints": true
     }
   ]
 }

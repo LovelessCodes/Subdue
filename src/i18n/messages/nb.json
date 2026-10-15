@@ -18,6 +18,7 @@
   "budget": {
     "due": "{amount} forfaller",
     "arriving": "ventet {amount}",
+    "nextPay": "neste utbetaling {date} · {amount}",
     "noBudget": "Intet budsjett for denne perioden.",
     "overBy": "{amount} for mye",
     "left": "{amount} igjen"

@@ -318,6 +318,35 @@ describe('budget: income sources', () => {
 
     expect(status.incomeMinor).toBe(0)
     expect(status.budgetMinor).toBe(50000)
+    expect(status.nextIncome).toEqual({
+      name: 'New job',
+      amountMinor: 2450000,
+      currency: 'DKK',
+      date: new Date('2026-12-01T00:00:00.000Z'),
+    })
+  })
+
+  it('counts the pay the start date reaches back to', async () => {
+    const { db } = createTestDb()
+    await insertTestUser(db, 'u1')
+    await updateSettings(db, 'u1', { payAnchorDay: 25 })
+
+    await createIncomeSource(db, 'u1', {
+      name: 'Full-time job',
+      amountMinor: 2450000,
+      currency: 'DKK',
+      cycleUnit: 'months',
+      cycleCount: 1,
+      nextArrival: new Date('2026-11-01T00:00:00.000Z'),
+      startDate: new Date('2026-10-01T00:00:00.000Z'),
+    })
+
+    const status = await getBudgetStatus(db, 'u1', options)
+
+    // The period (25 Sep – 24 Oct) catches the salary that landed on 1 Oct.
+    expect(status.incomeMinor).toBe(2450000)
+    expect(status.budgetMinor).toBe(2450000)
+    expect(status.remainingMinor).toBe(2450000)
   })
 
   it('reports no budget when sources expect nothing and no ceiling is set', async () => {
@@ -338,5 +367,8 @@ describe('budget: income sources', () => {
     expect(status.incomeMinor).toBe(0)
     expect(status.budgetMinor).toBeNull()
     expect(status.remainingMinor).toBeNull()
+    expect(status.nextIncome?.date).toEqual(
+      new Date('2027-01-01T00:00:00.000Z'),
+    )
   })
 })

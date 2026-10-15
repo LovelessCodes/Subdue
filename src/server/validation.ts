@@ -109,6 +109,7 @@ export const incomeSourceBodySchema = z.object({
   cycleUnit: z.enum(cycleUnits),
   cycleCount: z.number().int().min(1).max(365),
   nextArrival: z.coerce.date(),
+  startDate: z.coerce.date().nullish(),
 })
 
 export const incomeSourcePatchSchema = incomeSourceBodySchema

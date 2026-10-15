@@ -38,6 +38,7 @@ async function seed() {
     cycleUnit: 'months',
     cycleCount: 1,
     nextArrival: new Date('2026-10-25T00:00:00.000Z'),
+    startDate: new Date('2024-01-01T00:00:00.000Z'),
   })
 
   return db
@@ -78,6 +79,7 @@ describe('export', () => {
         cycleUnit: 'months',
         cycleCount: 1,
         nextArrival: '2026-10-25',
+        startDate: '2024-01-01',
         archivedAt: null,
       },
     ])

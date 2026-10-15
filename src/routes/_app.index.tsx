@@ -126,8 +126,9 @@ function Dashboard() {
           <CardContent>
             {budget.budgetMinor === null ? (
               <p className="text-xs text-muted-foreground">
-                No budget set for this period — configure one through the
-                settings API to track headroom.
+                {budget.incomeMinor === 0 && budget.nextIncome
+                  ? `No income lands in this period — next pay ${formatDate(new Date(budget.nextIncome.date), budget.locale)}${budget.nextIncome.amountMinor > 0 ? ` (${formatMinor(budget.nextIncome.amountMinor, budget.nextIncome.currency, budget.locale)})` : ''}.`
+                  : 'No budget set for this period — configure one through the settings API to track headroom.'}
               </p>
             ) : (
               <>
@@ -141,22 +142,49 @@ function Dashboard() {
                 </div>
                 <p className="mt-2 text-xs text-muted-foreground">
                   {budget.incomeMinor !== null ? (
-                    <>
-                      {formatMinor(
-                        budget.incomeMinor,
-                        budget.currency,
-                        budget.locale,
-                      )}{' '}
-                      arriving this period
-                      {budget.ceilingMinor !== null
-                        ? ` · capped at ${formatMinor(
-                            budget.ceilingMinor,
-                            budget.currency,
-                            budget.locale,
-                          )}`
-                        : ''}{' '}
-                      ·{' '}
-                    </>
+                    budget.incomeMinor > 0 ? (
+                      <>
+                        {formatMinor(
+                          budget.incomeMinor,
+                          budget.currency,
+                          budget.locale,
+                        )}{' '}
+                        arriving this period
+                        {budget.ceilingMinor !== null
+                          ? ` · capped at ${formatMinor(
+                              budget.ceilingMinor,
+                              budget.currency,
+                              budget.locale,
+                            )}`
+                          : ''}{' '}
+                        ·{' '}
+                      </>
+                    ) : budget.nextIncome ? (
+                      <>
+                        no income this period — next pay{' '}
+                        {formatDate(
+                          new Date(budget.nextIncome.date),
+                          budget.locale,
+                        )}
+                        {budget.nextIncome.amountMinor > 0
+                          ? ` (${formatMinor(
+                              budget.nextIncome.amountMinor,
+                              budget.nextIncome.currency,
+                              budget.locale,
+                            )})`
+                          : ''}{' '}
+                        ·{' '}
+                      </>
+                    ) : (
+                      <>
+                        {formatMinor(
+                          budget.incomeMinor,
+                          budget.currency,
+                          budget.locale,
+                        )}{' '}
+                        arriving this period ·{' '}
+                      </>
+                    )
                   ) : (
                     <>
                       of{' '}

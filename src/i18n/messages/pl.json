@@ -18,6 +18,7 @@
   "budget": {
     "due": "{amount} do zapłaty",
     "arriving": "oczekiwane {amount}",
+    "nextPay": "następna wypłata {date} · {amount}",
     "noBudget": "Brak budżetu na ten okres.",
     "overBy": "{amount} za dużo",
     "left": "{amount} pozostało"

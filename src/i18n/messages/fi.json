@@ -18,6 +18,7 @@
   "budget": {
     "due": "{amount} erääntyy",
     "arriving": "odotettu {amount}",
+    "nextPay": "seuraava maksu {date} · {amount}",
     "noBudget": "Tälle kaudelle ei ole asetettu budjettia.",
     "overBy": "{amount} yli budjetin",
     "left": "{amount} jäljellä"

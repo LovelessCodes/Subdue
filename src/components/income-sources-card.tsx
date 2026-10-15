@@ -50,6 +50,7 @@ type Draft = {
   cadence: string
   count: string
   unit: string
+  startDate: string
   nextArrival: string
 }
 
@@ -59,6 +60,7 @@ type ParsedDraft = {
   currency: string
   cycleUnit: string
   cycleCount: number
+  startDate: string
   nextArrival: string
 }
 
@@ -77,6 +79,7 @@ function emptyDraft(currency: string): Draft {
     cadence: '1m',
     count: '1',
     unit: 'months',
+    startDate: isoDay(new Date()),
     nextArrival: isoDay(new Date()),
   }
 }
@@ -95,6 +98,7 @@ function draftFrom(source: IncomeSource): Draft {
     cadence: preset?.value ?? CUSTOM,
     count: String(source.cycleCount),
     unit: source.cycleUnit,
+    startDate: isoDay(source.startDate ?? source.nextArrival),
     nextArrival: isoDay(source.nextArrival),
   }
 }
@@ -149,6 +153,16 @@ function parseDraft(
     return { error: 'Pick the next arrival date.' }
   }
 
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(draft.startDate)) {
+    return { error: 'Pick the date the income started.' }
+  }
+
+  if (draft.startDate > draft.nextArrival) {
+    return {
+      error: 'The start date needs to be on or before the next arrival.',
+    }
+  }
+
   const cycle = draftCycle(draft)
   if (!Number.isInteger(cycle.count) || cycle.count < 1 || cycle.count > 365) {
     return { error: 'Custom cycles run from 1 to 365.' }
@@ -164,6 +178,7 @@ function parseDraft(
       currency,
       cycleUnit: cycle.unit,
       cycleCount: cycle.count,
+      startDate: `${draft.startDate}T00:00:00.000Z`,
       nextArrival: `${draft.nextArrival}T00:00:00.000Z`,
     },
   }
@@ -320,8 +335,12 @@ export function IncomeSourcesCard({
                     {source.name}
                   </span>
                   <span className="text-xs text-muted-foreground">
-                    {cadenceLabel(source)} · next{' '}
-                    {formatDate(new Date(source.nextPayday), locale)}
+                    {cadenceLabel(source)} · since{' '}
+                    {formatDate(
+                      new Date(source.startDate ?? source.nextArrival),
+                      locale,
+                    )}{' '}
+                    · next {formatDate(new Date(source.nextPayday), locale)}
                   </span>
                 </span>
                 <span className="flex items-center gap-2">
@@ -550,6 +569,15 @@ function SourceForm({
             type="date"
             value={draft.nextArrival}
             onChange={(event) => change('nextArrival', event.target.value)}
+          />
+        </Field>
+        <Field>
+          <FieldLabel htmlFor={`${id}-started`}>Started</FieldLabel>
+          <Input
+            id={`${id}-started`}
+            type="date"
+            value={draft.startDate}
+            onChange={(event) => change('startDate', event.target.value)}
           />
         </Field>
       </div>

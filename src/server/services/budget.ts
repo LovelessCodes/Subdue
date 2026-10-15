@@ -1,7 +1,11 @@
 import type { Database } from '../../lib/db'
 import { convertMinorUnits } from '../../lib/money'
 import { crossRate, ensureRates, ratesMap, type Fetcher } from './currencies'
-import { listIncomeSources, periodArrivals } from './income-sources'
+import {
+  listIncomeSources,
+  nextArrival,
+  periodArrivals,
+} from './income-sources'
 import { daysInMonth, occurrencesBetween, type CycleUnit } from './recurrence'
 import { getSettings } from './settings'
 import { listSubscriptions } from './subscriptions'
@@ -68,6 +72,13 @@ export function getBudgetPeriod(
   }
 }
 
+export type UpcomingIncome = {
+  name: string
+  amountMinor: number
+  currency: string
+  date: Date
+}
+
 export type BudgetStatus = {
   currency: string
   locale: string
@@ -77,6 +88,8 @@ export type BudgetStatus = {
   ceilingMinor: number | null
   /** Expected income in the period across active sources; null without any. */
   incomeMinor: number | null
+  /** The soonest pay ahead across active sources; null without any. */
+  nextIncome: UpcomingIncome | null
   dueMinor: number
   remainingMinor: number | null
   overBudget: boolean
@@ -149,6 +162,7 @@ export async function getBudgetStatus(
   }
 
   let incomeMinor: number | null = null
+  let nextIncome: UpcomingIncome | null = null
 
   if (sources.length > 0) {
     incomeMinor = 0
@@ -165,6 +179,18 @@ export async function getBudgetStatus(
         currency,
         settings.currency,
       )
+    }
+
+    for (const source of sources) {
+      const date = nextArrival(source, now)
+      if (nextIncome === null || date.getTime() < nextIncome.date.getTime()) {
+        nextIncome = {
+          name: source.name,
+          amountMinor: source.amountMinor,
+          currency: source.currency,
+          date,
+        }
+      }
     }
   }
 
@@ -189,6 +215,7 @@ export async function getBudgetStatus(
     budgetMinor,
     ceilingMinor,
     incomeMinor,
+    nextIncome,
     dueMinor,
     remainingMinor: budgetMinor === null ? null : budgetMinor - dueMinor,
     overBudget: budgetMinor !== null && dueMinor > budgetMinor,

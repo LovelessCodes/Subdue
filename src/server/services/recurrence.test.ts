@@ -125,6 +125,19 @@ describe('recurrence: previousOccurrence', () => {
       utc(2026, 3, 31),
     )
   })
+
+  it('with a floor it reaches back past the anchor, but never before the floor', () => {
+    const anchor = utc(2026, 11, 15)
+    const quarterly: Cycle = { count: 3, unit: 'months' }
+
+    expect(
+      previousOccurrence(anchor, quarterly, utc(2026, 10, 1), utc(2026, 8, 15)),
+    ).toEqual(utc(2026, 8, 15))
+    expect(
+      previousOccurrence(anchor, quarterly, utc(2026, 10, 1), utc(2026, 9, 1)),
+    ).toBeNull()
+    expect(previousOccurrence(anchor, quarterly, utc(2026, 10, 1))).toBeNull()
+  })
 })
 
 describe('recurrence: occurrencesBetween', () => {
@@ -153,6 +166,35 @@ describe('recurrence: occurrencesBetween', () => {
         utc(2026, 4, 1),
       ),
     ).toEqual([])
+  })
+
+  it('with a floor it also lists the occurrences before the anchor', () => {
+    const anchor = utc(2026, 11, 1)
+    const monthly: Cycle = { count: 1, unit: 'months' }
+    const floor = utc(2026, 10, 1)
+
+    expect(
+      occurrencesBetween(
+        anchor,
+        monthly,
+        utc(2026, 10, 1),
+        utc(2026, 10, 31),
+        floor,
+      ),
+    ).toEqual([utc(2026, 10, 1)])
+    expect(
+      occurrencesBetween(anchor, monthly, utc(2026, 10, 1), utc(2026, 10, 31)),
+    ).toEqual([])
+    // The floor does not force pre-window pays in: it is a limit, not a seed.
+    expect(
+      occurrencesBetween(
+        anchor,
+        monthly,
+        utc(2026, 10, 2),
+        utc(2026, 11, 2),
+        floor,
+      ),
+    ).toEqual([utc(2026, 11, 1)])
   })
 })
 

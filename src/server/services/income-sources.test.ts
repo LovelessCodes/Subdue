@@ -80,6 +80,22 @@ describe('income sources: crud', () => {
     expect(deleted?.id).toBe(created!.id)
     expect(await listIncomeSources(db, 'u1')).toEqual([])
   })
+
+  it('round-trips the start date, and clearing it', async () => {
+    const { db } = createTestDb()
+    await insertTestUser(db, 'u1')
+
+    const created = await createIncomeSource(db, 'u1', {
+      ...source,
+      startDate: new Date('2026-01-01T00:00:00.000Z'),
+    })
+    expect(created?.startDate).toEqual(new Date('2026-01-01T00:00:00.000Z'))
+
+    const cleared = await updateIncomeSource(db, 'u1', created!.id, {
+      startDate: null,
+    })
+    expect(cleared?.startDate).toBeNull()
+  })
 })
 
 describe('income sources: arrivals', () => {
@@ -156,6 +172,7 @@ describe('income sources: arrivals', () => {
     const future = await createIncomeSource(db, 'u1', {
       ...source,
       nextArrival: new Date('2027-01-25T00:00:00.000Z'),
+      startDate: new Date('2027-01-25T00:00:00.000Z'),
     })
 
     const arrivals = periodArrivals(
@@ -164,5 +181,60 @@ describe('income sources: arrivals', () => {
       new Date('2026-10-31T00:00:00.000Z'),
     )
     expect(arrivals).toEqual([])
+  })
+
+  it('counts the pay before the next arrival when the start date says it happened', async () => {
+    const { db } = createTestDb()
+    await insertTestUser(db, 'u1')
+
+    const ongoing = await createIncomeSource(db, 'u1', {
+      ...source,
+      nextArrival: new Date('2026-11-01T00:00:00.000Z'),
+      startDate: new Date('2026-10-01T00:00:00.000Z'),
+    })
+
+    const october = periodArrivals(
+      [ongoing!],
+      new Date('2026-10-01T00:00:00.000Z'),
+      new Date('2026-10-31T00:00:00.000Z'),
+    )
+    expect(
+      october.map((arrival) => arrival.date.toISOString().slice(0, 10)),
+    ).toEqual(['2026-10-01'])
+
+    // The floor is the source's start date: September catches nothing.
+    const september = periodArrivals(
+      [ongoing!],
+      new Date('2026-09-01T00:00:00.000Z'),
+      new Date('2026-09-30T00:00:00.000Z'),
+    )
+    expect(september).toEqual([])
+  })
+
+  it('lists no arrivals in months before the start date', async () => {
+    const { db } = createTestDb()
+    await insertTestUser(db, 'u1')
+
+    const ongoing = await createIncomeSource(db, 'u1', {
+      ...source,
+      nextArrival: new Date('2026-11-01T00:00:00.000Z'),
+      startDate: new Date('2026-10-15T00:00:00.000Z'),
+    })
+
+    // October's aligned pay (the 1st) predates the start date, so it is gone.
+    expect(
+      arrivalsBetween(
+        [ongoing!],
+        new Date('2026-10-01T00:00:00.000Z'),
+        new Date('2026-10-31T00:00:00.000Z'),
+      ),
+    ).toEqual([])
+    expect(
+      arrivalsBetween(
+        [ongoing!],
+        new Date('2026-11-01T00:00:00.000Z'),
+        new Date('2026-11-30T00:00:00.000Z'),
+      ).map((arrival) => arrival.date.toISOString().slice(0, 10)),
+    ).toEqual(['2026-11-01'])
   })
 })

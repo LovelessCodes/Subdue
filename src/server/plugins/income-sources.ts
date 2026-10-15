@@ -22,6 +22,7 @@ export const incomeSourcesPlugin = () =>
           cycleUnit: { type: 'string', required: true },
           cycleCount: { type: 'number', required: true },
           nextArrival: { type: 'date', required: true },
+          startDate: { type: 'date', required: false },
           archivedAt: { type: 'date', required: false },
           userId: {
             type: 'string',

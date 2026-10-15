@@ -647,6 +647,10 @@
             "type": "string",
             "format": "date-time"
           },
+          "startDate": {
+            "type": "string",
+            "format": "date-time"
+          },
           "archivedAt": {
             "type": "string",
             "format": "date-time"
@@ -16064,6 +16068,12 @@
                   },
                   "nextArrival": {
                     "type": "string"
+                  },
+                  "startDate": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
                   }
                 },
                 "required": [
@@ -16220,6 +16230,12 @@
                   },
                   "nextArrival": {
                     "type": "string"
+                  },
+                  "startDate": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
                   },
                   "id": {
                     "type": "string"

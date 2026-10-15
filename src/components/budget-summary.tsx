@@ -9,6 +9,12 @@ type Budget = {
   dueMinor: number
   budgetMinor: number | null
   incomeMinor?: number | null
+  nextIncome?: {
+    name: string
+    amountMinor: number
+    currency: string
+    date: string | Date
+  } | null
   remainingMinor: number | null
   overBudget: boolean
   currency: string
@@ -36,9 +42,24 @@ export function BudgetSummary({ budget }: { budget: Budget }) {
       <p className="mt-0.5 truncate text-sm font-medium">
         {t('due', { amount: money(budget.dueMinor) })}
       </p>
-      {budget.incomeMinor != null ? (
+      {budget.incomeMinor != null && budget.incomeMinor > 0 ? (
         <p className="mt-0.5 truncate text-[11px] text-muted-foreground">
           {t('arriving', { amount: money(budget.incomeMinor) })}
+        </p>
+      ) : budget.incomeMinor === 0 && budget.nextIncome ? (
+        <p className="mt-0.5 truncate text-[11px] text-muted-foreground">
+          {t('nextPay', {
+            date: new Intl.DateTimeFormat(budget.locale, {
+              month: 'short',
+              day: 'numeric',
+              timeZone: 'UTC',
+            }).format(new Date(budget.nextIncome.date)),
+            amount: formatMinor(
+              budget.nextIncome.amountMinor,
+              budget.nextIncome.currency,
+              budget.locale,
+            ),
+          })}
         </p>
       ) : null}
       {budget.budgetMinor === null ? (

@@ -18,6 +18,7 @@
   "budget": {
     "due": "{amount} te betalen",
     "arriving": "verwacht {amount}",
+    "nextPay": "volgende uitbetaling {date} · {amount}",
     "noBudget": "Geen budget voor deze periode.",
     "overBy": "{amount} te veel",
     "left": "{amount} over"

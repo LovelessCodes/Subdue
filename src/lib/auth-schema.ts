@@ -289,6 +289,7 @@ export const incomeSource = sqliteTable(
     cycleUnit: text('cycle_unit').notNull(),
     cycleCount: integer('cycle_count').notNull(),
     nextArrival: integer('next_arrival', { mode: 'timestamp_ms' }).notNull(),
+    startDate: integer('start_date', { mode: 'timestamp_ms' }),
     archivedAt: integer('archived_at', { mode: 'timestamp_ms' }),
     userId: text('user_id')
       .notNull()

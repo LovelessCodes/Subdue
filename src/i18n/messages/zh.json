@@ -18,6 +18,7 @@
   "budget": {
     "due": "应付 {amount}",
     "arriving": "预计到账 {amount}",
+    "nextPay": "下次到账 {date} · {amount}",
     "noBudget": "本期未设置预算。",
     "overBy": "超支 {amount}",
     "left": "剩余 {amount}"

@@ -18,6 +18,7 @@ export type IncomeSourceInput = {
   cycleUnit: CycleUnit
   cycleCount: number
   nextArrival: Date
+  startDate?: Date | null
 }
 
 export type IncomeArrival = {
@@ -85,6 +86,7 @@ export async function createIncomeSource(
       cycleUnit: input.cycleUnit,
       cycleCount: input.cycleCount,
       nextArrival: input.nextArrival,
+      startDate: input.startDate ?? null,
       createdAt: new Date(),
     })
     .returning()
@@ -105,6 +107,7 @@ export async function updateIncomeSource(
   if (patch.cycleUnit !== undefined) values.cycleUnit = patch.cycleUnit
   if (patch.cycleCount !== undefined) values.cycleCount = patch.cycleCount
   if (patch.nextArrival !== undefined) values.nextArrival = patch.nextArrival
+  if (patch.startDate !== undefined) values.startDate = patch.startDate
 
   if (Object.keys(values).length === 0) {
     return getIncomeSource(db, userId, id)
@@ -162,7 +165,11 @@ export async function deleteIncomeSource(
   return rows[0] ?? null
 }
 
-/** Every real arrival in [from, to], across the given sources. */
+/**
+ * Every real arrival in [from, to], across the given sources. A source with a
+ * start date reaches into the past that far — its cadence predates the next
+ * recorded payday — and never before it.
+ */
 export function arrivalsBetween(
   sources: IncomeSource[],
   from: Date,
@@ -176,6 +183,7 @@ export function arrivalsBetween(
       sourceCycle(source),
       from,
       to,
+      source.startDate,
     )) {
       arrivals.push({ source, date })
     }
@@ -188,8 +196,8 @@ export function arrivalsBetween(
  * The budget view of arrivals in a period. A source that lands inside the
  * period contributes its arrivals; one with no arrival — a quarterly pay in an
  * off-month, say — carries its most recent pay instead, because that money is
- * what funds the period. A source that has not started yet contributes
- * nothing.
+ * what funds the period. The source's start date is the floor on both: income
+ * that had not begun yet contributes nothing.
  */
 export function periodArrivals(
   sources: IncomeSource[],
@@ -209,6 +217,7 @@ export function periodArrivals(
       source.nextArrival,
       sourceCycle(source),
       from,
+      source.startDate,
     )
     if (carried) {
       arrivals.push({ source, date: carried })
