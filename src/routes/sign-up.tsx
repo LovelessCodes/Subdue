@@ -1,3 +1,4 @@
+import { ThemeToggle } from '@/components/theme-toggle'
 import { Link, createFileRoute } from '@tanstack/react-router'
 import type { FormEvent } from 'react'
 import {
@@ -149,6 +150,9 @@ function SignUp() {
 
   return (
     <div className="relative flex min-h-svh items-center justify-center overflow-hidden px-6 py-16">
+      <div className="fixed top-4 right-4 z-50">
+        <ThemeToggle />
+      </div>
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0"

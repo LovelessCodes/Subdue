@@ -1,5 +1,6 @@
 import { Fragment, useEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
+import { ThemeToggle } from '@/components/theme-toggle'
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { CircleAlert } from 'lucide-react'
 import { cn } from 'cn'
@@ -127,6 +128,9 @@ function TwoFactorPage() {
 
   return (
     <div className="relative flex min-h-svh items-center justify-center overflow-hidden px-6 py-16">
+      <div className="fixed top-4 right-4 z-50">
+        <ThemeToggle />
+      </div>
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0"
