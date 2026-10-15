@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import QRCode from 'react-qr-code'
+import { PasswordInput } from '@/components/password-input'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -167,9 +168,8 @@ export function TwoFactorCard() {
               <FieldLabel htmlFor="two-factor-password">
                 Confirm your password
               </FieldLabel>
-              <Input
+              <PasswordInput
                 id="two-factor-password"
-                type="password"
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 autoComplete="current-password"
