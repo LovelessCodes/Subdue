@@ -24,7 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Tabs, TabsList, TabsPanel, TabsTab } from '@/components/ui/coss-tabs'
 import { getMySettings, updateMySettings } from '@/lib/app.functions'
 import { getSession } from '@/lib/auth.functions'
 import { fromMajorUnits, toMajorUnits } from '@/lib/money'
@@ -254,15 +254,18 @@ function SettingsPage() {
           onValueChange={(value) => setSection(value as Section)}
           className="gap-6"
         >
-          <TabsList variant="line" className="w-full border-b border-border">
+          <TabsList
+            variant="underline"
+            className="w-full max-sm:overflow-x-auto"
+          >
             {SECTIONS.map((id) => (
-              <TabsTrigger key={id} value={id}>
+              <TabsTab key={id} value={id} className="sm:basis-0">
                 {SECTION_LABELS[id]}
-              </TabsTrigger>
+              </TabsTab>
             ))}
           </TabsList>
 
-          <TabsContent value="preferences" className="flex flex-col gap-5">
+          <TabsPanel value="preferences" className="flex flex-col gap-5">
             <SectionLead section="preferences" />
             <FieldGroup>
               <div className="grid gap-4 sm:grid-cols-2">
@@ -351,9 +354,9 @@ function SettingsPage() {
                 </Field>
               </div>
             </FieldGroup>
-          </TabsContent>
+          </TabsPanel>
 
-          <TabsContent value="budget" className="flex flex-col gap-5">
+          <TabsPanel value="budget" className="flex flex-col gap-5">
             <SectionLead section="budget" />
             <FieldGroup>
               <div className="grid gap-4 sm:grid-cols-2">
@@ -384,9 +387,9 @@ function SettingsPage() {
               </div>
               <AnchorNote />
             </FieldGroup>
-          </TabsContent>
+          </TabsPanel>
 
-          <TabsContent value="reminders" className="flex flex-col gap-5">
+          <TabsPanel value="reminders" className="flex flex-col gap-5">
             <SectionLead section="reminders" />
             <Field>
               <FieldLabel htmlFor="settings-remind">
@@ -404,20 +407,20 @@ function SettingsPage() {
                 Per-subscription overrides win over this default.
               </FieldDescription>
             </Field>
-          </TabsContent>
+          </TabsPanel>
 
-          <TabsContent value="lists" className="flex flex-col gap-5">
+          <TabsPanel value="lists" className="flex flex-col gap-5">
             <SectionLead section="lists" />
             <ManagedListsCard />
-          </TabsContent>
+          </TabsPanel>
 
-          <TabsContent value="security" className="flex flex-col gap-5">
+          <TabsPanel value="security" className="flex flex-col gap-5">
             <SectionLead section="security" />
             <div className="flex flex-col gap-4">
               <PasskeyCard />
               <TwoFactorCard />
             </div>
-          </TabsContent>
+          </TabsPanel>
         </Tabs>
 
         <p className="text-sm text-muted-foreground">
