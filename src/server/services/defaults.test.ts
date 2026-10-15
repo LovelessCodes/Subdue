@@ -12,6 +12,8 @@ describe('defaultSeedSet', () => {
     expect(defaultSeedSet('de-AT').paymentMethods[2]?.name).toBe('EC-Karte')
     expect(defaultSeedSet('en-GB').categories[0]?.name).toBe('Entertainment')
     expect(defaultSeedSet('zh').categories[0]?.name).toBe('娱乐')
+    expect(defaultSeedSet('fi').paymentMethods[2]?.name).toBe('Pankkikortti')
+    expect(defaultSeedSet('pl').categories.at(-1)?.name).toBe('Abonament RTV')
     expect(defaultSeedSet('xx-YY').categories[0]?.name).toBe('Entertainment')
   })
 
@@ -39,6 +41,10 @@ describe('defaultSeedSet', () => {
       fo: 'Trygging',
       uk: 'Страхування',
       es: 'Seguro',
+      fi: 'Vakuutus',
+      nl: 'Verzekering',
+      it: 'Assicurazione',
+      pl: 'Ubezpieczenie',
     }
     const local: Record<string, string[]> = {
       de: ['Rundfunkbeitrag'],
@@ -48,6 +54,10 @@ describe('defaultSeedSet', () => {
       fr: ['Mutuelle'],
       es: ['Comunidad de vecinos'],
       zh: ['话费'],
+      fi: ['Ammattiliitto', 'Työttömyyskassa'],
+      nl: ['Zorgverzekering'],
+      it: ['Canone RAI'],
+      pl: ['Abonament RTV'],
     }
 
     for (const locale of SEED_LOCALES) {
@@ -88,6 +98,10 @@ describe('defaultSeedSet', () => {
       fo: 6,
       uk: 7,
       es: 7,
+      fi: 6,
+      nl: 6,
+      it: 6,
+      pl: 6,
     }
     for (const locale of SEED_LOCALES) {
       expect(defaultSeedSet(locale).paymentMethods).toHaveLength(
@@ -124,9 +138,7 @@ describe('seedDefaults', () => {
       .from(paymentMethod)
       .where(eq(paymentMethod.userId, 'u1'))
     expect(methods).toHaveLength(6)
-    expect(methods.map((method) => method.position)).toEqual([
-      0, 1, 2, 3, 4, 5,
-    ])
+    expect(methods.map((method) => method.position)).toEqual([0, 1, 2, 3, 4, 5])
 
     const categories = await db
       .select()

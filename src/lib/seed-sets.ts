@@ -225,6 +225,88 @@ const SEED_SETS: Record<string, SeedSet> = {
       { name: 'Comunidad de vecinos', color: '#4f46e5' },
     ],
   },
+  // Finland pays the union and the unemployment fund separately, like Denmark
+  // and Norway, so the set names both.
+  fi: {
+    paymentMethods: [
+      VISA,
+      MASTERCARD,
+      { name: 'Pankkikortti', icon: '/brands/debit.svg' },
+      PAYPAL,
+      STRIPE,
+      { name: 'Tilisiirto', icon: null },
+    ],
+    categories: [
+      { name: 'Viihde', color: '#7c3aed' },
+      { name: 'Kotitalouskulut', color: '#0369a1' },
+      { name: 'Ohjelmistot', color: '#0f766e' },
+      { name: 'Asuminen', color: '#b45309' },
+      { name: 'Tilaukset', color: '#be123c' },
+      { name: 'Vakuutus', color: '#15803d' },
+      { name: 'Ammattiliitto', color: '#4f46e5' },
+      { name: 'Työttömyyskassa', color: '#a21caf' },
+    ],
+  },
+  // Dutch health insurance is its own bill by law, next to the optional ones.
+  nl: {
+    paymentMethods: [
+      VISA,
+      MASTERCARD,
+      { name: 'Betaalpas', icon: '/brands/debit.svg' },
+      PAYPAL,
+      STRIPE,
+      { name: 'Overschrijving', icon: null },
+    ],
+    categories: [
+      { name: 'Entertainment', color: '#7c3aed' },
+      { name: 'Nutsvoorzieningen', color: '#0369a1' },
+      { name: 'Software', color: '#0f766e' },
+      { name: 'Wonen', color: '#b45309' },
+      { name: 'Abonnementen', color: '#be123c' },
+      { name: 'Verzekering', color: '#15803d' },
+      { name: 'Zorgverzekering', color: '#65a30d' },
+    ],
+  },
+  // The public-broadcast levy is the Italian bill people actually recognise.
+  it: {
+    paymentMethods: [
+      VISA,
+      MASTERCARD,
+      { name: 'Bancomat', icon: '/brands/debit.svg' },
+      PAYPAL,
+      STRIPE,
+      { name: 'Bonifico', icon: null },
+    ],
+    categories: [
+      { name: 'Intrattenimento', color: '#7c3aed' },
+      { name: 'Utenze', color: '#0369a1' },
+      { name: 'Software', color: '#0f766e' },
+      { name: 'Casa', color: '#b45309' },
+      { name: 'Abbonamenti', color: '#be123c' },
+      { name: 'Assicurazione', color: '#15803d' },
+      { name: 'Canone RAI', color: '#a21caf' },
+    ],
+  },
+  // Same story in Poland: the RTV levy sits next to the ordinary bills.
+  pl: {
+    paymentMethods: [
+      VISA,
+      MASTERCARD,
+      { name: 'Karta debetowa', icon: '/brands/debit.svg' },
+      PAYPAL,
+      STRIPE,
+      { name: 'Przelew', icon: null },
+    ],
+    categories: [
+      { name: 'Rozrywka', color: '#7c3aed' },
+      { name: 'Rachunki', color: '#0369a1' },
+      { name: 'Oprogramowanie', color: '#0f766e' },
+      { name: 'Mieszkanie', color: '#b45309' },
+      { name: 'Subskrypcje', color: '#be123c' },
+      { name: 'Ubezpieczenie', color: '#15803d' },
+      { name: 'Abonament RTV', color: '#a21caf' },
+    ],
+  },
 }
 
 export const SEED_LOCALES = Object.keys(SEED_SETS)
@@ -241,6 +323,10 @@ export const SEED_LOCALE_LABELS: Record<string, string> = {
   fo: 'Føroyskt',
   uk: 'Українська',
   es: 'Español',
+  fi: 'Suomi',
+  nl: 'Nederlands',
+  it: 'Italiano',
+  pl: 'Polski',
 }
 
 /** Matches on the language subtag, so `de-AT` and `en-GB` find their sets. */

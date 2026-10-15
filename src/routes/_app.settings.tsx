@@ -47,6 +47,9 @@ const LOCALES = [
   'es',
   'it',
   'pl',
+  'zh',
+  'fo',
+  'uk',
 ]
 
 /** Own-language names, so the list reads the same wherever you are. */
