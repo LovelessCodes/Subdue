@@ -6,7 +6,7 @@
 // from cache with a timestamped banner; an unvisited page gets a notice.
 // The full reasoning lives in docs/adr/0001-offline-behaviour.md.
 
-const CACHE = 'subdue-pages-v1'
+const CACHE = 'subdue-pages-v2'
 const PRECACHE = ['/manifest.webmanifest', '/icons/icon-192.png']
 
 self.addEventListener('install', (event) => {
@@ -32,14 +32,14 @@ self.addEventListener('activate', (event) => {
   )
 })
 
-const STATIC_PATTERN = /^\/(assets|icons|fonts)\//
-const STATIC_EXTENSIONS =
-  /\.(css|js|mjs|png|jpe?g|gif|webp|svg|ico|woff2?|webmanifest)$/
+// Cache-first only for the deployed static directories. Their files are
+// versioned by deploys (built assets carry content hashes), whereas dev
+// keeps CSS and modules at stable URLs under /src and /@ — caching those
+// offline-first would pin a stale stylesheet across reloads.
+const STATIC_PATTERN = /^\/(assets|brands|fonts|icons)\//
 
 function isCacheableAsset(url) {
-  return (
-    STATIC_PATTERN.test(url.pathname) || STATIC_EXTENSIONS.test(url.pathname)
-  )
+  return STATIC_PATTERN.test(url.pathname)
 }
 
 async function cacheFirst(request) {
