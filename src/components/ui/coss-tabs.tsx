@@ -107,16 +107,80 @@ export function TabsTab({
 /**
  * Stack wrapper for animated panels: puts every panel in one grid cell so the
  * leaving panel cross-fades in place, and clips the direction slides. The
- * `-mx-1`/`px-1` pair pushes the clip edge off the content edge so focus rings
- * sitting on it stay uncut.
+ * `-mx-1`/`-my-1` bleed pushes the clip edge off the content edge so focus
+ * rings sitting on it stay uncut.
+ *
+ * The wrapper also owns its height, measured from the settled panel, so the
+ * content below the tabs glides with the swap instead of snapping when the
+ * leaving panel unmounts.
  */
 export function TabsPanels({
   className,
   ...props
 }: React.ComponentProps<'div'>): React.ReactElement {
+  const container = React.useRef<HTMLDivElement>(null)
+
+  React.useEffect(() => {
+    const element = container.current
+    if (!element) return
+
+    const panels = () =>
+      Array.from(
+        element.querySelectorAll<HTMLElement>('[data-slot="tabs-content"]'),
+      )
+
+    // Leaving panels still carry data-ending-style; the target is whichever
+    // panel is entering or settled.
+    const target = () =>
+      panels().find((panel) => !panel.hasAttribute('data-ending-style'))
+
+    const resize = new ResizeObserver(() => syncHeight())
+
+    const syncHeight = () => {
+      const panel = target()
+      if (!panel) return
+      const styles = getComputedStyle(element)
+      const height =
+        panel.getBoundingClientRect().height +
+        parseFloat(styles.paddingTop) +
+        parseFloat(styles.paddingBottom)
+      element.style.height = `${height}px`
+    }
+
+    const resync = () => {
+      resize.disconnect()
+      for (const panel of panels()) resize.observe(panel)
+      syncHeight()
+    }
+
+    // Panel set changes (a swap mounts and ends panels) and the settled
+    // panel's own size changes (validation text, window resize) both
+    // retarget the height.
+    const mutations = new MutationObserver(resync)
+    mutations.observe(element, {
+      attributeFilter: ['data-ending-style'],
+      childList: true,
+      subtree: true,
+    })
+
+    resync()
+
+    return () => {
+      mutations.disconnect()
+      resize.disconnect()
+    }
+  }, [])
+
   return (
     <div
-      className={cn('-mx-1 grid flex-1 overflow-x-clip px-1', className)}
+      ref={container}
+      className={cn(
+        '-mx-1 -my-1 grid items-start overflow-clip px-1 py-1',
+        // One motion with the panels: the same duration and ease as their
+        // slide. Under reduced motion the height snaps and only the fade stays.
+        'motion-safe:[transition:height_350ms_cubic-bezier(0.22,1,0.36,1)]',
+        className,
+      )}
       data-slot="tabs-panels"
       {...props}
     />
