@@ -263,7 +263,9 @@ function ManagedList({
             size="sm"
             onClick={() => setShowArchived((value) => !value)}
           >
-            {showArchived ? 'Hide archived' : `Show archived (${archived.length})`}
+            {showArchived
+              ? 'Hide archived'
+              : `Show archived (${archived.length})`}
           </Button>
         ) : null}
       </div>
@@ -368,8 +370,8 @@ function ManagedList({
               {blocked?.id === row.id ? (
                 <p className="w-full text-xs text-muted-foreground">
                   Still used by {blocked.references}{' '}
-                  {blocked.references === 1 ? 'subscription' : 'subscriptions'} —
-                  move them to another row first.
+                  {blocked.references === 1 ? 'subscription' : 'subscriptions'}{' '}
+                  — move them to another row first.
                 </p>
               ) : null}
             </li>
