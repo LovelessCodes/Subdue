@@ -158,6 +158,7 @@ export async function listDeliveries(
   return db
     .select({
       id: notificationDelivery.id,
+      channelId: notificationDelivery.channelId,
       status: notificationDelivery.status,
       attempts: notificationDelivery.attempts,
       lastError: notificationDelivery.lastError,
