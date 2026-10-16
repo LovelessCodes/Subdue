@@ -18,6 +18,7 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import { useRouter } from '@tanstack/react-router'
 import { GripVertical } from 'lucide-react'
+import { useTranslations } from 'use-intl'
 import { cn } from 'cn'
 import { PaymentMethodIcon } from '@/components/payment-method-icon'
 import { Badge } from '@/components/ui/badge'
@@ -97,30 +98,28 @@ const PAYMENT_API: ListApi = {
   purge: (id) => purgeMyPaymentMethod({ data: { id } }),
 }
 
-function message(caught: unknown): string {
-  return caught instanceof Error ? caught.message : 'Something went wrong.'
+function message(caught: unknown, fallback: string): string {
+  return caught instanceof Error ? caught.message : fallback
 }
 
 export function ManagedListsCard() {
+  const t = useTranslations('managedLists')
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Categories &amp; payment methods</CardTitle>
-        <CardDescription>
-          The starter lists, yours to shape. The order here is the order the
-          subscription form offers.
-        </CardDescription>
+        <CardTitle>{t('title')}</CardTitle>
+        <CardDescription>{t('description')}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-10">
         <ManagedList
-          title="Categories"
-          placeholder="New category"
+          title={t('categories')}
+          placeholder={t('categoriesPlaceholder')}
           showSwatch="color"
           api={CATEGORY_API}
         />
         <ManagedList
-          title="Payment methods"
-          placeholder="New payment method"
+          title={t('paymentMethods')}
+          placeholder={t('paymentMethodsPlaceholder')}
           showSwatch="icon"
           api={PAYMENT_API}
         />
@@ -141,6 +140,7 @@ function ManagedList({
   api: ListApi
 }) {
   const router = useRouter()
+  const t = useTranslations('managedLists')
   const [rows, setRows] = useState<ManagedRow[] | null>(null)
   const [showArchived, setShowArchived] = useState(false)
   const [newName, setNewName] = useState('')
@@ -168,12 +168,12 @@ function ManagedList({
         if (live) setRows(items)
       })
       .catch((caught) => {
-        if (live) setError(message(caught))
+        if (live) setError(message(caught, t('errGeneric')))
       })
     return () => {
       live = false
     }
-  }, [api])
+  }, [api, t])
 
   const active = (rows ?? []).filter((row) => !row.archivedAt)
   const archived = (rows ?? []).filter((row) => row.archivedAt)
@@ -190,7 +190,7 @@ function ManagedList({
       await reload()
       await router.invalidate()
     } catch (caught) {
-      setError(message(caught))
+      setError(message(caught, t('errGeneric')))
     } finally {
       setPending(false)
     }
@@ -232,7 +232,7 @@ function ManagedList({
       await reload()
       await router.invalidate()
     } catch (caught) {
-      setError(message(caught))
+      setError(message(caught, t('errGeneric')))
     } finally {
       setPending(false)
     }
@@ -249,7 +249,7 @@ function ManagedList({
     setRows([...next, ...archived])
     api.reorder(next.map((row) => row.id)).catch((caught) => {
       setRows(previous)
-      setError(message(caught))
+      setError(message(caught, t('errGeneric')))
     })
   }
 
@@ -264,8 +264,8 @@ function ManagedList({
             onClick={() => setShowArchived((value) => !value)}
           >
             {showArchived
-              ? 'Hide archived'
-              : `Show archived (${archived.length})`}
+              ? t('hideArchived')
+              : t('showArchived', { count: archived.length })}
           </Button>
         ) : null}
       </div>
@@ -277,11 +277,9 @@ function ManagedList({
       ) : null}
 
       {rows === null ? (
-        <p className="text-sm text-muted-foreground">Loading…</p>
+        <p className="text-sm text-muted-foreground">{t('loading')}</p>
       ) : active.length === 0 ? (
-        <p className="text-sm text-muted-foreground">
-          Nothing here yet — add the first one below.
-        </p>
+        <p className="text-sm text-muted-foreground">{t('empty')}</p>
       ) : (
         <DndContext
           sensors={sensors}
@@ -322,12 +320,12 @@ function ManagedList({
                 <span className="truncate text-sm text-muted-foreground">
                   {row.name}
                 </span>
-                <Badge variant="outline">Archived</Badge>
+                <Badge variant="outline">{t('archived')}</Badge>
               </span>
               {confirmId === row.id ? (
                 <span className="flex items-center gap-2">
                   <span className="text-xs text-muted-foreground">
-                    Delete for good?
+                    {t('deleteConfirm')}
                   </span>
                   <Button
                     variant="destructive"
@@ -335,14 +333,14 @@ function ManagedList({
                     disabled={pending}
                     onClick={() => void purge(row.id)}
                   >
-                    Delete
+                    {t('delete')}
                   </Button>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setConfirmId(null)}
                   >
-                    Keep
+                    {t('keep')}
                   </Button>
                 </span>
               ) : (
@@ -353,7 +351,7 @@ function ManagedList({
                     disabled={pending}
                     onClick={() => void run(() => api.restore(row.id))}
                   >
-                    Restore
+                    {t('restore')}
                   </Button>
                   <Button
                     variant="ghost"
@@ -363,15 +361,13 @@ function ManagedList({
                       setBlocked(null)
                     }}
                   >
-                    Delete…
+                    {t('deleteDots')}
                   </Button>
                 </span>
               )}
               {blocked?.id === row.id ? (
                 <p className="w-full text-xs text-muted-foreground">
-                  Still used by {blocked.references}{' '}
-                  {blocked.references === 1 ? 'subscription' : 'subscriptions'}{' '}
-                  — move them to another row first.
+                  {t('inUse', { count: blocked.references })}
                 </p>
               ) : null}
             </li>
@@ -398,7 +394,7 @@ function ManagedList({
           disabled={pending || newName.trim() === ''}
           onClick={() => void add()}
         >
-          Add
+          {t('add')}
         </Button>
       </div>
     </section>
@@ -460,6 +456,7 @@ function ActiveRow({
     transition,
     isDragging,
   } = useSortable({ id: row.id })
+  const t = useTranslations('managedLists')
   const isEditing = editingId === row.id
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -480,7 +477,7 @@ function ActiveRow({
         type="button"
         {...attributes}
         {...listeners}
-        aria-label={`Reorder ${row.name}`}
+        aria-label={t('reorderAria', { name: row.name })}
         className="cursor-grab touch-none rounded p-1 text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
       >
         <GripVertical className="size-4" />
@@ -506,7 +503,7 @@ function ActiveRow({
       ) : (
         <button
           type="button"
-          title="Rename"
+          title={t('renameTitle')}
           className="min-w-0 flex-1 truncate rounded px-1 text-left text-sm hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
           onClick={onStartEdit}
         >
@@ -514,7 +511,7 @@ function ActiveRow({
         </button>
       )}
       <Button variant="ghost" size="sm" disabled={pending} onClick={onArchive}>
-        Archive
+        {t('archive')}
       </Button>
     </li>
   )

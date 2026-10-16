@@ -1,5 +1,6 @@
 import { useEffect, useId, useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
+import { useTranslations } from 'use-intl'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Field, FieldLabel } from '@/components/ui/field'
@@ -32,16 +33,60 @@ type IncomeSourceRow = IncomeSource & { nextPayday: Date }
 
 /** The cadences the picker offers; anything else edits as a custom cycle. */
 const CADENCES = [
-  { value: '1w', label: 'Weekly', cycleCount: 1, cycleUnit: 'weeks' },
-  { value: '2w', label: 'Fortnightly', cycleCount: 2, cycleUnit: 'weeks' },
-  { value: '4w', label: 'Every 4 weeks', cycleCount: 4, cycleUnit: 'weeks' },
-  { value: '1m', label: 'Monthly', cycleCount: 1, cycleUnit: 'months' },
-  { value: '3m', label: 'Quarterly', cycleCount: 3, cycleUnit: 'months' },
-  { value: '1y', label: 'Yearly', cycleCount: 1, cycleUnit: 'years' },
+  { value: '1w', labelKey: 'cadenceWeekly', cycleCount: 1, cycleUnit: 'weeks' },
+  {
+    value: '2w',
+    labelKey: 'cadenceFortnightly',
+    cycleCount: 2,
+    cycleUnit: 'weeks',
+  },
+  {
+    value: '4w',
+    labelKey: 'cadenceFourWeekly',
+    cycleCount: 4,
+    cycleUnit: 'weeks',
+  },
+  {
+    value: '1m',
+    labelKey: 'cadenceMonthly',
+    cycleCount: 1,
+    cycleUnit: 'months',
+  },
+  {
+    value: '3m',
+    labelKey: 'cadenceQuarterly',
+    cycleCount: 3,
+    cycleUnit: 'months',
+  },
+  { value: '1y', labelKey: 'cadenceYearly', cycleCount: 1, cycleUnit: 'years' },
 ] as const
 
 const CUSTOM = 'custom'
 const UNITS: CycleUnit[] = ['days', 'weeks', 'months', 'years']
+
+const UNIT_LABEL_KEYS = {
+  days: 'unitDays',
+  weeks: 'unitWeeks',
+  months: 'unitMonths',
+  years: 'unitYears',
+} as const
+
+const EVERY_KEYS = {
+  days: 'everyDays',
+  weeks: 'everyWeeks',
+  months: 'everyMonths',
+  years: 'everyYears',
+} as const
+
+type DraftError =
+  | 'errName'
+  | 'errCurrency'
+  | 'errAmount'
+  | 'errNext'
+  | 'errStart'
+  | 'errStartAfterNext'
+  | 'errCycle'
+  | 'errUnit'
 
 type Draft = {
   name: string
@@ -111,64 +156,43 @@ function draftCycle(draft: Draft): { count: number; unit: string } {
   return { count: Number(draft.count), unit: draft.unit }
 }
 
-function cadenceLabel(source: {
-  cycleCount: number
-  cycleUnit: string
-}): string {
-  const preset = CADENCES.find(
-    (cadence) =>
-      cadence.cycleCount === source.cycleCount &&
-      cadence.cycleUnit === source.cycleUnit,
-  )
-  if (preset) {
-    return preset.label
-  }
-  const unit =
-    source.cycleCount === 1
-      ? source.cycleUnit.replace(/s$/, '')
-      : source.cycleUnit
-  return `Every ${source.cycleCount} ${unit}`
-}
-
 function parseDraft(
   draft: Draft,
   fallbackCurrency: string,
-): { input: ParsedDraft } | { error: string } {
+): { input: ParsedDraft } | { error: DraftError } {
   const name = draft.name.trim()
   if (!name) {
-    return { error: 'Give the income source a name.' }
+    return { error: 'errName' }
   }
 
   const currency = draft.currency.trim().toUpperCase() || fallbackCurrency
   if (!/^[A-Z]{3}$/.test(currency)) {
-    return { error: 'Use a 3-letter currency code, like DKK or EUR.' }
+    return { error: 'errCurrency' }
   }
 
   const amount = Number(draft.amount.replace(',', '.'))
   if (draft.amount.trim() === '' || !Number.isFinite(amount) || amount < 0) {
-    return { error: 'The amount needs to be a positive number.' }
+    return { error: 'errAmount' }
   }
 
   if (!/^\d{4}-\d{2}-\d{2}$/.test(draft.nextArrival)) {
-    return { error: 'Pick the next arrival date.' }
+    return { error: 'errNext' }
   }
 
   if (!/^\d{4}-\d{2}-\d{2}$/.test(draft.startDate)) {
-    return { error: 'Pick the date the income started.' }
+    return { error: 'errStart' }
   }
 
   if (draft.startDate > draft.nextArrival) {
-    return {
-      error: 'The start date needs to be on or before the next arrival.',
-    }
+    return { error: 'errStartAfterNext' }
   }
 
   const cycle = draftCycle(draft)
   if (!Number.isInteger(cycle.count) || cycle.count < 1 || cycle.count > 365) {
-    return { error: 'Custom cycles run from 1 to 365.' }
+    return { error: 'errCycle' }
   }
   if (!UNITS.includes(cycle.unit as CycleUnit)) {
-    return { error: 'Pick a cycle unit.' }
+    return { error: 'errUnit' }
   }
 
   return {
@@ -184,8 +208,8 @@ function parseDraft(
   }
 }
 
-function message(caught: unknown): string {
-  return caught instanceof Error ? caught.message : 'Something went wrong.'
+function message(caught: unknown, fallback: string): string {
+  return caught instanceof Error ? caught.message : fallback
 }
 
 /**
@@ -201,6 +225,7 @@ export function IncomeSourcesCard({
   locale: string
 }) {
   const router = useRouter()
+  const t = useTranslations('incomeSources')
   const [rows, setRows] = useState<IncomeSourceRow[] | null>(null)
   const [showArchived, setShowArchived] = useState(false)
   const [editing, setEditing] = useState<{ id: string; draft: Draft } | null>(
@@ -218,12 +243,12 @@ export function IncomeSourcesCard({
         if (live) setRows(items)
       })
       .catch((caught) => {
-        if (live) setError(message(caught))
+        if (live) setError(message(caught, t('errGeneric')))
       })
     return () => {
       live = false
     }
-  }, [])
+  }, [t])
 
   const active = (rows ?? []).filter((row) => !row.archivedAt)
   const archived = (rows ?? []).filter((row) => row.archivedAt)
@@ -240,7 +265,7 @@ export function IncomeSourcesCard({
       await reload()
       await router.invalidate()
     } catch (caught) {
-      setError(message(caught))
+      setError(message(caught, t('errGeneric')))
     } finally {
       setPending(false)
     }
@@ -249,7 +274,7 @@ export function IncomeSourcesCard({
   async function add() {
     const parsed = parseDraft(draft, currency)
     if ('error' in parsed) {
-      setError(parsed.error)
+      setError(t(parsed.error))
       return
     }
     await run(async () => {
@@ -262,7 +287,7 @@ export function IncomeSourcesCard({
     if (!editing) return
     const parsed = parseDraft(editing.draft, currency)
     if ('error' in parsed) {
-      setError(parsed.error)
+      setError(t(parsed.error))
       return
     }
     setEditing(null)
@@ -271,15 +296,32 @@ export function IncomeSourcesCard({
     )
   }
 
+  function cadenceLabel(source: {
+    cycleCount: number
+    cycleUnit: string
+  }): string {
+    const preset = CADENCES.find(
+      (cadence) =>
+        cadence.cycleCount === source.cycleCount &&
+        cadence.cycleUnit === source.cycleUnit,
+    )
+    if (preset) {
+      return t(preset.labelKey)
+    }
+    const unit = source.cycleUnit as CycleUnit
+    if (UNITS.includes(unit)) {
+      return t(EVERY_KEYS[unit], { count: source.cycleCount })
+    }
+    return `${source.cycleCount} ${source.cycleUnit}`
+  }
+
   return (
     <section className="flex flex-col gap-3 border-t pt-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h3 className="text-sm font-medium">Income sources</h3>
+          <h3 className="text-sm font-medium">{t('title')}</h3>
           <p className="mt-0.5 text-sm text-muted-foreground">
-            Salaries and side gigs, each on their own schedule. Every arrival
-            shows up in the calendar and counts towards the period&rsquo;s
-            budget.
+            {t('description')}
           </p>
         </div>
         {archived.length > 0 ? (
@@ -289,8 +331,8 @@ export function IncomeSourcesCard({
             onClick={() => setShowArchived((value) => !value)}
           >
             {showArchived
-              ? 'Hide archived'
-              : `Show archived (${archived.length})`}
+              ? t('hideArchived')
+              : t('showArchived', { count: archived.length })}
           </Button>
         ) : null}
       </div>
@@ -302,11 +344,9 @@ export function IncomeSourcesCard({
       ) : null}
 
       {rows === null ? (
-        <p className="text-sm text-muted-foreground">Loading…</p>
+        <p className="text-sm text-muted-foreground">{t('loading')}</p>
       ) : active.length === 0 ? (
-        <p className="text-sm text-muted-foreground">
-          Nothing here yet — add the first job below.
-        </p>
+        <p className="text-sm text-muted-foreground">{t('empty')}</p>
       ) : (
         <ul className="flex flex-col divide-y overflow-hidden rounded-md border">
           {active.map((source) =>
@@ -316,7 +356,7 @@ export function IncomeSourcesCard({
                   draft={editing.draft}
                   currency={currency}
                   pending={pending}
-                  submitLabel="Save"
+                  submitLabel={t('save')}
                   framed={false}
                   onChange={(next) =>
                     setEditing({ id: source.id, draft: next })
@@ -335,12 +375,14 @@ export function IncomeSourcesCard({
                     {source.name}
                   </span>
                   <span className="text-xs text-muted-foreground">
-                    {cadenceLabel(source)} · since{' '}
-                    {formatDate(
-                      new Date(source.startDate ?? source.nextArrival),
-                      locale,
-                    )}{' '}
-                    · next {formatDate(new Date(source.nextPayday), locale)}
+                    {t('rowMeta', {
+                      cadence: cadenceLabel(source),
+                      start: formatDate(
+                        new Date(source.startDate ?? source.nextArrival),
+                        locale,
+                      ),
+                      next: formatDate(new Date(source.nextPayday), locale),
+                    })}
                   </span>
                 </span>
                 <span className="flex items-center gap-2">
@@ -356,7 +398,7 @@ export function IncomeSourcesCard({
                       setEditing({ id: source.id, draft: draftFrom(source) })
                     }}
                   >
-                    Edit
+                    {t('edit')}
                   </Button>
                   <Button
                     variant="ghost"
@@ -368,7 +410,7 @@ export function IncomeSourcesCard({
                       )
                     }
                   >
-                    Archive
+                    {t('archive')}
                   </Button>
                 </span>
               </li>
@@ -388,12 +430,12 @@ export function IncomeSourcesCard({
                 <span className="truncate text-sm text-muted-foreground">
                   {source.name}
                 </span>
-                <Badge variant="outline">Archived</Badge>
+                <Badge variant="outline">{t('archived')}</Badge>
               </span>
               {confirmId === source.id ? (
                 <span className="flex items-center gap-2">
                   <span className="text-xs text-muted-foreground">
-                    Delete for good?
+                    {t('deleteConfirm')}
                   </span>
                   <Button
                     variant="destructive"
@@ -408,14 +450,14 @@ export function IncomeSourcesCard({
                       })
                     }
                   >
-                    Delete
+                    {t('delete')}
                   </Button>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setConfirmId(null)}
                   >
-                    Keep
+                    {t('keep')}
                   </Button>
                 </span>
               ) : (
@@ -430,7 +472,7 @@ export function IncomeSourcesCard({
                       )
                     }
                   >
-                    Restore
+                    {t('restore')}
                   </Button>
                   <Button
                     variant="ghost"
@@ -440,7 +482,7 @@ export function IncomeSourcesCard({
                       setConfirmId(source.id)
                     }}
                   >
-                    Delete…
+                    {t('deleteDots')}
                   </Button>
                 </span>
               )}
@@ -453,7 +495,7 @@ export function IncomeSourcesCard({
         draft={draft}
         currency={currency}
         pending={pending}
-        submitLabel="Add income source"
+        submitLabel={t('add')}
         onChange={setDraft}
         onSubmit={() => void add()}
       />
@@ -484,6 +526,7 @@ function SourceForm({
   onSubmit: () => void
   onCancel?: () => void
 }) {
+  const t = useTranslations('incomeSources')
   const id = useId()
 
   function change(key: keyof Draft, value: string) {
@@ -493,9 +536,9 @@ function SourceForm({
   const cadenceItems = [
     ...CADENCES.map((cadence) => ({
       value: cadence.value,
-      label: cadence.label,
+      label: t(cadence.labelKey),
     })),
-    { value: CUSTOM, label: 'Custom…' },
+    { value: CUSTOM, label: t('custom') },
   ]
 
   return (
@@ -512,28 +555,28 @@ function SourceForm({
     >
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <Field>
-          <FieldLabel htmlFor={`${id}-name`}>Name</FieldLabel>
+          <FieldLabel htmlFor={`${id}-name`}>{t('name')}</FieldLabel>
           <Input
             id={`${id}-name`}
             value={draft.name}
-            placeholder="Full-time job"
+            placeholder={t('namePlaceholder')}
             onChange={(event) => change('name', event.target.value)}
           />
         </Field>
         <Field>
-          <FieldLabel htmlFor={`${id}-amount`}>Amount</FieldLabel>
+          <FieldLabel htmlFor={`${id}-amount`}>{t('amount')}</FieldLabel>
           <div className="flex items-center gap-2">
             <Input
               id={`${id}-amount`}
               className="flex-1"
               value={draft.amount}
-              placeholder="24 500"
+              placeholder={t('amountPlaceholder')}
               inputMode="decimal"
               onChange={(event) => change('amount', event.target.value)}
             />
             <Input
               className="w-16"
-              aria-label="Currency"
+              aria-label={t('currencyAria')}
               value={draft.currency}
               maxLength={3}
               placeholder={currency}
@@ -544,7 +587,7 @@ function SourceForm({
           </div>
         </Field>
         <Field>
-          <FieldLabel>Arrives</FieldLabel>
+          <FieldLabel>{t('arrives')}</FieldLabel>
           <Select
             value={draft.cadence}
             items={cadenceItems}
@@ -563,7 +606,7 @@ function SourceForm({
           </Select>
         </Field>
         <Field>
-          <FieldLabel htmlFor={`${id}-next`}>Next arrival</FieldLabel>
+          <FieldLabel htmlFor={`${id}-next`}>{t('nextArrival')}</FieldLabel>
           <Input
             id={`${id}-next`}
             type="date"
@@ -572,7 +615,7 @@ function SourceForm({
           />
         </Field>
         <Field>
-          <FieldLabel htmlFor={`${id}-started`}>Started</FieldLabel>
+          <FieldLabel htmlFor={`${id}-started`}>{t('started')}</FieldLabel>
           <Input
             id={`${id}-started`}
             type="date"
@@ -585,7 +628,7 @@ function SourceForm({
       {draft.cadence === CUSTOM ? (
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <Field>
-            <FieldLabel htmlFor={`${id}-count`}>Every … cycles</FieldLabel>
+            <FieldLabel htmlFor={`${id}-count`}>{t('everyCount')}</FieldLabel>
             <Input
               id={`${id}-count`}
               value={draft.count}
@@ -594,10 +637,13 @@ function SourceForm({
             />
           </Field>
           <Field>
-            <FieldLabel>Unit</FieldLabel>
+            <FieldLabel>{t('unit')}</FieldLabel>
             <Select
               value={draft.unit}
-              items={UNITS.map((unit) => ({ value: unit, label: unit }))}
+              items={UNITS.map((unit) => ({
+                value: unit,
+                label: t(UNIT_LABEL_KEYS[unit]),
+              }))}
               onValueChange={(value) => change('unit', String(value))}
             >
               <SelectTrigger>
@@ -606,7 +652,7 @@ function SourceForm({
               <SelectContent>
                 {UNITS.map((unit) => (
                   <SelectItem key={unit} value={unit}>
-                    {unit}
+                    {t(UNIT_LABEL_KEYS[unit])}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -621,7 +667,7 @@ function SourceForm({
         </Button>
         {onCancel ? (
           <Button type="button" variant="ghost" size="sm" onClick={onCancel}>
-            Cancel
+            {t('cancel')}
           </Button>
         ) : null}
       </div>

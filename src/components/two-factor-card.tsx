@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import QRCode from 'react-qr-code'
+import { useTranslations } from 'use-intl'
 import { PasswordInput } from '@/components/password-input'
 import { Button } from '@/components/ui/button'
 import {
@@ -24,6 +25,7 @@ function secretFromTotpUri(totpURI: string): string | null {
 }
 
 export function TwoFactorCard() {
+  const t = useTranslations('twoFactor')
   const { data: session, refetch } = authClient.useSession()
   const enabled = session?.user?.twoFactorEnabled ?? false
 
@@ -54,7 +56,7 @@ export function TwoFactorCard() {
       if (action === 'enable') {
         const result = await authClient.twoFactor.enable({ password })
         if (result.error) {
-          setError(result.error.message ?? 'Could not start setup.')
+          setError(result.error.message ?? t('errStart'))
           return
         }
         if (result.data?.method === 'totp') {
@@ -67,7 +69,7 @@ export function TwoFactorCard() {
       if (action === 'disable') {
         const result = await authClient.twoFactor.disable({ password })
         if (result.error) {
-          setError(result.error.message ?? 'Could not disable two-factor.')
+          setError(result.error.message ?? t('errDisable'))
           return
         }
         await refetch()
@@ -78,7 +80,7 @@ export function TwoFactorCard() {
         password,
       })
       if (result.error) {
-        setError(result.error.message ?? 'Could not regenerate codes.')
+        setError(result.error.message ?? t('errRegenerate'))
         return
       }
       setBackupCodes(result.data?.backupCodes ?? [])
@@ -96,7 +98,7 @@ export function TwoFactorCard() {
         code: code.trim(),
       })
       if (result.error) {
-        setError(result.error.message ?? 'That code did not work.')
+        setError(result.error.message ?? t('errCode'))
         return
       }
       await refetch()
@@ -109,11 +111,9 @@ export function TwoFactorCard() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Two-factor authentication</CardTitle>
+        <CardTitle>{t('title')}</CardTitle>
         <CardDescription>
-          {enabled
-            ? 'Enabled — sign-in asks for a code from your authenticator app.'
-            : 'Add a second step to sign-in with an authenticator app.'}
+          {enabled ? t('enabled') : t('disabled')}
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
@@ -135,7 +135,7 @@ export function TwoFactorCard() {
                     setStep('password')
                   }}
                 >
-                  Regenerate backup codes
+                  {t('regenerate')}
                 </Button>
                 <Button
                   variant="destructive"
@@ -145,7 +145,7 @@ export function TwoFactorCard() {
                     setStep('password')
                   }}
                 >
-                  Turn off
+                  {t('turnOff')}
                 </Button>
               </>
             ) : (
@@ -156,7 +156,7 @@ export function TwoFactorCard() {
                   setStep('password')
                 }}
               >
-                Enable two-factor
+                {t('enable')}
               </Button>
             )}
           </div>
@@ -166,7 +166,7 @@ export function TwoFactorCard() {
           <>
             <Field className="max-w-sm">
               <FieldLabel htmlFor="two-factor-password">
-                Confirm your password
+                {t('confirmPassword')}
               </FieldLabel>
               <PasswordInput
                 id="two-factor-password"
@@ -176,10 +176,10 @@ export function TwoFactorCard() {
               />
               <FieldDescription>
                 {action === 'enable'
-                  ? 'Checked before a secret is generated.'
+                  ? t('helpEnable')
                   : action === 'disable'
-                    ? 'Turning two-factor off also forgets trusted devices.'
-                    : 'Regenerating invalidates every previous backup code.'}
+                    ? t('helpDisable')
+                    : t('helpRegenerate')}
               </FieldDescription>
             </Field>
             <div className="flex gap-2">
@@ -188,10 +188,10 @@ export function TwoFactorCard() {
                 onClick={runPasswordStep}
                 disabled={pending || password === ''}
               >
-                {pending ? 'Working…' : 'Continue'}
+                {pending ? t('working') : t('continue')}
               </Button>
               <Button variant="ghost" size="sm" onClick={reset}>
-                Cancel
+                {t('cancel')}
               </Button>
             </div>
           </>
@@ -204,27 +204,18 @@ export function TwoFactorCard() {
                 <QRCode value={totpURI} size={160} />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-sm">
-                  Scan the code with your authenticator app, or type this secret
-                  in by hand:
-                </p>
+                <p className="text-sm">{t('scan')}</p>
                 <code className="mt-2 block break-all rounded bg-muted px-2 py-1 font-mono text-xs">
-                  {secretFromTotpUri(totpURI) ?? 'see the QR code'}
+                  {secretFromTotpUri(totpURI) ?? t('seeQr')}
                 </code>
-                <p className="mt-3 text-sm font-medium">
-                  Save your backup codes now
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Each works once if you lose the authenticator. They are shown
-                  again on the next step and can be regenerated, but never
-                  emailed.
-                </p>
+                <p className="mt-3 text-sm font-medium">{t('saveNow')}</p>
+                <p className="text-xs text-muted-foreground">{t('saveHelp')}</p>
               </div>
             </div>
 
             <Field className="max-w-xs">
               <FieldLabel htmlFor="two-factor-verify-code">
-                Code from the app
+                {t('codeLabel')}
               </FieldLabel>
               <Input
                 id="two-factor-verify-code"
@@ -240,10 +231,10 @@ export function TwoFactorCard() {
                 onClick={verify}
                 disabled={pending || code.trim() === ''}
               >
-                {pending ? 'Verifying…' : 'Verify and enable'}
+                {pending ? t('verifying') : t('verify')}
               </Button>
               <Button variant="ghost" size="sm" onClick={reset}>
-                Cancel
+                {t('cancel')}
               </Button>
             </div>
           </>
@@ -251,10 +242,7 @@ export function TwoFactorCard() {
 
         {step === 'codes' ? (
           <>
-            <p className="text-sm">
-              Keep these somewhere safe — each signs in once if the
-              authenticator is unavailable.
-            </p>
+            <p className="text-sm">{t('keepSafe')}</p>
             <ul className="grid grid-cols-2 gap-1 rounded-lg border p-3 font-mono text-xs sm:grid-cols-2">
               {backupCodes.map((backupCode) => (
                 <li key={backupCode}>{backupCode}</li>
@@ -268,10 +256,10 @@ export function TwoFactorCard() {
                   void navigator.clipboard.writeText(backupCodes.join('\n'))
                 }}
               >
-                Copy all
+                {t('copyAll')}
               </Button>
               <Button size="sm" onClick={reset}>
-                Done
+                {t('done')}
               </Button>
             </div>
           </>

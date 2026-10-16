@@ -6,6 +6,7 @@ import {
   useRouter,
 } from '@tanstack/react-router'
 import { Check, ChevronDown, Loader2 } from 'lucide-react'
+import { useTranslations } from 'use-intl'
 import { cn } from 'cn'
 import { IncomeSourcesCard } from '@/components/income-sources-card'
 import { ManagedListsCard } from '@/components/managed-lists-card'
@@ -84,21 +85,32 @@ const SECTIONS = [
 ] as const
 type Section = (typeof SECTIONS)[number]
 
-const SECTION_LABELS: Record<Section, string> = {
-  preferences: 'Preferences',
-  budget: 'Budget',
-  reminders: 'Reminders',
-  lists: 'Lists',
-  security: 'Security',
-}
+const SECTION_LABEL_KEYS = {
+  preferences: 'tabPreferences',
+  budget: 'tabBudget',
+  reminders: 'tabReminders',
+  lists: 'tabLists',
+  security: 'tabSecurity',
+} as const
 
-const SECTION_DESCRIPTIONS: Record<Section, string> = {
-  preferences: 'How amounts and dates are shown, and how the app looks.',
-  budget: 'Your income sources, and the ceiling for the spend bar.',
-  reminders: 'Whether and when to nudge you before a charge.',
-  lists: 'Categories and payment methods across the app.',
-  security: 'Ways to sign in, and keeping the account safe.',
-}
+const SECTION_LEAD_KEYS = {
+  preferences: 'preferencesLead',
+  budget: 'budgetLead',
+  reminders: 'remindersLead',
+  lists: 'listsLead',
+  security: 'securityLead',
+} as const
+
+const THEME_LABEL_KEYS = {
+  light: 'themeLight',
+  dark: 'themeDark',
+  system: 'themeSystem',
+} as const
+
+const WEEK_LABEL_KEYS = {
+  monday: 'weekMonday',
+  sunday: 'weekSunday',
+} as const
 
 export const Route = createFileRoute('/_app/settings')({
   beforeLoad: async () => {
@@ -128,6 +140,7 @@ export function applyTheme(theme: string) {
 function SettingsPage() {
   const { settings } = Route.useLoaderData()
   const router = useRouter()
+  const t = useTranslations('settings')
   const [section, setSection] = useState<Section>('preferences')
   const [form, setForm] = useState(() => formFrom(settings))
   const [baseline, setBaseline] = useState(() => formFrom(settings))
@@ -144,11 +157,11 @@ function SettingsPage() {
   )
   const themeOptions = THEMES.map((theme) => ({
     value: theme,
-    label: titleCase(theme),
+    label: t(THEME_LABEL_KEYS[theme]),
   }))
   const weekOptions = WEEK_STARTS.map((day) => ({
     value: day,
-    label: titleCase(day),
+    label: t(WEEK_LABEL_KEYS[day]),
   }))
 
   function change(key: keyof typeof form, value: string) {
@@ -168,7 +181,7 @@ function SettingsPage() {
     async (next: ReturnType<typeof formFrom>) => {
       const currency = next.currency.trim().toUpperCase() || settings.currency
       if (!/^[A-Z]{3}$/.test(currency)) {
-        setError('Use a 3-letter currency code, like DKK or EUR.')
+        setError(t('errCurrency'))
         return
       }
       const budgetAmount = Number(next.budget.replace(',', '.'))
@@ -176,7 +189,7 @@ function SettingsPage() {
         next.budget.trim() !== '' &&
         (!Number.isFinite(budgetAmount) || budgetAmount < 0)
       ) {
-        setError('The budget needs to be a positive number (or empty).')
+        setError(t('errBudget'))
         return
       }
       const anchorDay = next.anchor.trim() === '' ? null : Number(next.anchor)
@@ -184,7 +197,7 @@ function SettingsPage() {
         anchorDay !== null &&
         (!Number.isInteger(anchorDay) || anchorDay < 1 || anchorDay > 31)
       ) {
-        setError('Pay day anchors run from 1 to 31 — or leave it empty.')
+        setError(t('errAnchor'))
         return
       }
       const remindDays =
@@ -193,7 +206,7 @@ function SettingsPage() {
         remindDays !== null &&
         (!Number.isInteger(remindDays) || remindDays < 0 || remindDays > 60)
       ) {
-        setError('Reminders run from 0 to 60 days before a charge.')
+        setError(t('errRemind'))
         return
       }
 
@@ -228,12 +241,10 @@ function SettingsPage() {
         void router.invalidate()
       } catch (caught) {
         setStatus('idle')
-        setError(
-          caught instanceof Error ? caught.message : 'Could not save settings.',
-        )
+        setError(caught instanceof Error ? caught.message : t('errSave'))
       }
     },
-    [router, settings.currency],
+    [router, settings.currency, t],
   )
 
   useEffect(() => {
@@ -254,7 +265,7 @@ function SettingsPage() {
     <div className="min-h-full">
       <main className="flex w-full flex-col gap-6 px-6 py-8">
         <header className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
-          <h1 className="font-heading text-lg font-medium">Settings</h1>
+          <h1 className="font-heading text-lg font-medium">{t('title')}</h1>
           <SaveStatus state={status} error={error} />
         </header>
 
@@ -269,7 +280,7 @@ function SettingsPage() {
           >
             {SECTIONS.map((id) => (
               <TabsTab key={id} value={id} className="sm:basis-0">
-                {SECTION_LABELS[id]}
+                {t(SECTION_LABEL_KEYS[id])}
               </TabsTab>
             ))}
           </TabsList>
@@ -281,7 +292,7 @@ function SettingsPage() {
                 <div className="grid gap-4 sm:grid-cols-2">
                   <Field>
                     <FieldLabel htmlFor="settings-currency">
-                      Main currency
+                      {t('currency')}
                     </FieldLabel>
                     <Input
                       id="settings-currency"
@@ -291,13 +302,10 @@ function SettingsPage() {
                       }
                       maxLength={3}
                     />
-                    <FieldDescription>
-                      Everything converts into this currency using daily ECB
-                      rates.
-                    </FieldDescription>
+                    <FieldDescription>{t('currencyHelp')}</FieldDescription>
                   </Field>
                   <Field>
-                    <FieldLabel>Language</FieldLabel>
+                    <FieldLabel>{t('language')}</FieldLabel>
                     <Select
                       value={form.locale}
                       items={localeOptions}
@@ -314,16 +322,13 @@ function SettingsPage() {
                         ))}
                       </SelectContent>
                     </Select>
-                    <FieldDescription>
-                      Applies to the app&rsquo;s text and to how amounts and
-                      dates are shown.
-                    </FieldDescription>
+                    <FieldDescription>{t('languageHelp')}</FieldDescription>
                   </Field>
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <Field>
-                    <FieldLabel>Week starts on</FieldLabel>
+                    <FieldLabel>{t('weekStart')}</FieldLabel>
                     <Select
                       value={form.weekStart}
                       items={weekOptions}
@@ -344,7 +349,7 @@ function SettingsPage() {
                     </Select>
                   </Field>
                   <Field>
-                    <FieldLabel>Theme</FieldLabel>
+                    <FieldLabel>{t('theme')}</FieldLabel>
                     <Select
                       value={form.theme}
                       items={themeOptions}
@@ -372,30 +377,27 @@ function SettingsPage() {
                 <div className="grid gap-4 sm:grid-cols-2">
                   <Field>
                     <FieldLabel htmlFor="settings-budget">
-                      Budget per period ({form.currency})
+                      {t('budget', { currency: form.currency })}
                     </FieldLabel>
                     <Input
                       id="settings-budget"
                       value={form.budget}
                       onChange={(event) => change('budget', event.target.value)}
                       inputMode="decimal"
-                      placeholder="Empty = income sets the pace"
+                      placeholder={t('budgetPlaceholder')}
                     />
-                    <FieldDescription>
-                      With income sources below, expected income drives the
-                      period — and this ceiling clamps it down.
-                    </FieldDescription>
+                    <FieldDescription>{t('budgetHelp')}</FieldDescription>
                   </Field>
                   <Field>
                     <FieldLabel htmlFor="settings-anchor">
-                      Pay day anchor (1–31)
+                      {t('anchor')}
                     </FieldLabel>
                     <Input
                       id="settings-anchor"
                       value={form.anchor}
                       onChange={(event) => change('anchor', event.target.value)}
                       inputMode="numeric"
-                      placeholder="Empty = calendar months"
+                      placeholder={t('anchorPlaceholder')}
                     />
                   </Field>
                 </div>
@@ -416,25 +418,21 @@ function SettingsPage() {
                     change('remindEnabled', checked ? 'on' : 'off')
                   }
                 />
-                <FieldLabel>Remind me before charges</FieldLabel>
+                <FieldLabel>{t('remindSwitch')}</FieldLabel>
               </Field>
               <Field>
                 <FieldLabel htmlFor="settings-remind">
-                  Days before a charge
+                  {t('remindDays')}
                 </FieldLabel>
                 <Input
                   id="settings-remind"
                   value={form.remindDays}
                   onChange={(event) => change('remindDays', event.target.value)}
                   inputMode="numeric"
-                  placeholder="Empty = default (3)"
+                  placeholder={t('remindPlaceholder')}
                   className="max-w-40"
                 />
-                <FieldDescription>
-                  0 reminds on the due date. Per-subscription overrides win over
-                  this default — while reminders are on. Switching them off
-                  silences every override too.
-                </FieldDescription>
+                <FieldDescription>{t('remindHelp')}</FieldDescription>
               </Field>
             </TabsPanel>
 
@@ -454,12 +452,12 @@ function SettingsPage() {
         </Tabs>
 
         <p className="text-sm text-muted-foreground">
-          Running this instance?{' '}
+          {t('adminPrefix')}{' '}
           <Link
             to="/admin"
             className="underline underline-offset-4 hover:text-foreground"
           >
-            Administration, social sign-in and roles
+            {t('adminLink')}
           </Link>
           .
         </p>
@@ -469,9 +467,10 @@ function SettingsPage() {
 }
 
 function SectionLead({ section }: { section: Section }) {
+  const t = useTranslations('settings')
   return (
     <p className="text-sm text-muted-foreground">
-      {SECTION_DESCRIPTIONS[section]}
+      {t(SECTION_LEAD_KEYS[section])}
     </p>
   )
 }
@@ -483,6 +482,7 @@ function SaveStatus({
   state: 'idle' | 'saving' | 'saved'
   error: string | null
 }) {
+  const t = useTranslations('settings')
   return (
     <div className="flex items-center gap-2" aria-live="polite">
       {error !== null ? (
@@ -499,12 +499,12 @@ function SaveStatus({
           {state === 'saving' ? (
             <>
               <Loader2 className="size-3.5 animate-spin" />
-              Saving…
+              {t('saving')}
             </>
           ) : (
             <>
               <Check className="size-3.5" />
-              Saved
+              {t('saved')}
             </>
           )}
         </span>
@@ -515,6 +515,7 @@ function SaveStatus({
 
 /** The pay-day anchor explanation, folded away until asked for. */
 function AnchorNote({ className }: { className?: string }) {
+  const t = useTranslations('settings')
   const [open, setOpen] = useState(false)
   const id = useId()
 
@@ -527,7 +528,7 @@ function AnchorNote({ className }: { className?: string }) {
         aria-controls={id}
         className="inline-flex items-center gap-1 rounded-md text-sm text-muted-foreground transition-colors duration-150 ease-out hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
       >
-        How anchoring works
+        {t('anchorNote')}
         <ChevronDown
           className={cn(
             'size-4 transition-transform duration-200 ease-out',
@@ -544,19 +545,12 @@ function AnchorNote({ className }: { className?: string }) {
       >
         <div className="overflow-hidden">
           <p className="pt-2 text-sm leading-relaxed text-muted-foreground">
-            Anchor the budget period to your pay day. Set 25 and the period runs
-            the 25th to the 24th — so a salary landing on 25 September covers 25
-            Sep – 24 Oct. Anchors also clamp like the recurrence engine: day 31
-            becomes the 28th of February.
+            {t('anchorBody')}
           </p>
         </div>
       </div>
     </div>
   )
-}
-
-function titleCase(value: string) {
-  return value.length === 0 ? value : value[0]!.toUpperCase() + value.slice(1)
 }
 
 function formFrom(settings: Settings) {

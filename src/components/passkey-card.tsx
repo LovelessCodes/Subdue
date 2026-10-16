@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useLocale, useTranslations } from 'use-intl'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -12,17 +13,21 @@ import { Field, FieldDescription, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { authClient } from '@/lib/auth-client'
 
-function friendlyPasskeyMessage(message: string): string {
+function friendlyPasskeyError(
+  message: string,
+): 'cancelled' | 'alreadyRegistered' | null {
   if (/cancel|NotAllowedError|abort/i.test(message)) {
-    return 'The browser cancelled the passkey prompt.'
+    return 'cancelled'
   }
   if (/PREVIOUSLY_REGISTERED/.test(message)) {
-    return 'This device already holds a passkey for this account.'
+    return 'alreadyRegistered'
   }
-  return message
+  return null
 }
 
 export function PasskeyCard() {
+  const t = useTranslations('passkey')
+  const locale = useLocale()
   const { data: passkeys, refetch } = authClient.useListPasskeys()
   const [supported, setSupported] = useState<'unknown' | 'ok' | 'unavailable'>(
     'unknown',
@@ -32,6 +37,11 @@ export function PasskeyCard() {
   const [error, setError] = useState<string | null>(null)
   const [pending, setPending] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
+
+  function friendly(message: string): string {
+    const key = friendlyPasskeyError(message)
+    return key === null ? message : t(key)
+  }
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -53,19 +63,15 @@ export function PasskeyCard() {
         name: name.trim() || undefined,
       })
       if (result?.error) {
-        setError(
-          friendlyPasskeyMessage(
-            result.error.message ?? 'Could not create the passkey.',
-          ),
-        )
+        setError(friendly(result.error.message ?? t('errCreate')))
         return
       }
       setName('')
       await refetch()
     } catch (caught) {
       setError(
-        friendlyPasskeyMessage(
-          caught instanceof Error ? caught.message : 'Could not create it.',
+        friendly(
+          caught instanceof Error ? caught.message : t('errCreateShort'),
         ),
       )
     } finally {
@@ -82,11 +88,7 @@ export function PasskeyCard() {
         body: { id },
       })
       if (result && 'error' in result && result.error) {
-        setError(
-          friendlyPasskeyMessage(
-            String(result.error.message ?? 'Could not remove it.'),
-          ),
-        )
+        setError(friendly(String(result.error.message ?? t('errRemove'))))
         return
       }
       setConfirmDelete(null)
@@ -99,11 +101,8 @@ export function PasskeyCard() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Passkeys</CardTitle>
-        <CardDescription>
-          Sign in with Touch ID, Windows Hello or a security key — nothing to
-          type, nothing to phish.
-        </CardDescription>
+        <CardTitle>{t('title')}</CardTitle>
+        <CardDescription>{t('description')}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         {error ? (
@@ -113,43 +112,33 @@ export function PasskeyCard() {
         ) : null}
 
         {insecureContext ? (
-          <p className="text-sm text-muted-foreground">
-            Passkeys need a secure context — HTTPS, or http on localhost. This
-            page is being served over plain http on a network name, so browsers
-            will refuse to create passkeys here.
-          </p>
+          <p className="text-sm text-muted-foreground">{t('insecure')}</p>
         ) : null}
 
         {supported === 'unavailable' && !insecureContext ? (
-          <p className="text-sm text-muted-foreground">
-            This browser does not support WebAuthn.
-          </p>
+          <p className="text-sm text-muted-foreground">{t('unsupported')}</p>
         ) : null}
 
         {supported === 'ok' ? (
           <>
             <div className="flex flex-wrap items-end gap-2">
               <Field className="max-w-xs">
-                <FieldLabel htmlFor="passkey-name">Name</FieldLabel>
+                <FieldLabel htmlFor="passkey-name">{t('name')}</FieldLabel>
                 <Input
                   id="passkey-name"
                   value={name}
                   onChange={(event) => setName(event.target.value)}
-                  placeholder="MacBook, YubiKey, phone…"
+                  placeholder={t('namePlaceholder')}
                 />
-                <FieldDescription>
-                  Only a label — the key itself never leaves your device.
-                </FieldDescription>
+                <FieldDescription>{t('nameHelp')}</FieldDescription>
               </Field>
               <Button size="sm" onClick={addPasskey} disabled={pending}>
-                {pending ? 'Waiting for your device…' : 'Add a passkey'}
+                {pending ? t('waiting') : t('add')}
               </Button>
             </div>
 
             {(passkeys ?? []).length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No passkeys yet — add one to sign in without a password.
-              </p>
+              <p className="text-sm text-muted-foreground">{t('empty')}</p>
             ) : (
               <ul className="flex flex-col divide-y">
                 {(passkeys ?? []).map((passkey) => (
@@ -159,17 +148,25 @@ export function PasskeyCard() {
                   >
                     <div className="min-w-0">
                       <p className="text-sm font-medium">
-                        {passkey.name ?? 'Passkey'}
+                        {passkey.name ?? t('defaultName')}
                         {passkey.deviceType ? (
                           <span className="ml-2 align-middle">
                             <Badge variant="outline">
-                              {passkey.deviceType}
+                              {passkey.deviceType === 'singleDevice'
+                                ? t('deviceSingle')
+                                : passkey.deviceType === 'multiDevice'
+                                  ? t('deviceMulti')
+                                  : passkey.deviceType}
                             </Badge>
                           </span>
                         ) : null}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        added {new Date(passkey.createdAt).toLocaleDateString()}
+                        {t('addedOn', {
+                          date: new Intl.DateTimeFormat(locale).format(
+                            new Date(passkey.createdAt),
+                          ),
+                        })}
                       </p>
                     </div>
                     {confirmDelete === passkey.id ? (
@@ -180,14 +177,14 @@ export function PasskeyCard() {
                           disabled={pending}
                           onClick={() => removePasskey(passkey.id)}
                         >
-                          Confirm remove
+                          {t('confirmRemove')}
                         </Button>
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => setConfirmDelete(null)}
                         >
-                          Keep
+                          {t('keep')}
                         </Button>
                       </div>
                     ) : (
@@ -196,7 +193,7 @@ export function PasskeyCard() {
                         size="sm"
                         onClick={() => setConfirmDelete(passkey.id)}
                       >
-                        Remove
+                        {t('remove')}
                       </Button>
                     )}
                   </li>

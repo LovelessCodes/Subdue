@@ -1,11 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import { readdirSync, readFileSync } from 'node:fs'
+import { createTranslator } from 'use-intl/core'
 import {
   SUPPORTED_LOCALES,
   matchLocale,
   pickFromAcceptLanguage,
   resolveMessageLocale,
 } from './index'
+import type { MessageLocale } from './index'
 
 const dir = new URL('./messages/', import.meta.url)
 const catalogFiles = readdirSync(dir).sort()
@@ -16,8 +18,17 @@ function load(file: string): Catalog {
   return JSON.parse(readFileSync(new URL(file, dir), 'utf8')) as Catalog
 }
 
+/**
+ * The argument names a message expects — both plain ({amount}) and ICU
+ * ({count, plural…}) ones. Plural branch text (one {…}, other {…}) is
+ * stripped first so literal words are never mistaken for arguments.
+ */
 function placeholders(message: string): string[] {
-  return [...message.matchAll(/\{(\w+)\}/g)]
+  const skeleton = message.replace(
+    /\b(?:zero|one|two|few|many|other|=?\d+)\s*\{[^{}]*\}/g,
+    '',
+  )
+  return [...skeleton.matchAll(/\{(\w+)(?=[,}])/g)]
     .map((match) => match[1] ?? '')
     .sort()
 }
@@ -50,6 +61,39 @@ describe('messages', () => {
           expect(placeholders(value), where).toEqual(
             placeholders(expected[key] ?? ''),
           )
+        }
+      }
+    }
+  })
+
+  it('renders every message in every catalog', () => {
+    for (const file of catalogFiles) {
+      const catalog = load(file)
+      const translator = createTranslator({
+        locale: file.replace(/\.json$/, '') as MessageLocale,
+        messages: catalog,
+      })
+      const t = translator as (
+        key: string,
+        values?: Record<string, string | number>,
+      ) => string
+
+      for (const [namespace, entries] of Object.entries(catalog)) {
+        for (const [key, message] of Object.entries(entries)) {
+          const where = `${file}: ${namespace}.${key}`
+          // Two counts so both plural branches are exercised.
+          for (const count of [1, 5]) {
+            const values = Object.fromEntries(
+              placeholders(message).map((name) => [
+                name,
+                name === 'count' ? count : 'x',
+              ]),
+            )
+            expect(
+              t(`${namespace}.${key}`, values).length,
+              where,
+            ).toBeGreaterThan(0)
+          }
         }
       }
     }
