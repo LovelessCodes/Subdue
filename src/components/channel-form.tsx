@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
+import { useTranslations } from 'use-intl'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -9,12 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-} from '@/components/ui/field'
+import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import {
   Select,
@@ -35,36 +31,79 @@ const CHANNEL_TYPES = [
   'webhook',
 ] as const
 
+type TypeLabelKey =
+  | 'typeEmail'
+  | 'typeNtfy'
+  | 'typeTelegram'
+  | 'typeDiscord'
+  | 'typeWebhook'
+
+const TYPE_LABELS: Record<string, TypeLabelKey | undefined> = {
+  email: 'typeEmail',
+  ntfy: 'typeNtfy',
+  telegram: 'typeTelegram',
+  discord: 'typeDiscord',
+  webhook: 'typeWebhook',
+}
+
+function typeLabel(type: string, t: (key: TypeLabelKey) => string): string {
+  const key = TYPE_LABELS[type]
+  return key ? t(key) : type
+}
+
+type FieldLabelKey =
+  | 'fieldSmtpHost'
+  | 'fieldPort'
+  | 'fieldUsername'
+  | 'fieldPassword'
+  | 'fieldFrom'
+  | 'fieldTo'
+  | 'fieldServer'
+  | 'fieldTopic'
+  | 'fieldToken'
+  | 'fieldBotToken'
+  | 'fieldChatId'
+  | 'fieldWebhookUrl'
+  | 'fieldUrl'
+  | 'fieldSecret'
+
 type FieldDef = {
   key: string
-  label: string
+  labelKey: FieldLabelKey
   placeholder?: string
   secret?: boolean
-  description?: string
 }
 
 const TYPE_FIELDS: Record<string, FieldDef[]> = {
   email: [
-    { key: 'host', label: 'SMTP host', placeholder: 'smtp.example.com' },
-    { key: 'port', label: 'Port', placeholder: '587' },
-    { key: 'username', label: 'Username' },
-    { key: 'password', label: 'Password', secret: true },
-    { key: 'from', label: 'From address', placeholder: 'subdue@example.com' },
-    { key: 'to', label: 'To address', placeholder: 'you@example.com' },
+    { key: 'host', labelKey: 'fieldSmtpHost', placeholder: 'smtp.example.com' },
+    { key: 'port', labelKey: 'fieldPort', placeholder: '587' },
+    { key: 'username', labelKey: 'fieldUsername' },
+    { key: 'password', labelKey: 'fieldPassword', secret: true },
+    {
+      key: 'from',
+      labelKey: 'fieldFrom',
+      placeholder: 'subdue@example.com',
+    },
+    { key: 'to', labelKey: 'fieldTo', placeholder: 'you@example.com' },
   ],
   ntfy: [
-    { key: 'server', label: 'Server', placeholder: 'https://ntfy.sh' },
-    { key: 'topic', label: 'Topic' },
-    { key: 'token', label: 'Access token', secret: true },
+    { key: 'server', labelKey: 'fieldServer', placeholder: 'https://ntfy.sh' },
+    { key: 'topic', labelKey: 'fieldTopic' },
+    { key: 'token', labelKey: 'fieldToken', secret: true },
   ],
   telegram: [
-    { key: 'botToken', label: 'Bot token', secret: true },
-    { key: 'chatId', label: 'Chat ID' },
+    { key: 'botToken', labelKey: 'fieldBotToken', secret: true },
+    { key: 'chatId', labelKey: 'fieldChatId' },
   ],
-  discord: [{ key: 'webhookUrl', label: 'Webhook URL' }],
+  discord: [{ key: 'webhookUrl', labelKey: 'fieldWebhookUrl' }],
   webhook: [
-    { key: 'url', label: 'URL', placeholder: 'https://example.com/hook' },
-    { key: 'secret', label: 'Signing secret', secret: true },
+    {
+      key: 'url',
+      labelKey: 'fieldUrl',
+      placeholder: 'https://example.com/hook',
+    },
+    { key: 'secret', labelKey: 'fieldSecret', secret: true },
   ],
 }
 
@@ -96,6 +135,7 @@ export function ChannelForm({
   channel: ChannelView | null
 }) {
   const router = useRouter()
+  const t = useTranslations('channels')
   const [type, setType] = useState<string>(CHANNEL_TYPES[0])
   const [name, setName] = useState('')
   const [enabled, setEnabled] = useState(true)
@@ -146,14 +186,20 @@ export function ChannelForm({
   async function save() {
     setError(null)
     if (!name.trim()) {
-      setError('Give the channel a name.')
+      setError(t('errName'))
       return
     }
     const missing = (REQUIRED_FIELDS[type] ?? []).filter(
       (key) => !(config[key] ?? '').trim(),
     )
     if (missing.length > 0) {
-      setError(`Missing: ${missing.join(', ')}`)
+      const labels = missing.map((key) => {
+        const field = (TYPE_FIELDS[type] ?? []).find(
+          (entry) => entry.key === key,
+        )
+        return field ? t(field.labelKey) : key
+      })
+      setError(t('errMissing', { fields: labels.join(', ') }))
       return
     }
 
@@ -188,11 +234,9 @@ export function ChannelForm({
       await router.invalidate()
       onOpenChange(false)
     } catch (caught) {
-      const message = caught instanceof Error ? caught.message : 'Save failed.'
+      const message = caught instanceof Error ? caught.message : t('errGeneric')
       setError(
-        message.includes('CHANNEL_CONFIG_INVALID')
-          ? 'Some of those settings did not validate — check the host, port and addresses.'
-          : message,
+        message.includes('CHANNEL_CONFIG_INVALID') ? t('errConfig') : message,
       )
     } finally {
       setPending(false)
@@ -204,28 +248,28 @@ export function ChannelForm({
       <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>
-            {channel ? `Edit ${channel.name}` : 'Add channel'}
+            {channel
+              ? t('formEditTitle', { name: channel.name })
+              : t('addChannel')}
           </DialogTitle>
-          <DialogDescription>
-            Where Subdue delivers reminders.
-          </DialogDescription>
+          <DialogDescription>{t('formDescription')}</DialogDescription>
         </DialogHeader>
 
         <FieldGroup className="gap-4">
           <div className="grid grid-cols-2 gap-4">
             <Field>
-              <FieldLabel htmlFor="channel-name">Name</FieldLabel>
+              <FieldLabel htmlFor="channel-name">{t('name')}</FieldLabel>
               <Input
                 id="channel-name"
                 value={name}
                 onChange={(event) => setName(event.target.value)}
-                placeholder="Phone, Email, …"
+                placeholder={t('namePlaceholder')}
               />
             </Field>
             <Field>
-              <FieldLabel>Type</FieldLabel>
+              <FieldLabel>{t('type')}</FieldLabel>
               {channel ? (
-                <Input readOnly value={type} />
+                <Input readOnly value={typeLabel(type, t)} />
               ) : (
                 <Select
                   value={type}
@@ -237,7 +281,7 @@ export function ChannelForm({
                   <SelectContent>
                     {CHANNEL_TYPES.map((option) => (
                       <SelectItem key={option} value={option}>
-                        {option}
+                        {typeLabel(option, t)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -249,7 +293,7 @@ export function ChannelForm({
           {(TYPE_FIELDS[type] ?? []).map((field) => (
             <Field key={field.key}>
               <FieldLabel htmlFor={`channel-${field.key}`}>
-                {field.label}
+                {t(field.labelKey)}
               </FieldLabel>
               <Input
                 id={`channel-${field.key}`}
@@ -258,22 +302,19 @@ export function ChannelForm({
                 onChange={(event) => setValue(field.key, event.target.value)}
                 placeholder={field.placeholder}
               />
-              {field.description ? (
-                <FieldDescription>{field.description}</FieldDescription>
-              ) : null}
             </Field>
           ))}
 
           {type === 'email' ? (
             <Field orientation="horizontal">
               <Switch checked={secure} onCheckedChange={setSecure} />
-              <FieldLabel>Implicit TLS (usually port 465)</FieldLabel>
+              <FieldLabel>{t('fieldSecure')}</FieldLabel>
             </Field>
           ) : null}
 
           <Field orientation="horizontal">
             <Switch checked={enabled} onCheckedChange={setEnabled} />
-            <FieldLabel>Enabled</FieldLabel>
+            <FieldLabel>{t('fieldEnabled')}</FieldLabel>
           </Field>
         </FieldGroup>
 
@@ -289,10 +330,10 @@ export function ChannelForm({
             onClick={() => onOpenChange(false)}
             disabled={pending}
           >
-            Cancel
+            {t('cancel')}
           </Button>
           <Button onClick={save} disabled={pending}>
-            {pending ? 'Saving…' : 'Save'}
+            {pending ? t('saving') : t('save')}
           </Button>
         </DialogFooter>
       </DialogContent>

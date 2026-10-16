@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
-import { useLocale } from 'use-intl'
+import { useLocale, useTranslations } from 'use-intl'
 import {
   BellRing,
   CircleAlert,
@@ -74,6 +74,7 @@ function Channels() {
   const { channels, deliveries, now } = Route.useLoaderData()
   const router = useRouter()
   const locale = useLocale()
+  const t = useTranslations('channels')
   const [open, setOpen] = useState(false)
   const [editing, setEditing] = useState<ChannelView | null>(null)
   const [pendingId, setPendingId] = useState<string | null>(null)
@@ -97,9 +98,7 @@ function Channels() {
       await action()
       await router.invalidate()
     } catch (caught) {
-      setError(
-        caught instanceof Error ? caught.message : 'Something went wrong.',
-      )
+      setError(caught instanceof Error ? caught.message : t('errGeneric'))
     } finally {
       setPendingId(null)
     }
@@ -116,7 +115,7 @@ function Channels() {
         ...current,
         [channel.id]: {
           ok: false,
-          error: caught instanceof Error ? caught.message : 'Test failed.',
+          error: caught instanceof Error ? caught.message : t('errGeneric'),
         },
       }))
     } finally {
@@ -136,9 +135,9 @@ function Channels() {
         <section className="overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10">
           <header className="flex flex-wrap items-center justify-between gap-3 border-b px-4 py-3">
             <div>
-              <h2 className="text-sm font-medium">Delivery channels</h2>
+              <h2 className="text-sm font-medium">{t('title')}</h2>
               <p className="text-xs text-muted-foreground">
-                Every reminder fans out to each enabled channel.
+                {t('description')}
               </p>
             </div>
             <Button
@@ -149,26 +148,25 @@ function Channels() {
               }}
             >
               <Plus className="size-3.5" />
-              Add channel
+              {t('addChannel')}
             </Button>
           </header>
 
           {channels.length === 0 ? (
             <p className="px-4 py-6 text-sm text-muted-foreground">
-              No channels yet — add one and Subdue will start reaching you
-              outside the inbox.
+              {t('empty')}
             </p>
           ) : (
             <table className="w-full border-collapse text-left">
               <thead>
                 <tr className="border-b bg-muted/40 text-xs text-muted-foreground">
-                  <th className="px-4 py-2 font-medium">Channel</th>
-                  <th className="px-4 py-2 font-medium">Last send</th>
+                  <th className="px-4 py-2 font-medium">{t('colChannel')}</th>
+                  <th className="px-4 py-2 font-medium">{t('colLastSend')}</th>
                   <th className="hidden px-4 py-2 font-medium sm:table-cell">
-                    Enabled
+                    {t('colEnabled')}
                   </th>
                   <th className="w-12 px-2 py-2">
-                    <span className="sr-only">Actions</span>
+                    <span className="sr-only">{t('colActions')}</span>
                   </th>
                 </tr>
               </thead>
@@ -204,12 +202,12 @@ function Channels() {
                               {channel.name}
                               {channel.enabled ? null : (
                                 <Badge variant="outline" className="ml-2">
-                                  disabled
+                                  {t('disabledBadge')}
                                 </Badge>
                               )}
                             </p>
                             <p className="truncate text-xs text-muted-foreground">
-                              {[channel.type, endpoint]
+                              {[typeLabel(channel.type, t), endpoint]
                                 .filter(Boolean)
                                 .join(' · ')}
                             </p>
@@ -221,7 +219,7 @@ function Channels() {
                           {testing ? (
                             <span className="flex animate-in items-center gap-1.5 text-xs text-muted-foreground fade-in-0 duration-150 motion-reduce:animate-none">
                               <LoaderCircle className="size-3.5 shrink-0 animate-spin" />
-                              Testing…
+                              {t('testing')}
                             </span>
                           ) : result ? (
                             <span
@@ -239,8 +237,10 @@ function Channels() {
                               )}
                               <span className="truncate">
                                 {result.ok
-                                  ? 'Test delivered — go check it arrived.'
-                                  : `Test failed: ${result.error}`}
+                                  ? t('testDelivered')
+                                  : t('testFailed', {
+                                      error: result.error ?? '',
+                                    })}
                               </span>
                             </span>
                           ) : last ? (
@@ -255,21 +255,41 @@ function Channels() {
                               <StatusDot status={last.status} />
                               <span className="truncate">
                                 {last.status === 'failed'
-                                  ? `Failed ${relativeTime(last.sentAt ?? last.createdAt, now, locale)}${
-                                      last.lastError
-                                        ? ` — ${last.lastError}`
-                                        : ''
-                                    }`
+                                  ? last.lastError
+                                    ? t('lastFailed', {
+                                        when: relativeTime(
+                                          last.sentAt ?? last.createdAt,
+                                          now,
+                                          locale,
+                                        ),
+                                        error: last.lastError,
+                                      })
+                                    : t('lastFailedNoError', {
+                                        when: relativeTime(
+                                          last.sentAt ?? last.createdAt,
+                                          now,
+                                          locale,
+                                        ),
+                                      })
                                   : last.status === 'pending'
                                     ? last.attempts > 0
-                                      ? `Retrying — attempt ${last.attempts} of ${RETRY_LIMIT}`
-                                      : 'Queued'
-                                    : `Sent ${relativeTime(last.sentAt ?? last.createdAt, now, locale)}`}
+                                      ? t('retrying', {
+                                          attempt: last.attempts,
+                                          maxAttempts: RETRY_LIMIT,
+                                        })
+                                      : t('queued')
+                                    : t('lastSent', {
+                                        when: relativeTime(
+                                          last.sentAt ?? last.createdAt,
+                                          now,
+                                          locale,
+                                        ),
+                                      })}
                               </span>
                             </span>
                           ) : (
                             <span className="text-xs text-muted-foreground">
-                              No sends yet
+                              {t('neverSent')}
                             </span>
                           )}
                         </div>
@@ -294,7 +314,9 @@ function Channels() {
                               <Button
                                 variant="ghost"
                                 size="icon-sm"
-                                aria-label={`Actions for ${channel.name}`}
+                                aria-label={t('actionsFor', {
+                                  name: channel.name,
+                                })}
                               />
                             }
                           >
@@ -306,7 +328,7 @@ function Channels() {
                               disabled={busy}
                               onClick={() => test(channel)}
                             >
-                              Send test
+                              {t('sendTest')}
                             </MenuItem>
                             <MenuItem
                               closeOnClick
@@ -316,7 +338,7 @@ function Channels() {
                               }}
                             >
                               <Pencil />
-                              Edit…
+                              {t('edit')}
                             </MenuItem>
                             <MenuItem
                               variant="destructive"
@@ -324,7 +346,7 @@ function Channels() {
                               onClick={() => setConfirmDelete(channel)}
                             >
                               <Trash />
-                              Delete…
+                              {t('deleteDots')}
                             </MenuItem>
                           </MenuPopup>
                         </Menu>
@@ -339,15 +361,13 @@ function Channels() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Recent deliveries</CardTitle>
-            <CardDescription>
-              The last 20 sends, with retries and their last error.
-            </CardDescription>
+            <CardTitle>{t('deliveriesTitle')}</CardTitle>
+            <CardDescription>{t('deliveriesDescription')}</CardDescription>
           </CardHeader>
           <CardContent>
             {deliveries.length === 0 ? (
               <p className="text-sm text-muted-foreground">
-                Nothing sent yet — deliveries appear here once a reminder fires.
+                {t('deliveriesEmpty')}
               </p>
             ) : (
               <ul className="flex flex-col divide-y">
@@ -362,8 +382,7 @@ function Channels() {
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {delivery.channelName} ({delivery.channelType}) ·{' '}
-                        {delivery.attempts}{' '}
-                        {delivery.attempts === 1 ? 'attempt' : 'attempts'}
+                        {t('attemptCount', { count: delivery.attempts })}
                         {delivery.lastError
                           ? ` · ${delivery.lastError.slice(0, 80)}`
                           : ''}
@@ -378,7 +397,7 @@ function Channels() {
                             : 'outline'
                       }
                     >
-                      {delivery.status}
+                      {statusLabel(delivery.status, t)}
                     </Badge>
                   </li>
                 ))}
@@ -398,15 +417,14 @@ function Channels() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete this channel?</DialogTitle>
+            <DialogTitle>{t('deleteTitle')}</DialogTitle>
             <DialogDescription>
-              Reminders stop being delivered to “{confirmDelete?.name}”. This
-              cannot be undone.
+              {t('deleteDescription', { name: confirmDelete?.name ?? '' })}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <DialogClose render={<Button variant="outline" />}>
-              Keep
+              {t('keep')}
             </DialogClose>
             <Button
               variant="destructive"
@@ -424,13 +442,45 @@ function Channels() {
                 })
               }}
             >
-              Delete channel
+              {t('deleteChannel')}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
   )
+}
+
+type TypeLabelKey =
+  | 'typeEmail'
+  | 'typeNtfy'
+  | 'typeTelegram'
+  | 'typeDiscord'
+  | 'typeWebhook'
+
+const TYPE_LABELS: Record<string, TypeLabelKey | undefined> = {
+  email: 'typeEmail',
+  ntfy: 'typeNtfy',
+  telegram: 'typeTelegram',
+  discord: 'typeDiscord',
+  webhook: 'typeWebhook',
+}
+
+function typeLabel(type: string, t: (key: TypeLabelKey) => string): string {
+  const key = TYPE_LABELS[type]
+  return key ? t(key) : type
+}
+
+type StatusLabelKey = 'statusSent' | 'statusFailed' | 'statusPending'
+
+function statusLabel(
+  status: string,
+  t: (key: StatusLabelKey) => string,
+): string {
+  if (status === 'sent') return t('statusSent')
+  if (status === 'failed') return t('statusFailed')
+  if (status === 'pending') return t('statusPending')
+  return status
 }
 
 function ChannelGlyph({
