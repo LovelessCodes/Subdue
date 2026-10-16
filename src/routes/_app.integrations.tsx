@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
+import { useLocale, useTranslations } from 'use-intl'
 import {
   Check,
   Copy,
@@ -63,8 +64,12 @@ function maskedPath(path: string) {
   return `${path.slice(0, path.lastIndexOf('/') + 1)}${'•'.repeat(22)}`
 }
 
-function formatDate(value: Date | string) {
-  return new Date(value).toLocaleDateString()
+function formatDate(value: Date | string, locale: string) {
+  return new Intl.DateTimeFormat(locale, {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  }).format(new Date(value))
 }
 
 /** Copy icon that crossfades into a check while the value is on the clipboard. */
@@ -90,6 +95,8 @@ function CopyGlyph({ copied }: { copied: boolean }) {
 function Integrations() {
   const { ical, keys } = Route.useLoaderData()
   const router = useRouter()
+  const t = useTranslations('integrations')
+  const locale = useLocale()
   const [origin, setOrigin] = useState('')
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -117,9 +124,7 @@ function Integrations() {
       await action()
       await router.invalidate()
     } catch (caught) {
-      setError(
-        caught instanceof Error ? caught.message : 'Something went wrong.',
-      )
+      setError(caught instanceof Error ? caught.message : t('errGeneric'))
     } finally {
       setPending(false)
     }
@@ -169,16 +174,13 @@ function Integrations() {
     <div className="min-h-full">
       <main className="flex w-full flex-col gap-5 px-6 py-8">
         <header className="flex flex-col gap-2">
-          <h1 className="font-heading text-lg font-medium">Integrations</h1>
+          <h1 className="font-heading text-lg font-medium">{t('title')}</h1>
           <p className="flex max-w-prose items-start gap-2 text-xs text-muted-foreground">
             <ShieldAlert
               className="mt-px size-3.5 shrink-0"
               aria-hidden="true"
             />
-            <span>
-              The feed URL and every API key are bearer credentials — anyone who
-              has one can read everything in your account.
-            </span>
+            <span>{t('caution')}</span>
           </p>
         </header>
 
@@ -191,12 +193,8 @@ function Integrations() {
         <Card>
           <CardHeader>
             <div className="flex flex-col gap-1.5">
-              <CardTitle>Calendar feed</CardTitle>
-              <CardDescription>
-                Subscribe in Google Calendar, Apple Calendar or anything that
-                speaks iCal. Twelve months of payments, with alarms from your
-                reminder settings.
-              </CardDescription>
+              <CardTitle>{t('feedTitle')}</CardTitle>
+              <CardDescription>{t('feedDescription')}</CardDescription>
             </div>
             <CardAction>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-border px-2 py-0.5 text-xs font-medium text-muted-foreground">
@@ -207,7 +205,7 @@ function Integrations() {
                   )}
                   aria-hidden="true"
                 />
-                {ical.path ? 'Active' : 'Disabled'}
+                {ical.path ? t('statusActive') : t('statusDisabled')}
               </span>
             </CardAction>
           </CardHeader>
@@ -216,7 +214,7 @@ function Integrations() {
               <>
                 <div className="flex flex-col gap-1.5">
                   <p className="text-xs font-medium text-muted-foreground">
-                    Feed URL
+                    {t('feedUrlLabel')}
                   </p>
                   <div
                     className={cn(
@@ -235,9 +233,7 @@ function Integrations() {
                     <Button
                       variant="ghost"
                       size="icon-sm"
-                      aria-label={
-                        revealed ? 'Hide feed URL' : 'Reveal feed URL'
-                      }
+                      aria-label={revealed ? t('hideUrl') : t('revealUrl')}
                       onClick={() => setRevealed((value) => !value)}
                     >
                       {revealed ? (
@@ -249,7 +245,7 @@ function Integrations() {
                     <Button
                       variant="ghost"
                       size="icon-sm"
-                      aria-label="Copy feed URL"
+                      aria-label={t('copyUrl')}
                       onClick={() => copy(feedUrl, 'feed')}
                     >
                       <CopyGlyph copied={copied === 'feed'} />
@@ -264,7 +260,7 @@ function Integrations() {
                     onClick={() => setRotateOpen(true)}
                   >
                     <RefreshCw className="size-3.5" />
-                    Rotate URL
+                    {t('rotateUrl')}
                   </Button>
                   <Button
                     variant="destructive"
@@ -272,26 +268,22 @@ function Integrations() {
                     disabled={pending}
                     onClick={() => setDisableOpen(true)}
                   >
-                    Disable feed
+                    {t('disableFeed')}
                   </Button>
                 </div>
                 <p className="-mt-1 text-xs text-muted-foreground">
-                  Rotating invalidates the old URL immediately — every
-                  subscribed calendar needs the new one.
+                  {t('rotateNote')}
                 </p>
               </>
             ) : (
               <div className="flex flex-col items-start gap-3 rounded-lg border border-dashed border-border p-4">
-                <p className="text-sm text-muted-foreground">
-                  The feed is off. Enable it to get a URL calendars can
-                  subscribe to.
-                </p>
+                <p className="text-sm text-muted-foreground">{t('feedOff')}</p>
                 <Button
                   size="sm"
                   disabled={pending}
                   onClick={() => run(() => enableIcal())}
                 >
-                  Enable feed
+                  {t('enableFeed')}
                 </Button>
               </div>
             )}
@@ -301,15 +293,8 @@ function Integrations() {
         <Card>
           <CardHeader>
             <div className="flex flex-col gap-1.5">
-              <CardTitle>API keys</CardTitle>
-              <CardDescription>
-                Full access for scripts and dashboards: send{' '}
-                <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">
-                  x-api-key
-                </code>{' '}
-                instead of a session cookie. Limited to 600 requests per hour
-                per key.
-              </CardDescription>
+              <CardTitle>{t('keysTitle')}</CardTitle>
+              <CardDescription>{t('keysDescription')}</CardDescription>
             </div>
             <CardAction>
               <Button
@@ -318,16 +303,14 @@ function Integrations() {
                 onClick={() => setCreateOpen(true)}
               >
                 <Plus className="size-3.5" />
-                Create key
+                {t('createKey')}
               </Button>
             </CardAction>
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
             {createdKey ? (
               <div className="flex animate-in flex-col gap-2 rounded-lg border border-primary/30 bg-primary/5 p-3 duration-200 fade-in-0 slide-in-from-top-1">
-                <p className="text-xs font-medium">
-                  This key is shown once — store it somewhere safe.
-                </p>
+                <p className="text-xs font-medium">{t('shownOnce')}</p>
                 <div className="flex flex-wrap items-center gap-2">
                   <code className="min-w-0 flex-1 truncate rounded bg-muted px-2 py-1 font-mono text-xs">
                     {createdKey}
@@ -338,34 +321,36 @@ function Integrations() {
                     onClick={() => copy(createdKey, 'key')}
                   >
                     <CopyGlyph copied={copied === 'key'} />
-                    {copied === 'key' ? 'Copied' : 'Copy'}
+                    {copied === 'key' ? t('copied') : t('copy')}
                   </Button>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setCreatedKey(null)}
                   >
-                    Done
+                    {t('done')}
                   </Button>
                 </div>
               </div>
             ) : null}
 
             {keys.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No keys yet — create one when a script needs access.
-              </p>
+              <p className="text-sm text-muted-foreground">{t('emptyKeys')}</p>
             ) : (
               <div className="overflow-x-auto rounded-lg border border-border">
                 <table className="w-full border-collapse text-left">
                   <thead>
                     <tr className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
-                      <th className="px-3 py-2 font-medium">Name</th>
-                      <th className="px-3 py-2 font-medium">Key</th>
-                      <th className="px-3 py-2 font-medium">Created</th>
-                      <th className="px-3 py-2 font-medium">Last used</th>
+                      <th className="px-3 py-2 font-medium">{t('colName')}</th>
+                      <th className="px-3 py-2 font-medium">{t('colKey')}</th>
+                      <th className="px-3 py-2 font-medium">
+                        {t('colCreated')}
+                      </th>
+                      <th className="px-3 py-2 font-medium">
+                        {t('colLastUsed')}
+                      </th>
                       <th className="w-10 px-2 py-2">
-                        <span className="sr-only">Actions</span>
+                        <span className="sr-only">{t('colActions')}</span>
                       </th>
                     </tr>
                   </thead>
@@ -376,10 +361,10 @@ function Integrations() {
                         className="transition-colors duration-150 ease-out hover:bg-muted/30"
                       >
                         <td className="px-3 py-2.5 text-sm font-medium">
-                          {key.name ?? 'Unnamed key'}
+                          {key.name ?? t('unnamedKey')}
                           {key.enabled ? null : (
                             <Badge variant="outline" className="ml-2">
-                              disabled
+                              {t('disabledBadge')}
                             </Badge>
                           )}
                         </td>
@@ -387,12 +372,12 @@ function Integrations() {
                           {key.start ? `${key.start}…` : '—'}
                         </td>
                         <td className="px-3 py-2.5 text-xs whitespace-nowrap text-muted-foreground">
-                          {formatDate(key.createdAt)}
+                          {formatDate(key.createdAt, locale)}
                         </td>
                         <td className="px-3 py-2.5 text-xs whitespace-nowrap text-muted-foreground">
                           {key.lastRequest
-                            ? formatDate(key.lastRequest)
-                            : 'never'}
+                            ? formatDate(key.lastRequest, locale)
+                            : t('never')}
                         </td>
                         <td className="px-2 py-2.5 text-right">
                           <Menu>
@@ -401,7 +386,9 @@ function Integrations() {
                                 <Button
                                   variant="ghost"
                                   size="icon-sm"
-                                  aria-label={`Actions for ${key.name ?? 'unnamed key'}`}
+                                  aria-label={t('actionsFor', {
+                                    name: key.name ?? t('unnamedKey'),
+                                  })}
                                 />
                               }
                             >
@@ -414,7 +401,7 @@ function Integrations() {
                                 disabled={pending}
                                 onClick={() => setRevokeId(key.id)}
                               >
-                                Revoke key
+                                {t('revokeKey')}
                               </MenuItem>
                             </MenuPopup>
                           </Menu>
@@ -432,18 +419,15 @@ function Integrations() {
       <Dialog open={rotateOpen} onOpenChange={setRotateOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Rotate the feed URL?</DialogTitle>
-            <DialogDescription>
-              The current URL stops working immediately. Every subscribed
-              calendar needs the new one before it syncs again.
-            </DialogDescription>
+            <DialogTitle>{t('rotateTitle')}</DialogTitle>
+            <DialogDescription>{t('rotateDescription')}</DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <DialogClose render={<Button variant="outline" size="sm" />}>
-              Cancel
+              {t('cancel')}
             </DialogClose>
             <Button size="sm" disabled={pending} onClick={rotate}>
-              Rotate URL
+              {t('rotateUrl')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -452,15 +436,12 @@ function Integrations() {
       <Dialog open={disableOpen} onOpenChange={setDisableOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Disable the feed?</DialogTitle>
-            <DialogDescription>
-              Subscribed calendars stop updating immediately. If you enable it
-              again, the URL will be new.
-            </DialogDescription>
+            <DialogTitle>{t('disableTitle')}</DialogTitle>
+            <DialogDescription>{t('disableDescription')}</DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <DialogClose render={<Button variant="outline" size="sm" />}>
-              Keep it
+              {t('keepIt')}
             </DialogClose>
             <Button
               variant="destructive"
@@ -468,7 +449,7 @@ function Integrations() {
               disabled={pending}
               onClick={disableFeed}
             >
-              Disable feed
+              {t('disableFeed')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -483,10 +464,8 @@ function Integrations() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Create API key</DialogTitle>
-            <DialogDescription>
-              Name it after where it runs — “Home dashboard”, “n8n”, “Raycast”.
-            </DialogDescription>
+            <DialogTitle>{t('createTitle')}</DialogTitle>
+            <DialogDescription>{t('createDescription')}</DialogDescription>
           </DialogHeader>
           <form
             className="flex flex-col gap-4"
@@ -496,27 +475,27 @@ function Integrations() {
             }}
           >
             <Field>
-              <FieldLabel htmlFor="key-name">Key name</FieldLabel>
+              <FieldLabel htmlFor="key-name">{t('keyNameLabel')}</FieldLabel>
               <Input
                 id="key-name"
                 autoFocus
                 value={keyName}
                 onChange={(event) => setKeyName(event.target.value)}
-                placeholder="Home dashboard"
+                placeholder={t('keyNamePlaceholder')}
               />
             </Field>
             <DialogFooter>
               <DialogClose
                 render={<Button variant="outline" size="sm" type="button" />}
               >
-                Cancel
+                {t('cancel')}
               </DialogClose>
               <Button
                 type="submit"
                 size="sm"
                 disabled={pending || !keyName.trim()}
               >
-                Create key
+                {t('createKey')}
               </Button>
             </DialogFooter>
           </form>
@@ -531,15 +510,16 @@ function Integrations() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Revoke this key?</DialogTitle>
+            <DialogTitle>{t('revokeTitle')}</DialogTitle>
             <DialogDescription>
-              Requests using “{revoking?.name ?? 'this key'}” start failing
-              immediately. This cannot be undone.
+              {t('revokeDescription', {
+                name: revoking?.name ?? t('unnamedKey'),
+              })}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <DialogClose render={<Button variant="outline" size="sm" />}>
-              Keep key
+              {t('keepKey')}
             </DialogClose>
             <Button
               variant="destructive"
@@ -547,7 +527,7 @@ function Integrations() {
               disabled={pending}
               onClick={revokeSelected}
             >
-              Revoke key
+              {t('revokeKey')}
             </Button>
           </DialogFooter>
         </DialogContent>
