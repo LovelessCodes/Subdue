@@ -104,8 +104,9 @@ export function buildIcalEvents(
         date: occurrence,
         summary: `${subscription.name} — ${formatMinor(subscription.price, subscription.currency, settings.locale)}`,
         description: subscription.notes,
-        alarmDaysBefore:
-          subscription.remindDaysBefore ?? settings.remindDaysBefore,
+        alarmDaysBefore: settings.remindersEnabled
+          ? (subscription.remindDaysBefore ?? settings.remindDaysBefore)
+          : 0,
       })
     }
   }

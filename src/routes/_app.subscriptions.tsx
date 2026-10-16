@@ -160,9 +160,6 @@ function Subscriptions() {
                         ) : subscription.autoRenew === false ? (
                           <Badge variant="outline">no auto-renew</Badge>
                         ) : null}
-                        {subscription.overdue ? (
-                          <Badge variant="destructive">overdue</Badge>
-                        ) : null}
                         <Button
                           variant="ghost"
                           size="icon-sm"

@@ -11,7 +11,6 @@ export type CalendarEntry = {
   price: number
   currency: string
   date: Date
-  overdue: boolean
 }
 
 export type CalendarIncomeEntry = {
@@ -48,14 +47,6 @@ export async function getCalendarMonth(
   const monthEnd = new Date(
     Date.UTC(params.year, params.month, 0, 23, 59, 59, 999),
   )
-  const startOfToday = Date.UTC(
-    now.getUTCFullYear(),
-    now.getUTCMonth(),
-    now.getUTCDate(),
-  )
-  const isCurrentMonth =
-    params.year === now.getUTCFullYear() &&
-    params.month === now.getUTCMonth() + 1
 
   const page = await listSubscriptions(
     db,
@@ -91,7 +82,6 @@ export async function getCalendarMonth(
         price: subscription.price,
         currency: subscription.currency,
         date,
-        overdue: isCurrentMonth && date.getTime() < startOfToday,
       })
     }
   }

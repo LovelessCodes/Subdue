@@ -25,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Switch } from '@/components/ui/switch'
 import {
   Tabs,
   TabsList,
@@ -94,7 +95,7 @@ const SECTION_LABELS: Record<Section, string> = {
 const SECTION_DESCRIPTIONS: Record<Section, string> = {
   preferences: 'How amounts and dates are shown, and how the app looks.',
   budget: 'Your income sources, and the ceiling for the spend bar.',
-  reminders: 'When to start nudging before a charge.',
+  reminders: 'Whether and when to nudge you before a charge.',
   lists: 'Categories and payment methods across the app.',
   security: 'Ways to sign in, and keeping the account safe.',
 }
@@ -211,6 +212,7 @@ function SettingsPage() {
                 : fromMajorUnits(budgetAmount, currency),
             payAnchorDay: anchorDay,
             remindDaysBefore: remindDays,
+            remindersEnabled: next.remindEnabled === 'on',
           },
         })
         applyTheme(normalized.theme)
@@ -407,6 +409,15 @@ function SettingsPage() {
 
             <TabsPanel value="reminders" className="flex flex-col gap-5">
               <SectionLead section="reminders" />
+              <Field orientation="horizontal">
+                <Switch
+                  checked={form.remindEnabled === 'on'}
+                  onCheckedChange={(checked) =>
+                    change('remindEnabled', checked ? 'on' : 'off')
+                  }
+                />
+                <FieldLabel>Remind me before charges</FieldLabel>
+              </Field>
               <Field>
                 <FieldLabel htmlFor="settings-remind">
                   Days before a charge
@@ -420,7 +431,9 @@ function SettingsPage() {
                   className="max-w-40"
                 />
                 <FieldDescription>
-                  Per-subscription overrides win over this default.
+                  0 reminds on the due date. Per-subscription overrides win over
+                  this default — while reminders are on. Switching them off
+                  silences every override too.
                 </FieldDescription>
               </Field>
             </TabsPanel>
@@ -558,5 +571,6 @@ function formFrom(settings: Settings) {
         : String(toMajorUnits(settings.budgetAmountMinor, settings.currency)),
     anchor: settings.payAnchorDay === null ? '' : String(settings.payAnchorDay),
     remindDays: String(settings.remindDaysBefore),
+    remindEnabled: settings.remindersEnabled ? 'on' : 'off',
   }
 }

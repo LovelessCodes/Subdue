@@ -136,6 +136,7 @@ export const settingsPatchSchema = z.object({
   budgetAmountMinor: z.number().int().min(0).nullish(),
   payAnchorDay: z.number().int().min(1).max(31).nullish(),
   remindDaysBefore: z.number().int().min(0).max(60).nullish(),
+  remindersEnabled: z.boolean().optional(),
 })
 
 export type ReferenceError = 'PAYMENT_METHOD_NOT_FOUND' | 'LOGO_NOT_FOUND'

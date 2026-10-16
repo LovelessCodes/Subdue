@@ -1,0 +1,1 @@
+ALTER TABLE `user_setting` ADD `reminders_enabled` integer;

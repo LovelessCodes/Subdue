@@ -354,6 +354,7 @@ export const userSetting = sqliteTable(
     budgetAmountMinor: integer('budget_amount_minor'),
     payAnchorDay: integer('pay_anchor_day'),
     remindDaysBefore: integer('remind_days_before'),
+    remindersEnabled: integer('reminders_enabled', { mode: 'boolean' }),
     icalToken: text('ical_token'),
     onboardedAt: integer('onboarded_at', { mode: 'timestamp_ms' }),
     userId: text('user_id')

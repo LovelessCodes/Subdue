@@ -1,13 +1,12 @@
 import { and, asc, count, desc, eq, getTableColumns } from 'drizzle-orm'
 import { paymentMethod, subscription } from '../../lib/auth-schema'
 import type { Database } from '../../lib/db'
-import { isOverdue, rolledNextPayment, type CycleUnit } from './recurrence'
+import { rolledNextPayment, type CycleUnit } from './recurrence'
 
 export type Subscription = typeof subscription.$inferSelect
 
 export type SubscriptionWithRecurrence = Subscription & {
   nextDue: Date
-  overdue: boolean
   paymentMethodName: string | null
 }
 
@@ -43,7 +42,6 @@ function withRecurrence(
   return {
     ...row,
     nextDue: rolledNextPayment(row.nextPayment, cycle, now),
-    overdue: isOverdue(row.nextPayment, now),
     paymentMethodName: row.paymentMethodName ?? null,
   }
 }

@@ -107,7 +107,7 @@ export function createSubdueMcpServer(authInfo?: AuthInfo) {
     'upcoming_payments',
     {
       description:
-        'List payments due within the next N days (default 30). Due dates are rolled forward past today; each item reports a rolled nextDue date plus an overdue flag for stale entries.',
+        'List payments due within the next N days (default 30). Due dates are rolled forward past today.',
       inputSchema: z.object({
         days: z.number().int().min(1).max(365).default(30),
       }),

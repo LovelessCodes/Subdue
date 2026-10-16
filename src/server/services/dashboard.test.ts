@@ -105,7 +105,7 @@ describe('dashboard: summary', () => {
     expect(summary.unconvertibleCurrencies).toEqual(['USD'])
   })
 
-  it('lists upcoming rolled payments within 30 days and counts overdue', async () => {
+  it('lists upcoming rolled payments through the month after next', async () => {
     const { db } = createTestDb()
     await insertTestUser(db, 'u1')
 
@@ -113,12 +113,12 @@ describe('dashboard: summary', () => {
       db,
       'u1',
       {
-        name: 'Stale Monthly',
+        name: 'Quarterly Stale',
         price: 9900,
         currency: 'DKK',
         cycleUnit: 'months',
-        cycleCount: 1,
-        nextPayment: new Date('2026-09-01T00:00:00.000Z'),
+        cycleCount: 3,
+        nextPayment: new Date('2026-08-01T00:00:00.000Z'),
       },
       now,
     )
@@ -126,12 +126,25 @@ describe('dashboard: summary', () => {
       db,
       'u1',
       {
-        name: 'Far Future',
+        name: 'Mid October',
         price: 9900,
         currency: 'DKK',
         cycleUnit: 'months',
         cycleCount: 1,
-        nextPayment: new Date('2027-06-01T00:00:00.000Z'),
+        nextPayment: new Date('2026-10-20T00:00:00.000Z'),
+      },
+      now,
+    )
+    await createSubscription(
+      db,
+      'u1',
+      {
+        name: 'January',
+        price: 9900,
+        currency: 'DKK',
+        cycleUnit: 'months',
+        cycleCount: 1,
+        nextPayment: new Date('2027-01-05T00:00:00.000Z'),
       },
       now,
     )
@@ -141,12 +154,19 @@ describe('dashboard: summary', () => {
       fetchFn: fakeFetch(payload).fetchFn,
     })
 
-    expect(summary.upcoming.map((item) => item.name)).toEqual(['Stale Monthly'])
+    expect(summary.horizon).toEqual(new Date('2026-12-31T23:59:59.999Z'))
+    // Sorted by rolled due date — the stale quarterly lands in November,
+    // after the October charge.
+    expect(summary.upcoming.map((item) => item.name)).toEqual([
+      'Mid October',
+      'Quarterly Stale',
+    ])
     expect(summary.upcoming[0]?.nextDue).toEqual(
+      new Date('2026-10-20T00:00:00.000Z'),
+    )
+    expect(summary.upcoming[1]?.nextDue).toEqual(
       new Date('2026-11-01T00:00:00.000Z'),
     )
-    expect(summary.upcoming[0]?.overdue).toBe(true)
-    expect(summary.overdueCount).toBe(1)
   })
 
   it('records a monthly snapshot and reports the change since last month', async () => {
@@ -219,7 +239,7 @@ describe('dashboard: summary', () => {
 })
 
 describe('dashboard: subscriptions that end', () => {
-  it('drops ended subscriptions from totals, upcoming and overdue', async () => {
+  it('drops ended subscriptions from totals and upcoming', async () => {
     const { db } = createTestDb()
     await insertTestUser(db, 'u1')
 
@@ -272,7 +292,6 @@ describe('dashboard: subscriptions that end', () => {
 
     expect(summary.monthlyTotalMinor).toBe(19900 * 2)
     expect(summary.upcoming.map((item) => item.name)).toEqual(['Active'])
-    expect(summary.overdueCount).toBe(0)
     expect(summary.subscriptionCount).toBe(3)
   })
 })

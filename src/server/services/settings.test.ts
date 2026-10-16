@@ -43,6 +43,7 @@ describe('settings service', () => {
       budgetAmountMinor: null,
       payAnchorDay: null,
       remindDaysBefore: defaultSettings.remindDaysBefore,
+      remindersEnabled: defaultSettings.remindersEnabled,
       icalToken: null,
     })
 
@@ -50,6 +51,18 @@ describe('settings service', () => {
     expect(patched.locale).toBe('da')
     expect(patched.currency).toBe('EUR')
     expect(patched.theme).toBe('dark')
+  })
+
+  it('switches reminders off and back on', async () => {
+    const { db } = createTestDb()
+    await insertTestUser(db, 'u1')
+
+    const off = await updateSettings(db, 'u1', { remindersEnabled: false })
+    expect(off.remindersEnabled).toBe(false)
+    expect((await getSettings(db, 'u1')).remindersEnabled).toBe(false)
+
+    const on = await updateSettings(db, 'u1', { remindersEnabled: true })
+    expect(on.remindersEnabled).toBe(true)
   })
 
   it('keeps settings isolated per user', async () => {

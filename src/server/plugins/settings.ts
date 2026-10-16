@@ -17,6 +17,7 @@ export const settingsPlugin = () =>
           budgetAmountMinor: { type: 'number', required: false },
           payAnchorDay: { type: 'number', required: false },
           remindDaysBefore: { type: 'number', required: false },
+          remindersEnabled: { type: 'boolean', required: false },
           icalToken: { type: 'string', required: false },
           userId: {
             type: 'string',

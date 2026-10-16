@@ -26,7 +26,6 @@ export const Route = createFileRoute('/_app')({
     return {
       user: session.user,
       counts: {
-        '/': dashboard.overdueCount,
         '/calendar': dashboard.upcoming.length,
         '/subscriptions': dashboard.subscriptionCount,
         '/inbox': inbox.unread,

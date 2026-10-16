@@ -36,7 +36,8 @@ export type DashboardSummary = {
   monthlyTotalMinor: number
   change: DashboardChange | null
   upcoming: SubscriptionWithRecurrence[]
-  overdueCount: number
+  /** End of the month after next: how far the upcoming list reaches. */
+  horizon: Date
   unconvertibleCurrencies: string[]
   subscriptionCount: number
 }
@@ -138,15 +139,19 @@ export async function getDashboardSummary(
     )
   }
 
-  const horizon = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)
+  // The list reaches the rest of this month plus the two full months ahead.
+  const horizon = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 3, 0, 23, 59, 59, 999),
+  )
   const upcoming = page.items
     .filter((item) => !hasEnded(item.cancelledAt, now))
     .filter((item) => !item.cancelledAt || item.nextDue <= item.cancelledAt)
     .filter((item) => item.nextDue <= horizon)
-    .slice(0, 10)
-  const overdueCount = page.items.filter(
-    (item) => item.overdue && !hasEnded(item.cancelledAt, now),
-  ).length
+    .sort(
+      (a, b) =>
+        a.nextDue.getTime() - b.nextDue.getTime() ||
+        a.name.localeCompare(b.name),
+    )
 
   await upsertCostSnapshot(
     db,
@@ -170,7 +175,7 @@ export async function getDashboardSummary(
     monthlyTotalMinor,
     change,
     upcoming,
-    overdueCount,
+    horizon,
     unconvertibleCurrencies: [...unconvertible].sort(),
     subscriptionCount: page.total,
   }

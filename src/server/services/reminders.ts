@@ -13,7 +13,7 @@ import {
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000
 
-export type ReminderType = 'upcoming' | 'overdue'
+export type ReminderType = 'upcoming'
 
 export type ReminderCandidate = {
   subscriptionId: string
@@ -62,17 +62,6 @@ export function reminderCandidates(
         dueDate: subscription.nextDue,
       })
     }
-
-    if (subscription.overdue) {
-      candidates.push({
-        subscriptionId: subscription.id,
-        name: subscription.name,
-        price: subscription.price,
-        currency: subscription.currency,
-        type: 'overdue',
-        dueDate: subscription.nextPayment,
-      })
-    }
   }
 
   return candidates
@@ -84,13 +73,6 @@ function messageFor(
 ): { title: string; body: string } {
   const date = formatDate(candidate.dueDate, locale)
   const amount = formatMinor(candidate.price, candidate.currency, locale)
-
-  if (candidate.type === 'overdue') {
-    return {
-      title: `${candidate.name} looks overdue`,
-      body: `${candidate.name} was due ${date} (${amount}) and hasn't been confirmed since.`,
-    }
-  }
 
   return {
     title: `${candidate.name} renews soon`,
@@ -105,6 +87,9 @@ export async function runDueReminders(
 ): Promise<{ created: number; ids: string[] }> {
   const now = options.now ?? new Date()
   const settings = await getSettings(db, userId)
+  if (!settings.remindersEnabled) {
+    return { created: 0, ids: [] }
+  }
   const page = await listSubscriptions(
     db,
     userId,

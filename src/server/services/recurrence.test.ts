@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
   hasEnded,
-  isOverdue,
   nextOccurrence,
   occurrenceAt,
   occurrencesBetween,
@@ -198,12 +197,7 @@ describe('recurrence: occurrencesBetween', () => {
   })
 })
 
-describe('recurrence: overdue and roll-forward', () => {
-  it('a payment due today is not overdue yet', () => {
-    expect(isOverdue(utc(2026, 10, 14), utc(2026, 10, 14, 18))).toBe(false)
-    expect(isOverdue(utc(2026, 10, 13), utc(2026, 10, 14, 1))).toBe(true)
-  })
-
+describe('recurrence: roll-forward', () => {
   it('rolls a stale next payment forward to the first due date from today', () => {
     const monthly: Cycle = { count: 1, unit: 'months' }
 

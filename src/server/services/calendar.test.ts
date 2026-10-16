@@ -52,7 +52,6 @@ describe('calendar service', () => {
     expect(october.entries.map((entry) => entry.date)).toEqual([
       new Date('2026-10-01T00:00:00.000Z'),
     ])
-    expect(october.entries[0]?.overdue).toBe(true)
 
     const november = await getCalendarMonth(
       db,
@@ -60,7 +59,9 @@ describe('calendar service', () => {
       { year: 2026, month: 11 },
       options,
     )
-    expect(november.entries[0]?.overdue).toBe(false)
+    expect(november.entries[0]?.date).toEqual(
+      new Date('2026-11-01T00:00:00.000Z'),
+    )
 
     const september = await getCalendarMonth(
       db,
@@ -71,7 +72,6 @@ describe('calendar service', () => {
     expect(september.entries[0]?.date).toEqual(
       new Date('2026-09-01T00:00:00.000Z'),
     )
-    expect(september.entries[0]?.overdue).toBe(false)
   })
 
   it('keeps anniversary dates for quarterly and yearly cycles', async () => {

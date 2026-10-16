@@ -92,7 +92,7 @@ describe('reminder candidates', () => {
     ])
   })
 
-  it('flags stale stored due dates as overdue', async () => {
+  it('lets stale stored due dates roll forward instead of flagging them', async () => {
     const { db } = createTestDb()
     await insertTestUser(db, 'u1')
 
@@ -112,9 +112,9 @@ describe('reminder candidates', () => {
 
     const candidates = reminderCandidates(await enrichedFor(db, 'u1'), now, 3)
 
-    expect(candidates).toHaveLength(1)
-    expect(candidates[0]?.type).toBe('overdue')
-    expect(candidates[0]?.dueDate).toEqual(new Date('2026-09-01T00:00:00.000Z'))
+    // The stored date is long past; the series has rolled to November, which
+    // is outside the three-day window.
+    expect(candidates).toHaveLength(0)
   })
 })
 
@@ -177,6 +177,32 @@ describe('reminder runs', () => {
 
     const after = await listNotifications(db, 'u1', { limit: 10 })
     expect(after[0]?.readAt).not.toBeNull()
+  })
+
+  it('stays silent when reminders are switched off, overrides included', async () => {
+    const { db } = createTestDb()
+    await insertTestUser(db, 'u1')
+    await updateSettings(db, 'u1', { remindersEnabled: false })
+
+    await createSubscription(
+      db,
+      'u1',
+      {
+        name: 'Netflix',
+        price: 19900,
+        currency: 'DKK',
+        cycleUnit: 'months',
+        cycleCount: 1,
+        nextPayment: new Date('2026-10-16T00:00:00.000Z'),
+        remindDaysBefore: 7,
+      },
+      now,
+    )
+
+    const result = await runDueReminders(db, 'u1', { now })
+
+    expect(result.created).toBe(0)
+    expect(await unreadCount(db, 'u1')).toBe(0)
   })
 })
 

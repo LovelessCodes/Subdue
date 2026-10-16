@@ -56,6 +56,7 @@ function Dashboard() {
   const { summary, budget } = Route.useLoaderData()
   const money = (amountMinor: number) =>
     formatMinor(amountMinor, summary.currency, summary.locale)
+  const next = summary.upcoming[0]
 
   const percent =
     budget.budgetMinor !== null && budget.budgetMinor > 0
@@ -86,29 +87,36 @@ function Dashboard() {
           </Card>
           <Card>
             <CardHeader>
-              <CardDescription>Upcoming (30 days)</CardDescription>
+              <CardDescription>Upcoming</CardDescription>
               <CardTitle className="text-2xl">
                 {summary.upcoming.length}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-xs text-muted-foreground">
-                {summary.subscriptionCount} subscriptions tracked
+                through {formatDate(summary.horizon, summary.locale)} ·{' '}
+                {summary.subscriptionCount}{' '}
+                {summary.subscriptionCount === 1
+                  ? 'subscription'
+                  : 'subscriptions'}{' '}
+                tracked
               </p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader>
-              <CardDescription>Overdue</CardDescription>
-              <CardTitle
-                className={`text-2xl ${summary.overdueCount > 0 ? 'text-destructive' : ''}`}
-              >
-                {summary.overdueCount}
+              <CardDescription>Next charge</CardDescription>
+              <CardTitle className="text-2xl">
+                {next
+                  ? formatMinor(next.price, next.currency, summary.locale)
+                  : '—'}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-xs text-muted-foreground">
-                Due dates that have passed
+                {next
+                  ? `${next.name} · ${formatDate(next.nextDue, summary.locale)}`
+                  : 'Nothing due in this window.'}
               </p>
             </CardContent>
           </Card>
@@ -220,13 +228,15 @@ function Dashboard() {
           <CardHeader>
             <CardTitle>Upcoming payments</CardTitle>
             <CardDescription>
-              Rolled forward from their cycles — overdue entries are flagged.
+              Rolled forward from their cycles · through{' '}
+              {formatDate(summary.horizon, summary.locale)}.
             </CardDescription>
           </CardHeader>
           <CardContent>
             {summary.upcoming.length === 0 ? (
               <p className="text-sm text-muted-foreground">
-                Nothing due in the next 30 days.
+                Nothing due through{' '}
+                {formatDate(summary.horizon, summary.locale)}.
               </p>
             ) : (
               <ul className="flex flex-col divide-y">
@@ -273,9 +283,6 @@ function Dashboard() {
                           ends{' '}
                           {formatDate(subscription.cancelledAt, summary.locale)}
                         </Badge>
-                      ) : null}
-                      {subscription.overdue ? (
-                        <Badge variant="destructive">overdue</Badge>
                       ) : null}
                     </div>
                   </li>

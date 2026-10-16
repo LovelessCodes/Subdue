@@ -99,6 +99,31 @@ describe('ical feed', () => {
     expect(feed).toContain('TRIGGER:-P7D')
     expect(feed.match(/BEGIN:VEVENT/g)?.length).toBe(24)
   })
+
+  it('drops alarms when reminders are switched off', async () => {
+    const { db } = createTestDb()
+    await insertTestUser(db, 'u1')
+    await updateSettings(db, 'u1', { remindersEnabled: false })
+    await createSubscription(
+      db,
+      'u1',
+      {
+        name: 'Quiet',
+        price: 9900,
+        currency: 'DKK',
+        cycleUnit: 'months',
+        cycleCount: 1,
+        nextPayment: new Date('2026-10-20T00:00:00.000Z'),
+        remindDaysBefore: 7,
+      },
+      now,
+    )
+
+    const feed = await buildUserIcalFeed(db, 'u1', now)
+
+    expect(feed).toContain('DTSTART;VALUE=DATE:20261020')
+    expect(feed).not.toContain('BEGIN:VALARM')
+  })
 })
 
 describe('ical tokens', () => {

@@ -785,6 +785,9 @@
           "remindDaysBefore": {
             "type": "number"
           },
+          "remindersEnabled": {
+            "type": "boolean"
+          },
           "icalToken": {
             "type": "string"
           },
@@ -18209,6 +18212,9 @@
                       "number",
                       "null"
                     ]
+                  },
+                  "remindersEnabled": {
+                    "type": "boolean"
                   }
                 }
               }

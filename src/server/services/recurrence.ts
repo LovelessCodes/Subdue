@@ -164,10 +164,6 @@ export function occurrencesBetween(
   return result
 }
 
-export function isOverdue(due: Date, now: Date): boolean {
-  return utcDayNumber(due) < utcDayNumber(now)
-}
-
 /** Has a subscription's end date passed? A subscription ending today is live. */
 export function hasEnded(end: Date | null | undefined, now: Date): boolean {
   return end != null && utcDayNumber(end) < utcDayNumber(now)

@@ -16,6 +16,7 @@ export type Settings = {
   budgetAmountMinor: number | null
   payAnchorDay: number | null
   remindDaysBefore: number
+  remindersEnabled: boolean
   icalToken: string | null
 }
 
@@ -31,6 +32,7 @@ export const defaultSettings: Settings = {
   budgetAmountMinor: null,
   payAnchorDay: null,
   remindDaysBefore: 3,
+  remindersEnabled: true,
   icalToken: null,
 }
 
@@ -57,6 +59,7 @@ export async function getSettings(
     budgetAmountMinor: row.budgetAmountMinor ?? null,
     payAnchorDay: row.payAnchorDay ?? null,
     remindDaysBefore: row.remindDaysBefore ?? defaultSettings.remindDaysBefore,
+    remindersEnabled: row.remindersEnabled ?? defaultSettings.remindersEnabled,
     icalToken: row.icalToken ?? null,
   }
 }
@@ -99,6 +102,9 @@ export async function updateSettings(
     }),
     ...(patch.remindDaysBefore !== undefined && {
       remindDaysBefore: patch.remindDaysBefore,
+    }),
+    ...(patch.remindersEnabled !== undefined && {
+      remindersEnabled: patch.remindersEnabled,
     }),
     ...(patch.icalToken !== undefined && { icalToken: patch.icalToken }),
   }

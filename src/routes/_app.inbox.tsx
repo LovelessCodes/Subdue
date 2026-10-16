@@ -66,8 +66,7 @@ function Inbox() {
           <CardContent>
             {inbox.items.length === 0 ? (
               <p className="text-sm text-muted-foreground">
-                Nothing here yet — reminders about upcoming and overdue charges
-                land here.
+                Nothing here yet — reminders about upcoming charges land here.
               </p>
             ) : (
               <ul className="flex flex-col divide-y">

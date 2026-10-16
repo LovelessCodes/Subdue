@@ -170,9 +170,7 @@ function Calendar() {
                         {(entriesByDay.get(day) ?? []).map((entry) => (
                           <div
                             key={`${entry.subscriptionId}-${entry.date.getTime()}`}
-                            className={`rounded bg-muted px-1.5 py-1 text-[11px] leading-tight ${
-                              entry.overdue ? 'text-destructive' : ''
-                            }`}
+                            className="rounded bg-muted px-1.5 py-1 text-[11px] leading-tight"
                           >
                             <span className="block truncate font-medium">
                               {entry.name}
