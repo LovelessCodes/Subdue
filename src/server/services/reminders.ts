@@ -40,6 +40,10 @@ export function reminderCandidates(
   const candidates: ReminderCandidate[] = []
 
   for (const subscription of subscriptions) {
+    if (subscription.remindEnabled === false) {
+      continue
+    }
+
     const endDay = subscription.cancelledAt
       ? dayNumber(subscription.cancelledAt)
       : null

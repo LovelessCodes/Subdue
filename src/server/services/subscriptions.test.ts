@@ -132,4 +132,27 @@ describe('subscriptions service', () => {
     const fresh = await getSubscription(db, 'u1', created!.id, now)
     expect(fresh?.nextDue).toEqual(new Date('2026-11-01T00:00:00.000Z'))
   })
+
+  it('toggles per-subscription notifications', async () => {
+    const { db } = createTestDb()
+    await insertTestUser(db, 'u1')
+
+    const now = new Date('2026-10-14T12:00:00.000Z')
+
+    const created = await createSubscription(
+      db,
+      'u1',
+      input({ remindEnabled: false }),
+      now,
+    )
+    expect(created?.remindEnabled).toBe(false)
+
+    const updated = await updateSubscription(db, 'u1', created!.id, {
+      remindEnabled: true,
+    })
+    expect(updated?.remindEnabled).toBe(true)
+
+    const fetched = await getSubscription(db, 'u1', created!.id, now)
+    expect(fetched?.remindEnabled).toBe(true)
+  })
 })

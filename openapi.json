@@ -890,6 +890,10 @@
           "remindDaysBefore": {
             "type": "number"
           },
+          "remindEnabled": {
+            "type": "boolean",
+            "default": true
+          },
           "autoRenew": {
             "type": "boolean",
             "default": true
@@ -19160,6 +19164,9 @@
                       "null"
                     ]
                   },
+                  "remindEnabled": {
+                    "type": "boolean"
+                  },
                   "autoRenew": {
                     "type": "boolean"
                   },
@@ -19370,6 +19377,9 @@
                       "number",
                       "null"
                     ]
+                  },
+                  "remindEnabled": {
+                    "type": "boolean"
                   },
                   "autoRenew": {
                     "type": "boolean"

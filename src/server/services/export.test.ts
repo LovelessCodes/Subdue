@@ -67,6 +67,7 @@ describe('export', () => {
       paymentMethod: null,
       url: null,
       notes: 'renews end of October',
+      remindEnabled: true,
       autoRenew: true,
       cancelledAt: null,
       logo: null,
@@ -91,10 +92,10 @@ describe('export', () => {
     const lines = csv.trim().split('\n')
 
     expect(lines[0]).toBe(
-      'name,price_minor,currency,cycle_unit,cycle_count,next_payment,category,payment_method,payer,url,notes,remind_days_before,auto_renew,cancelled_at',
+      'name,price_minor,currency,cycle_unit,cycle_count,next_payment,category,payment_method,payer,url,notes,remind_days_before,remind_enabled,auto_renew,cancelled_at',
     )
     expect(lines[1]).toBe(
-      'Loveless.codes,63340,DKK,years,1,2026-10-30,Domains,,,,renews end of October,,true,',
+      'Loveless.codes,63340,DKK,years,1,2026-10-30,Domains,,,,renews end of October,,true,true,',
     )
   })
 

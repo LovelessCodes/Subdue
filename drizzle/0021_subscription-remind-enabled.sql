@@ -1,0 +1,1 @@
+ALTER TABLE `subscription` ADD `remind_enabled` integer DEFAULT true;

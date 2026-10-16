@@ -48,6 +48,11 @@ export const subscriptionsPlugin = () =>
           nextPayment: { type: 'date', required: true },
           notes: { type: 'string', required: false },
           remindDaysBefore: { type: 'number', required: false },
+          remindEnabled: {
+            type: 'boolean',
+            required: false,
+            defaultValue: true,
+          },
           autoRenew: { type: 'boolean', required: false, defaultValue: true },
           cancelledAt: { type: 'date', required: false },
           logo: { type: 'string', required: false },

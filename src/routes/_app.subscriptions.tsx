@@ -160,6 +160,9 @@ function Subscriptions() {
                         ) : subscription.autoRenew === false ? (
                           <Badge variant="outline">no auto-renew</Badge>
                         ) : null}
+                        {subscription.remindEnabled === false ? (
+                          <Badge variant="outline">no reminders</Badge>
+                        ) : null}
                         <Button
                           variant="ghost"
                           size="icon-sm"

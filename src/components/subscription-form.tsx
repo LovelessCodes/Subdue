@@ -52,6 +52,7 @@ type FormState = {
   url: string
   notes: string
   remindDaysBefore: string
+  remindEnabled: boolean
   autoRenew: boolean
   cancelledAt: string
   logo: string | null
@@ -82,6 +83,7 @@ function initialForm(
       url: '',
       notes: '',
       remindDaysBefore: '',
+      remindEnabled: true,
       autoRenew: true,
       cancelledAt: '',
       logo: null,
@@ -104,6 +106,7 @@ function initialForm(
       subscription.remindDaysBefore === null
         ? ''
         : String(subscription.remindDaysBefore),
+    remindEnabled: subscription.remindEnabled !== false,
     autoRenew: subscription.autoRenew ?? true,
     cancelledAt: isoDay(subscription.cancelledAt),
     logo: subscription.logo,
@@ -235,6 +238,7 @@ export function SubscriptionForm({
         notes: form.notes.trim() || null,
         remindDaysBefore:
           form.remindDaysBefore === '' ? null : Number(form.remindDaysBefore),
+        remindEnabled: form.remindEnabled,
         autoRenew: form.autoRenew,
         cancelledAt: form.cancelledAt
           ? `${form.cancelledAt}T00:00:00.000Z`
@@ -481,9 +485,17 @@ export function SubscriptionForm({
             />
           </Field>
 
+          <Field orientation="horizontal">
+            <Switch
+              checked={form.remindEnabled}
+              onCheckedChange={(checked) => set('remindEnabled', checked)}
+            />
+            <FieldLabel>Notify me before it is due</FieldLabel>
+          </Field>
+
           <Field>
             <FieldLabel htmlFor="subscription-remind">
-              Remind me before it is due (days)
+              Days before the due date
             </FieldLabel>
             <Input
               id="subscription-remind"
@@ -491,6 +503,7 @@ export function SubscriptionForm({
               onChange={(event) => set('remindDaysBefore', event.target.value)}
               inputMode="numeric"
               placeholder={`Default (${defaultRemindDays})`}
+              disabled={!form.remindEnabled}
             />
             <FieldDescription>
               Leave empty to use the default; 0 reminds on the due date.

@@ -27,6 +27,7 @@ export type ParsedSubscription = {
   url: string | null
   notes: string | null
   remindDaysBefore: number | null
+  remindEnabled: boolean
   autoRenew: boolean
   cancelledAt: Date | null
   logo: string | null
@@ -340,6 +341,7 @@ function readWallosDatabase(
       notes:
         typeof row.notes === 'string' && row.notes.trim() ? row.notes : null,
       remindDaysBefore: parseRemindDays(row.notify_days_before),
+      remindEnabled: true,
       autoRenew: Number(row.auto_renew ?? 1) !== 0,
       cancelledAt: parseIsoDay(row.cancellation_date),
       logo: logoName,
@@ -392,6 +394,7 @@ const CSV_ALIASES: Record<string, string> = {
   url: 'url',
   notes: 'notes',
   reminddaysbefore: 'remindDaysBefore',
+  remindenabled: 'remindEnabled',
   autorenew: 'autoRenew',
   cancelledat: 'cancelledAt',
 }
@@ -469,6 +472,7 @@ export function parseSubscriptionsCsv(csvText: string): ParsedImport {
 
     const remindDays = cell(row, 'remindDaysBefore')
     const remindDaysBefore = remindDays === '' ? null : Number(remindDays)
+    const remindEnabledCell = cell(row, 'remindEnabled').toLowerCase()
     const autoRenewCell = cell(row, 'autoRenew').toLowerCase()
 
     subscriptions.push({
@@ -487,6 +491,8 @@ export function parseSubscriptionsCsv(csvText: string): ParsedImport {
         remindDaysBefore === null || Number.isFinite(remindDaysBefore)
           ? remindDaysBefore
           : null,
+      remindEnabled:
+        remindEnabledCell === '' ? true : remindEnabledCell !== 'false',
       autoRenew: autoRenewCell === '' ? true : autoRenewCell !== 'false',
       cancelledAt: parseIsoDay(cell(row, 'cancelledAt')),
       logo: null,
@@ -643,6 +649,7 @@ export async function runImport(
         url: item.url,
         notes: item.notes,
         remindDaysBefore: item.remindDaysBefore,
+        remindEnabled: item.remindEnabled,
         autoRenew: item.autoRenew,
         cancelledAt: item.cancelledAt,
         logo: item.logo ? (storedLogos.get(item.logo) ?? null) : null,

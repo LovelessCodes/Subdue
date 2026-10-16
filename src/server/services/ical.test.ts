@@ -124,6 +124,31 @@ describe('ical feed', () => {
     expect(feed).toContain('DTSTART;VALUE=DATE:20261020')
     expect(feed).not.toContain('BEGIN:VALARM')
   })
+
+  it('drops alarms for subscriptions with their own notifications off', async () => {
+    const { db } = createTestDb()
+    await insertTestUser(db, 'u1')
+    await createSubscription(
+      db,
+      'u1',
+      {
+        name: 'Quiet',
+        price: 9900,
+        currency: 'DKK',
+        cycleUnit: 'months',
+        cycleCount: 1,
+        nextPayment: new Date('2026-10-20T00:00:00.000Z'),
+        remindDaysBefore: 7,
+        remindEnabled: false,
+      },
+      now,
+    )
+
+    const feed = await buildUserIcalFeed(db, 'u1', now)
+
+    expect(feed).toContain('DTSTART;VALUE=DATE:20261020')
+    expect(feed).not.toContain('BEGIN:VALARM')
+  })
 })
 
 describe('ical tokens', () => {

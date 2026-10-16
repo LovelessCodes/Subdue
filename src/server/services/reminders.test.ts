@@ -116,6 +116,43 @@ describe('reminder candidates', () => {
     // is outside the three-day window.
     expect(candidates).toHaveLength(0)
   })
+
+  it('keeps a subscription quiet when its own notifications are off', async () => {
+    const { db } = createTestDb()
+    await insertTestUser(db, 'u1')
+
+    await createSubscription(
+      db,
+      'u1',
+      {
+        name: 'Loud',
+        price: 9900,
+        currency: 'DKK',
+        cycleUnit: 'months',
+        cycleCount: 1,
+        nextPayment: new Date('2026-10-16T00:00:00.000Z'),
+      },
+      now,
+    )
+    await createSubscription(
+      db,
+      'u1',
+      {
+        name: 'Quiet',
+        price: 9900,
+        currency: 'DKK',
+        cycleUnit: 'months',
+        cycleCount: 1,
+        nextPayment: new Date('2026-10-16T00:00:00.000Z'),
+        remindEnabled: false,
+      },
+      now,
+    )
+
+    const candidates = reminderCandidates(await enrichedFor(db, 'u1'), now, 3)
+
+    expect(candidates.map((candidate) => candidate.name)).toEqual(['Loud'])
+  })
 })
 
 describe('reminder runs', () => {

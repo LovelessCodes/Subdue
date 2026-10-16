@@ -25,6 +25,7 @@ export type ExportedSubscription = {
   url: string | null
   notes: string | null
   remindDaysBefore: number | null
+  remindEnabled: boolean
   autoRenew: boolean
   cancelledAt: string | null
   logo: string | null
@@ -113,6 +114,7 @@ export async function exportBundle(
       url: row.url,
       notes: row.notes,
       remindDaysBefore: row.remindDaysBefore,
+      remindEnabled: row.remindEnabled ?? true,
       autoRenew: row.autoRenew ?? true,
       cancelledAt: row.cancelledAt ? toIsoDay(row.cancelledAt) : null,
       logo: row.logo,
@@ -143,6 +145,7 @@ export const CSV_COLUMNS = [
   'url',
   'notes',
   'remind_days_before',
+  'remind_enabled',
   'auto_renew',
   'cancelled_at',
 ] as const
@@ -168,6 +171,7 @@ export async function exportSubscriptionsCsv(
       item.url ?? '',
       item.notes ?? '',
       item.remindDaysBefore === null ? '' : String(item.remindDaysBefore),
+      item.remindEnabled ? 'true' : 'false',
       item.autoRenew ? 'true' : 'false',
       item.cancelledAt ?? '',
     ]),

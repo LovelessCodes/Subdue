@@ -398,6 +398,7 @@ export const subscription = sqliteTable(
     nextPayment: integer('next_payment', { mode: 'timestamp_ms' }).notNull(),
     notes: text('notes'),
     remindDaysBefore: integer('remind_days_before'),
+    remindEnabled: integer('remind_enabled', { mode: 'boolean' }).default(true),
     autoRenew: integer('auto_renew', { mode: 'boolean' }).default(true),
     cancelledAt: integer('cancelled_at', { mode: 'timestamp_ms' }),
     logo: text('logo'),

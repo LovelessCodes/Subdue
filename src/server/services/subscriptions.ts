@@ -23,6 +23,7 @@ export type SubscriptionInput = {
   nextPayment: Date
   notes?: string | null
   remindDaysBefore?: number | null
+  remindEnabled?: boolean
   autoRenew?: boolean
   cancelledAt?: Date | null
   logo?: string | null
@@ -139,6 +140,7 @@ export async function createSubscription(
       nextPayment: input.nextPayment,
       notes: input.notes ?? null,
       remindDaysBefore: input.remindDaysBefore ?? null,
+      remindEnabled: input.remindEnabled ?? true,
       autoRenew: input.autoRenew ?? true,
       cancelledAt: input.cancelledAt ?? null,
       logo: input.logo ?? null,
@@ -173,6 +175,9 @@ export async function updateSubscription(
   if (patch.notes !== undefined) values.notes = patch.notes
   if (patch.remindDaysBefore !== undefined) {
     values.remindDaysBefore = patch.remindDaysBefore
+  }
+  if (patch.remindEnabled !== undefined) {
+    values.remindEnabled = patch.remindEnabled
   }
   if (patch.autoRenew !== undefined) values.autoRenew = patch.autoRenew
   if (patch.cancelledAt !== undefined) values.cancelledAt = patch.cancelledAt

@@ -46,6 +46,7 @@ export const subscriptionBodySchema = z.object({
   nextPayment: z.coerce.date(),
   notes: z.string().max(2000).nullish(),
   remindDaysBefore: z.number().int().min(0).max(60).nullish(),
+  remindEnabled: z.boolean().optional(),
   autoRenew: z.boolean().optional(),
   cancelledAt: z.coerce.date().nullish(),
   logo: logoField,
