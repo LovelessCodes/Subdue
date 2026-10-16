@@ -12,3 +12,6 @@ data/
 .vinxi
 __unconfig*
 todos.json
+.agents/
+.commandcode/
+skills-lock.json
