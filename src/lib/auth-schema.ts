@@ -393,7 +393,6 @@ export const subscription = sqliteTable(
       () => paymentMethod.id,
       { onDelete: 'set null' },
     ),
-    payer: text('payer'),
     url: text('url'),
     nextPayment: integer('next_payment', { mode: 'timestamp_ms' }).notNull(),
     notes: text('notes'),

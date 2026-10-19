@@ -73,7 +73,7 @@ visible(s, me) = s.user_id = me
 
 ### Redaction
 
-Members see: service name, logo, URL, price, currency, cycle, next payment, their share, their own category and reminder preference. They do not see: notes, payment method, the payer's free-text "Paid by", other members, or the owner's totals. Co-member visibility is hidden by default.
+Members see: service name, logo, URL, price, currency, cycle, next payment, their share, their own category and reminder preference. They do not see: notes, payment method, other members, or the owner's totals. Co-member visibility is hidden by default.
 
 ### Reminders
 
@@ -84,7 +84,7 @@ The existing `notification` row is already per user, per subscription, per due d
 - The schema stays single-source. A price change, renewal or cancellation is one write.
 - Every read path must use the visibility helper. A missed path is a leak, not a display bug; tests should assert member/non-member access on each surface.
 - The subscription list becomes a mixed view: owner rows at full price, member rows at share price, with different edit affordances. The UI needs a "shared with you" marker.
-- `payer` (free text) stays for unshared rows; it is not a user link and is not shown to members.
+- The old free-text `payer` column is gone (migration `0023`): ownership plus shares already answer who pays, and the label only created a second, contradictory answer to the same question.
 - Export and the API need an explicit decision per field; they cannot reuse the owner query.
 - A member who already tracks the service gets a duplicate. Merging is a follow-up, not part of v1.
 - No email delivery means an invite is only as good as the link the payer sends. If Subdue ever gains a system mailer, the token flow does not change.

@@ -39,7 +39,6 @@ export type SubscriptionInput = {
   cycleCount: number
   categoryId?: string | null
   paymentMethodId?: string | null
-  payer?: string | null
   url?: string | null
   nextPayment: Date
   notes?: string | null
@@ -90,7 +89,7 @@ type MemberRow = {
 
 /**
  * A subscription seen through a member's eyes: their share as the price, and
- * the owner's notes, payment method, payer label and reminder lead removed.
+ * the owner's notes, payment method and reminder lead removed.
  */
 function memberItem(row: MemberRow, now: Date): SubscriptionWithRecurrence {
   const cycle = {
@@ -104,7 +103,6 @@ function memberItem(row: MemberRow, now: Date): SubscriptionWithRecurrence {
     categoryId: row.member.categoryId,
     paymentMethodId: null,
     paymentMethodName: null,
-    payer: null,
     notes: null,
     remindEnabled: row.member.remindEnabled ?? true,
     remindDaysBefore: null,
@@ -266,7 +264,6 @@ export async function createSubscription(
       cycleCount: input.cycleCount,
       categoryId: input.categoryId ?? null,
       paymentMethodId: input.paymentMethodId ?? null,
-      payer: input.payer ?? null,
       url: input.url ?? null,
       nextPayment: input.nextPayment,
       notes: input.notes ?? null,
@@ -300,7 +297,6 @@ export async function updateSubscription(
   if (patch.paymentMethodId !== undefined) {
     values.paymentMethodId = patch.paymentMethodId
   }
-  if (patch.payer !== undefined) values.payer = patch.payer
   if (patch.url !== undefined) values.url = patch.url
   if (patch.nextPayment !== undefined) values.nextPayment = patch.nextPayment
   if (patch.notes !== undefined) values.notes = patch.notes

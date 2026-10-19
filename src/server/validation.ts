@@ -41,7 +41,6 @@ export const subscriptionBodySchema = z.object({
   cycleCount: z.number().int().min(1).max(365),
   categoryId: z.string().nullish(),
   paymentMethodId: z.string().nullish(),
-  payer: z.string().max(100).nullish(),
   url: urlField,
   nextPayment: z.coerce.date(),
   notes: z.string().max(2000).nullish(),

@@ -23,7 +23,6 @@ export type ParsedSubscription = {
   nextPayment: Date
   category: string | null
   paymentMethod: string | null
-  payer: string | null
   url: string | null
   notes: string | null
   remindDaysBefore: number | null
@@ -55,7 +54,6 @@ const SELECT_CANDIDATES: Record<string, string[]> = {
   currencies: ['id', 'code'],
   cycles: ['id', 'days'],
   categories: ['id', 'name'],
-  household: ['id', 'name'],
   payment_methods: ['id', 'name'],
   subscriptions: [
     'id',
@@ -69,7 +67,6 @@ const SELECT_CANDIDATES: Record<string, string[]> = {
     'notes',
     'category_id',
     'payment_method_id',
-    'payer_user_id',
     'inactive',
     'notify_days_before',
     'url',
@@ -220,15 +217,6 @@ function readWallosDatabase(
     categoryNames.set(Number(row.id), String(row.name ?? ''))
   }
 
-  const householdNames = new Map<number, string>()
-  for (const row of selectAvailable(
-    sqlite,
-    'household',
-    SELECT_CANDIDATES.household ?? [],
-  )) {
-    householdNames.set(Number(row.id), String(row.name ?? ''))
-  }
-
   const paymentMethodNames = new Map<number, string>()
   for (const row of selectAvailable(
     sqlite,
@@ -336,7 +324,6 @@ function readWallosDatabase(
       nextPayment: fromIsoDay(day),
       category: categoryOut,
       paymentMethod: rawPaymentMethod ? rawPaymentMethod : null,
-      payer: householdNames.get(Number(row.payer_user_id)) ?? null,
       url: parseUrl(row.url),
       notes:
         typeof row.notes === 'string' && row.notes.trim() ? row.notes : null,
@@ -390,7 +377,6 @@ const CSV_ALIASES: Record<string, string> = {
   nextpayment: 'nextPayment',
   category: 'category',
   paymentmethod: 'paymentMethod',
-  payer: 'payer',
   url: 'url',
   notes: 'notes',
   reminddaysbefore: 'remindDaysBefore',
@@ -484,7 +470,6 @@ export function parseSubscriptionsCsv(csvText: string): ParsedImport {
       nextPayment: fromIsoDay(day),
       category: categoryOut,
       paymentMethod: cell(row, 'paymentMethod') || null,
-      payer: cell(row, 'payer') || null,
       url: parseUrl(cell(row, 'url')),
       notes: cell(row, 'notes') || null,
       remindDaysBefore:
@@ -645,7 +630,6 @@ export async function runImport(
           ? (paymentMethodIds.get(item.paymentMethod.trim().toLowerCase()) ??
             null)
           : null,
-        payer: item.payer,
         url: item.url,
         notes: item.notes,
         remindDaysBefore: item.remindDaysBefore,

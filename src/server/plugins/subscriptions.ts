@@ -43,7 +43,6 @@ export const subscriptionsPlugin = () =>
               onDelete: 'set null',
             },
           },
-          payer: { type: 'string', required: false },
           url: { type: 'string', required: false },
           nextPayment: { type: 'date', required: true },
           notes: { type: 'string', required: false },

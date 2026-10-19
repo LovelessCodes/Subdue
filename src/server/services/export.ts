@@ -21,7 +21,6 @@ export type ExportedSubscription = {
   nextPayment: string
   category: string | null
   paymentMethod: string | null
-  payer: string | null
   url: string | null
   notes: string | null
   remindDaysBefore: number | null
@@ -112,7 +111,6 @@ export async function exportBundle(
       paymentMethod: row.paymentMethodId
         ? (paymentMethodNames.get(row.paymentMethodId) ?? null)
         : null,
-      payer: row.payer,
       url: row.url,
       notes: row.notes,
       remindDaysBefore: row.remindDaysBefore,
@@ -143,7 +141,6 @@ export const CSV_COLUMNS = [
   'next_payment',
   'category',
   'payment_method',
-  'payer',
   'url',
   'notes',
   'remind_days_before',
@@ -169,7 +166,6 @@ export async function exportSubscriptionsCsv(
       item.nextPayment,
       item.category ?? '',
       item.paymentMethod ?? '',
-      item.payer ?? '',
       item.url ?? '',
       item.notes ?? '',
       item.remindDaysBefore === null ? '' : String(item.remindDaysBefore),

@@ -125,7 +125,6 @@ describe('wallos import', () => {
       cycleCount: 1,
       category: 'Domains',
       paymentMethod: 'Credit Card',
-      payer: 'Mads',
       url: 'https://loveless.codes/',
       notes: 'renews Oct',
       remindDaysBefore: null,

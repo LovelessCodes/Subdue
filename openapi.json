@@ -874,9 +874,6 @@
           "paymentMethodId": {
             "type": "string"
           },
-          "payer": {
-            "type": "string"
-          },
           "url": {
             "type": "string"
           },
@@ -19134,13 +19131,6 @@
                       "null"
                     ]
                   },
-                  "payer": {
-                    "type": [
-                      "string",
-                      "null"
-                    ],
-                    "maxLength": 100
-                  },
                   "url": {
                     "type": [
                       "string",
@@ -19347,13 +19337,6 @@
                       "string",
                       "null"
                     ]
-                  },
-                  "payer": {
-                    "type": [
-                      "string",
-                      "null"
-                    ],
-                    "maxLength": 100
                   },
                   "url": {
                     "type": [

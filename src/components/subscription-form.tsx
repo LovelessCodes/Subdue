@@ -48,7 +48,6 @@ type FormState = {
   nextPayment: string
   categoryId: string
   paymentMethodId: string
-  payer: string
   url: string
   notes: string
   remindDaysBefore: string
@@ -79,7 +78,6 @@ function initialForm(
       nextPayment: isoDay(new Date()),
       categoryId: NONE,
       paymentMethodId: NONE,
-      payer: '',
       url: '',
       notes: '',
       remindDaysBefore: '',
@@ -99,7 +97,6 @@ function initialForm(
     nextPayment: isoDay(subscription.nextPayment),
     categoryId: subscription.categoryId ?? NONE,
     paymentMethodId: subscription.paymentMethodId ?? NONE,
-    payer: subscription.payer ?? '',
     url: subscription.url ?? '',
     notes: subscription.notes ?? '',
     remindDaysBefore:
@@ -233,7 +230,6 @@ export function SubscriptionForm({
         categoryId: form.categoryId === NONE ? null : form.categoryId,
         paymentMethodId:
           form.paymentMethodId === NONE ? null : form.paymentMethodId,
-        payer: form.payer.trim() || null,
         url: form.url.trim() || null,
         notes: form.notes.trim() || null,
         remindDaysBefore:
@@ -462,16 +458,6 @@ export function SubscriptionForm({
               value={form.url}
               onChange={(event) => set('url', event.target.value)}
               placeholder="https://example.com/account"
-            />
-          </Field>
-
-          <Field>
-            <FieldLabel htmlFor="subscription-payer">Paid by</FieldLabel>
-            <Input
-              id="subscription-payer"
-              value={form.payer}
-              onChange={(event) => set('payer', event.target.value)}
-              placeholder="Me"
             />
           </Field>
 

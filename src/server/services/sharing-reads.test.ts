@@ -59,7 +59,6 @@ async function setup() {
       cycleCount: 1,
       nextPayment: new Date('2026-10-26T00:00:00.000Z'),
       notes: 'Family plan password: hunter2',
-      payer: 'Mikkel',
       paymentMethodId: method!.id,
     },
     now,
@@ -114,7 +113,6 @@ describe('shared reads: the viewer-aware list', () => {
     expect(view?.member?.shareMinor).toBe(5_975)
     expect(view?.ownerName).toBe('User owner')
     expect(view?.notes).toBeNull()
-    expect(view?.payer).toBeNull()
     expect(view?.paymentMethodId).toBeNull()
     expect(view?.paymentMethodName).toBeNull()
 
@@ -226,7 +224,7 @@ describe('shared reads: reminders', () => {
 })
 
 describe('shared reads: export and calendar feed', () => {
-  it('keeps another payer’s subscription out of the export', async () => {
+  it('keeps someone else’s subscription out of the export', async () => {
     const { db } = await accepted()
 
     const friendBundle = await exportBundle(db, 'friend')
