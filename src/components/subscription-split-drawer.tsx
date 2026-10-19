@@ -262,14 +262,16 @@ export function SubscriptionSplitDrawer({
                   />
                 </div>
 
-                <table className="w-full border-collapse text-left text-sm">
+                <table className="w-full table-fixed border-collapse text-left text-sm">
                   <thead>
                     <tr className="border-b bg-muted/40 text-xs text-muted-foreground">
-                      <th className="px-4 py-2 font-medium">{t('colWho')}</th>
-                      <th className="px-4 py-2 font-medium">
-                        {t('colStatus')}
+                      <th className="px-4 py-2 font-medium max-sm:px-3">
+                        {t('colWho')}
                       </th>
-                      <th className="px-4 py-2 text-right font-medium">
+                      <th className="w-24 px-4 py-2 font-medium max-sm:w-0 max-sm:p-0">
+                        <span className="max-sm:hidden">{t('colStatus')}</span>
+                      </th>
+                      <th className="w-28 px-4 py-2 text-right font-medium max-sm:px-3">
                         {t('colShare')}
                       </th>
                       <th className="w-10 px-2 py-2">
@@ -279,16 +281,16 @@ export function SubscriptionSplitDrawer({
                   </thead>
                   <tbody className="divide-y">
                     <tr className="bg-muted/20">
-                      <td className="px-4 py-3">
-                        <span className="flex items-center gap-2 font-medium">
+                      <td className="px-4 py-3 max-sm:px-3">
+                        <span className="flex min-w-0 items-center gap-2 font-medium">
                           <UserRound className="size-4 text-muted-foreground" />
                           {t('you')}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-xs text-muted-foreground">
-                        {t('payer')}
+                      <td className="px-4 py-3 text-xs text-muted-foreground max-sm:p-0">
+                        <span className="max-sm:hidden">{t('payer')}</span>
                       </td>
-                      <td className="px-4 py-3 text-right tabular-nums">
+                      <td className="truncate px-4 py-3 text-right tabular-nums max-sm:px-3">
                         {formatMinor(ownerShare, subscription.currency, locale)}
                       </td>
                       <td />
@@ -296,8 +298,8 @@ export function SubscriptionSplitDrawer({
 
                     {people.map((member) => (
                       <tr key={member.id} className="group">
-                        <td className="px-4 py-2.5">
-                          <span className="flex items-center gap-2">
+                        <td className="px-4 py-2.5 max-sm:px-3">
+                          <span className="flex min-w-0 items-center gap-2">
                             <UsersRound className="size-4 shrink-0 text-muted-foreground" />
                             {member.status === 'active' ? (
                               <span className="truncate">
@@ -307,7 +309,7 @@ export function SubscriptionSplitDrawer({
                               <Input
                                 defaultValue={member.displayName}
                                 aria-label={t('addName')}
-                                className="h-7 w-full max-w-28"
+                                className="h-7 w-full max-w-28 max-sm:max-w-20"
                                 onBlur={(event) => {
                                   const name = event.target.value.trim()
                                   if (name && name !== member.displayName) {
@@ -330,10 +332,12 @@ export function SubscriptionSplitDrawer({
                             )}
                           </span>
                         </td>
-                        <td className="px-4 py-2.5">
-                          <MemberBadge member={member} t={t} />
+                        <td className="px-4 py-2.5 max-sm:p-0">
+                          <span className="max-sm:hidden">
+                            <MemberBadge member={member} t={t} />
+                          </span>
                         </td>
-                        <td className="px-4 py-2.5 text-right">
+                        <td className="px-4 py-2.5 text-right max-sm:px-3">
                           <AmountInput
                             member={member}
                             disabled={busyId === member.id}
@@ -357,7 +361,7 @@ export function SubscriptionSplitDrawer({
                               name: member.displayName,
                             })}
                             disabled={busyId === member.id}
-                            className="opacity-0 group-hover:opacity-100 group-focus-within:opacity-100"
+                            className="opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 max-sm:opacity-100"
                             onClick={() => setConfirmRemove(member)}
                           >
                             <Trash2 className="size-3.5" />
@@ -367,7 +371,7 @@ export function SubscriptionSplitDrawer({
                     ))}
 
                     <tr>
-                      <td className="px-4 py-3" colSpan={2}>
+                      <td className="px-4 py-3 max-sm:px-3" colSpan={2}>
                         <div className="flex flex-wrap items-center gap-2">
                           <Input
                             value={addName}
