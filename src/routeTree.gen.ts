@@ -28,7 +28,6 @@ import { Route as AppSubscriptionsRouteImport } from './routes/_app.subscription
 import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as ApiLogosRouteImport } from './routes/api/logos'
 import { Route as ApiMcpRouteImport } from './routes/api/mcp'
-import { Route as PrototypesShareRouteImport } from './routes/prototypes.share'
 import { Route as ShareTokenRouteImport } from './routes/share.$token'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiExportBackupRouteImport } from './routes/api/export/backup'
@@ -133,11 +132,6 @@ const ApiMcpRoute = ApiMcpRouteImport.update({
   path: '/api/mcp',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PrototypesShareRoute = PrototypesShareRouteImport.update({
-  id: '/prototypes/share',
-  path: '/prototypes/share',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ShareTokenRoute = ShareTokenRouteImport.update({
   id: '/share/$token',
   path: '/share/$token',
@@ -203,7 +197,6 @@ export interface FileRoutesByFullPath {
   '/api/health': typeof ApiHealthRoute
   '/api/logos': typeof ApiLogosRouteWithChildren
   '/api/mcp': typeof ApiMcpRoute
-  '/prototypes/share': typeof PrototypesShareRoute
   '/share/$token': typeof ShareTokenRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/export/backup': typeof ApiExportBackupRoute
@@ -232,7 +225,6 @@ export interface FileRoutesByTo {
   '/api/health': typeof ApiHealthRoute
   '/api/logos': typeof ApiLogosRouteWithChildren
   '/api/mcp': typeof ApiMcpRoute
-  '/prototypes/share': typeof PrototypesShareRoute
   '/share/$token': typeof ShareTokenRoute
   '/': typeof AppIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -264,7 +256,6 @@ export interface FileRoutesById {
   '/api/health': typeof ApiHealthRoute
   '/api/logos': typeof ApiLogosRouteWithChildren
   '/api/mcp': typeof ApiMcpRoute
-  '/prototypes/share': typeof PrototypesShareRoute
   '/share/$token': typeof ShareTokenRoute
   '/_app/': typeof AppIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -297,7 +288,6 @@ export interface FileRouteTypes {
     | '/api/health'
     | '/api/logos'
     | '/api/mcp'
-    | '/prototypes/share'
     | '/share/$token'
     | '/api/auth/$'
     | '/api/export/backup'
@@ -326,7 +316,6 @@ export interface FileRouteTypes {
     | '/api/health'
     | '/api/logos'
     | '/api/mcp'
-    | '/prototypes/share'
     | '/share/$token'
     | '/'
     | '/api/auth/$'
@@ -357,7 +346,6 @@ export interface FileRouteTypes {
     | '/api/health'
     | '/api/logos'
     | '/api/mcp'
-    | '/prototypes/share'
     | '/share/$token'
     | '/_app/'
     | '/api/auth/$'
@@ -381,7 +369,6 @@ export interface RootRouteChildren {
   ApiHealthRoute: typeof ApiHealthRoute
   ApiLogosRoute: typeof ApiLogosRouteWithChildren
   ApiMcpRoute: typeof ApiMcpRoute
-  PrototypesShareRoute: typeof PrototypesShareRoute
   ShareTokenRoute: typeof ShareTokenRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiExportBackupRoute: typeof ApiExportBackupRoute
@@ -527,13 +514,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiMcpRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/prototypes/share': {
-      id: '/prototypes/share'
-      path: '/prototypes/share'
-      fullPath: '/prototypes/share'
-      preLoaderRoute: typeof PrototypesShareRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/share/$token': {
       id: '/share/$token'
       path: '/share/$token'
@@ -649,7 +629,6 @@ const rootRouteChildren: RootRouteChildren = {
   ApiHealthRoute: ApiHealthRoute,
   ApiLogosRoute: ApiLogosRouteWithChildren,
   ApiMcpRoute: ApiMcpRoute,
-  PrototypesShareRoute: PrototypesShareRoute,
   ShareTokenRoute: ShareTokenRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiExportBackupRoute: ApiExportBackupRoute,
