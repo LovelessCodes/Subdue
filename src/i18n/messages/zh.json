@@ -315,5 +315,25 @@
     "cancel": "取消",
     "save": "保存",
     "saving": "保存中……"
+  },
+  "inbox": {
+    "title": "收件箱",
+    "weekTotal": "本周应付 {amount}",
+    "caughtUp": "全都处理完了。",
+    "caughtUpBody": "即将扣款的提醒会出现在这里。",
+    "summary": "{unread} 条未读，共 {count, plural, other {# 条提醒}}",
+    "nextUp": "· 接下来：{name}，{when}",
+    "noRates": "· 缺少 {currencies} 的汇率",
+    "markAll": "全部标为已读",
+    "sectionOverdue": "已逾期",
+    "sectionThisWeek": "本周",
+    "sectionNextWeek": "下周",
+    "sectionLater": "稍后",
+    "due": "到期 {date}",
+    "whenToday": "今天",
+    "whenTomorrow": "明天",
+    "whenInDays": "{count, plural, other {# 天后}}",
+    "whenOverdue": "{count, plural, other {已逾期 # 天}}",
+    "markReadAria": "将 {name} 标为已读"
   }
 }

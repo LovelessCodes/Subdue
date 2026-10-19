@@ -315,5 +315,25 @@
     "cancel": "Avbryt",
     "save": "Lagre",
     "saving": "Lagrer…"
+  },
+  "inbox": {
+    "title": "Innboks",
+    "weekTotal": "{amount} forfaller denne uken",
+    "caughtUp": "Du er helt oppdatert.",
+    "caughtUpBody": "Påminnelser om kommende betalinger lander her.",
+    "summary": "{unread} uleste av {count, plural, one {# påminnelse} other {# påminnelser}}",
+    "nextUp": "· neste: {name}, {when}",
+    "noRates": "· ingen kurser for {currencies}",
+    "markAll": "Merk alle som lest",
+    "sectionOverdue": "Forfalt",
+    "sectionThisWeek": "Denne uken",
+    "sectionNextWeek": "Neste uke",
+    "sectionLater": "Senere",
+    "due": "forfaller {date}",
+    "whenToday": "i dag",
+    "whenTomorrow": "i morgen",
+    "whenInDays": "{count, plural, one {om # dag} other {om # dager}}",
+    "whenOverdue": "{count, plural, one {# dag forsinket} other {# dager forsinket}}",
+    "markReadAria": "Merk {name} som lest"
   }
 }

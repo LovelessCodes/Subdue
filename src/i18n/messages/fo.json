@@ -315,5 +315,25 @@
     "cancel": "Angra",
     "save": "Goym",
     "saving": "Goymir…"
+  },
+  "inbox": {
+    "title": "Innbakki",
+    "weekTotal": "{amount} við gjalddaga hesa vikuna",
+    "caughtUp": "Alt er lisið.",
+    "caughtUpBody": "Áminningar um komandi gjaldingar sýnast her.",
+    "summary": "{unread} ólisnar · tilsamans {count, plural, one {# áminning} other {# áminningum}}",
+    "nextUp": "· næst: {name}, {when}",
+    "noRates": "· ongar gongdir fyri {currencies}",
+    "markAll": "Merk alt sum lisið",
+    "sectionOverdue": "Seint",
+    "sectionThisWeek": "Hesa vikuna",
+    "sectionNextWeek": "Næstu viku",
+    "sectionLater": "Seinni",
+    "due": "gjalddagi {date}",
+    "whenToday": "í dag",
+    "whenTomorrow": "í morgin",
+    "whenInDays": "{count, plural, one {um # dag} other {um # dagar}}",
+    "whenOverdue": "{count, plural, one {# dag seint} other {# dagar seint}}",
+    "markReadAria": "Merk {name} sum lisið"
   }
 }

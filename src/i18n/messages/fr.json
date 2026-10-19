@@ -315,5 +315,25 @@
     "cancel": "Annuler",
     "save": "Enregistrer",
     "saving": "Enregistrement…"
+  },
+  "inbox": {
+    "title": "Boîte de réception",
+    "weekTotal": "{amount} à régler cette semaine",
+    "caughtUp": "Vous êtes à jour.",
+    "caughtUpBody": "Les rappels des prochains prélèvements arrivent ici.",
+    "summary": "{unread} non lus sur {count, plural, one {# rappel} other {# rappels}}",
+    "nextUp": "· prochain : {name}, {when}",
+    "noRates": "· pas de taux pour {currencies}",
+    "markAll": "Tout marquer comme lu",
+    "sectionOverdue": "En retard",
+    "sectionThisWeek": "Cette semaine",
+    "sectionNextWeek": "La semaine prochaine",
+    "sectionLater": "Plus tard",
+    "due": "dû le {date}",
+    "whenToday": "aujourd’hui",
+    "whenTomorrow": "demain",
+    "whenInDays": "{count, plural, one {dans # jour} other {dans # jours}}",
+    "whenOverdue": "{count, plural, one {# jour de retard} other {# jours de retard}}",
+    "markReadAria": "Marquer {name} comme lu"
   }
 }

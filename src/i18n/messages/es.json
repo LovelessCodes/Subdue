@@ -315,5 +315,25 @@
     "cancel": "Cancelar",
     "save": "Guardar",
     "saving": "Guardando…"
+  },
+  "inbox": {
+    "title": "Bandeja de entrada",
+    "weekTotal": "{amount} a pagar esta semana",
+    "caughtUp": "Estás al día.",
+    "caughtUpBody": "Aquí llegan los recordatorios de próximos cargos.",
+    "summary": "{unread} sin leer de {count, plural, one {# recordatorio} other {# recordatorios}}",
+    "nextUp": "· próximo: {name}, {when}",
+    "noRates": "· sin tipos para {currencies}",
+    "markAll": "Marcar todo como leído",
+    "sectionOverdue": "Vencidos",
+    "sectionThisWeek": "Esta semana",
+    "sectionNextWeek": "La próxima semana",
+    "sectionLater": "Más adelante",
+    "due": "vence el {date}",
+    "whenToday": "hoy",
+    "whenTomorrow": "mañana",
+    "whenInDays": "{count, plural, one {en # día} other {en # días}}",
+    "whenOverdue": "{count, plural, one {# día de retraso} other {# días de retraso}}",
+    "markReadAria": "Marcar {name} como leído"
   }
 }

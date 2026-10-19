@@ -315,5 +315,25 @@
     "cancel": "Cancel",
     "save": "Save",
     "saving": "Saving…"
+  },
+  "inbox": {
+    "title": "Inbox",
+    "weekTotal": "{amount} due this week",
+    "caughtUp": "You’re all caught up.",
+    "caughtUpBody": "Reminders about upcoming charges land here.",
+    "summary": "{unread} unread of {count, plural, one {# reminder} other {# reminders}}",
+    "nextUp": "· next up {name}, {when}",
+    "noRates": "· no rates for {currencies}",
+    "markAll": "Mark all read",
+    "sectionOverdue": "Overdue",
+    "sectionThisWeek": "This week",
+    "sectionNextWeek": "Next week",
+    "sectionLater": "Later",
+    "due": "due {date}",
+    "whenToday": "today",
+    "whenTomorrow": "tomorrow",
+    "whenInDays": "{count, plural, one {in # day} other {in # days}}",
+    "whenOverdue": "{count, plural, one {# day overdue} other {# days overdue}}",
+    "markReadAria": "Mark {name} as read"
   }
 }

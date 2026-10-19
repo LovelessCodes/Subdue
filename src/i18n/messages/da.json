@@ -315,5 +315,25 @@
     "cancel": "Annuller",
     "save": "Gem",
     "saving": "Gemmer…"
+  },
+  "inbox": {
+    "title": "Indbakke",
+    "weekTotal": "{amount} forfalder i denne uge",
+    "caughtUp": "Du er helt ajour.",
+    "caughtUpBody": "Påmindelser om kommende betalinger lander her.",
+    "summary": "{unread} ulæste af {count, plural, one {# påmindelse} other {# påmindelser}}",
+    "nextUp": "· næste: {name}, {when}",
+    "noRates": "· ingen kurser for {currencies}",
+    "markAll": "Markér alle som læst",
+    "sectionOverdue": "Forfaldne",
+    "sectionThisWeek": "Denne uge",
+    "sectionNextWeek": "Næste uge",
+    "sectionLater": "Senere",
+    "due": "forfalder {date}",
+    "whenToday": "i dag",
+    "whenTomorrow": "i morgen",
+    "whenInDays": "{count, plural, one {om # dag} other {om # dage}}",
+    "whenOverdue": "{count, plural, one {# dag forsinket} other {# dage forsinket}}",
+    "markReadAria": "Markér {name} som læst"
   }
 }

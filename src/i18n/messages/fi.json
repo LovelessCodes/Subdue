@@ -315,5 +315,25 @@
     "cancel": "Peruuta",
     "save": "Tallenna",
     "saving": "Tallennetaan…"
+  },
+  "inbox": {
+    "title": "Saapuneet",
+    "weekTotal": "{amount} erääntyy tällä viikolla",
+    "caughtUp": "Kaikki on hoidettu.",
+    "caughtUpBody": "Muistutukset tulevista veloituksista saapuvat tänne.",
+    "summary": "Lukemattomia: {unread} · {count, plural, one {# muistutus} other {# muistutusta}}",
+    "nextUp": "· seuraavaksi {name}, {when}",
+    "noRates": "· ei kursseja: {currencies}",
+    "markAll": "Merkitse kaikki luetuiksi",
+    "sectionOverdue": "Erääntyneet",
+    "sectionThisWeek": "Tällä viikolla",
+    "sectionNextWeek": "Ensi viikolla",
+    "sectionLater": "Myöhemmin",
+    "due": "erääntyy {date}",
+    "whenToday": "tänään",
+    "whenTomorrow": "huomenna",
+    "whenInDays": "{count, plural, one {# päivän päästä} other {# päivän päästä}}",
+    "whenOverdue": "{count, plural, one {# päivä myöhässä} other {# päivää myöhässä}}",
+    "markReadAria": "Merkitse {name} luetuksi"
   }
 }

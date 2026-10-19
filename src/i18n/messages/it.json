@@ -315,5 +315,25 @@
     "cancel": "Annulla",
     "save": "Salva",
     "saving": "Salvataggio…"
+  },
+  "inbox": {
+    "title": "Posta in arrivo",
+    "weekTotal": "{amount} in scadenza questa settimana",
+    "caughtUp": "Sei in pari.",
+    "caughtUpBody": "I promemoria sui prossimi addebiti arrivano qui.",
+    "summary": "{unread} non letti su {count, plural, one {# promemoria} other {# promemoria}}",
+    "nextUp": "· prossimo: {name}, {when}",
+    "noRates": "· nessun tasso per {currencies}",
+    "markAll": "Segna tutto come letto",
+    "sectionOverdue": "Scaduti",
+    "sectionThisWeek": "Questa settimana",
+    "sectionNextWeek": "La prossima settimana",
+    "sectionLater": "Più avanti",
+    "due": "scade il {date}",
+    "whenToday": "oggi",
+    "whenTomorrow": "domani",
+    "whenInDays": "{count, plural, one {tra # giorno} other {tra # giorni}}",
+    "whenOverdue": "{count, plural, one {# giorno di ritardo} other {# giorni di ritardo}}",
+    "markReadAria": "Segna {name} come letto"
   }
 }

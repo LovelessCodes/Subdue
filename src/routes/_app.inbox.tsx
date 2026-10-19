@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
+import { useTranslations } from 'use-intl'
 import { Check } from 'lucide-react'
 import { SubscriptionAvatar } from '@/components/subscription-avatar'
 import { Badge } from '@/components/ui/badge'
@@ -11,7 +12,14 @@ import { formatDate, formatMinor } from '@/lib/money'
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000
 
-const SECTIONS = ['Overdue', 'This week', 'Next week', 'Later'] as const
+const SECTION_KEYS = [
+  'sectionOverdue',
+  'sectionThisWeek',
+  'sectionNextWeek',
+  'sectionLater',
+] as const
+
+type SectionKey = (typeof SECTION_KEYS)[number]
 
 const rise =
   'animate-in fade-in-0 slide-in-from-bottom-1 fill-mode-both motion-reduce:animate-none'
@@ -42,21 +50,11 @@ function daysUntil(dueDate: Date, now: number): number {
   return dayNumber(new Date(dueDate)) - dayNumber(new Date(now))
 }
 
-function sectionOf(days: number): (typeof SECTIONS)[number] {
-  if (days < 0) return 'Overdue'
-  if (days <= 7) return 'This week'
-  if (days <= 14) return 'Next week'
-  return 'Later'
-}
-
-function whenLabel(days: number): string {
-  if (days < 0) {
-    const count = -days
-    return count === 1 ? '1 day overdue' : `${count} days overdue`
-  }
-  if (days === 0) return 'today'
-  if (days === 1) return 'tomorrow'
-  return `in ${days} days`
+function sectionOf(days: number): SectionKey {
+  if (days < 0) return 'sectionOverdue'
+  if (days <= 7) return 'sectionThisWeek'
+  if (days <= 14) return 'sectionNextWeek'
+  return 'sectionLater'
 }
 
 function badgeVariant(days: number): 'destructive' | 'secondary' | 'outline' {
@@ -68,18 +66,26 @@ function badgeVariant(days: number): 'destructive' | 'secondary' | 'outline' {
 function Inbox() {
   const { items, unread, summary, now } = Route.useLoaderData()
   const router = useRouter()
+  const t = useTranslations('inbox')
   const [pending, setPending] = useState(false)
   const [pendingIds, setPendingIds] = useState<Set<string>>(new Set())
+
+  const whenLabel = (days: number): string => {
+    if (days < 0) return t('whenOverdue', { count: -days })
+    if (days === 0) return t('whenToday')
+    if (days === 1) return t('whenTomorrow')
+    return t('whenInDays', { count: days })
+  }
 
   const sorted = [...items].sort(
     (a, b) =>
       new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime() ||
       a.subscriptionName.localeCompare(b.subscriptionName),
   )
-  const groups = SECTIONS.map((title) => ({
-    title,
+  const groups = SECTION_KEYS.map((key) => ({
+    key,
     items: sorted.filter(
-      (item) => sectionOf(daysUntil(item.dueDate, now)) === title,
+      (item) => sectionOf(daysUntil(item.dueDate, now)) === key,
     ),
   })).filter((group) => group.items.length > 0)
   const nextUp =
@@ -115,13 +121,13 @@ function Inbox() {
         <main className="flex w-full flex-col gap-6 px-6 py-8">
           <header>
             <p className="text-xs font-medium tracking-[0.08em] text-muted-foreground uppercase">
-              Inbox
+              {t('title')}
             </p>
             <h2 className="mt-1 text-2xl font-semibold tracking-tight">
-              You’re all caught up.
+              {t('caughtUp')}
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Reminders about upcoming charges land here.
+              {t('caughtUpBody')}
             </p>
           </header>
         </main>
@@ -138,23 +144,29 @@ function Inbox() {
             style={{ animationDelay: '0ms' }}
           >
             <p className="text-xs font-medium tracking-[0.08em] text-muted-foreground uppercase">
-              Inbox
+              {t('title')}
             </p>
             <h2 className="mt-1 text-2xl font-semibold tracking-tight">
-              {formatMinor(
-                summary.weekTotalMinor,
-                summary.currency,
-                summary.locale,
-              )}{' '}
-              due this week
+              {t('weekTotal', {
+                amount: formatMinor(
+                  summary.weekTotalMinor,
+                  summary.currency,
+                  summary.locale,
+                ),
+              })}
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              {unread} unread of {items.length} reminders
+              {t('summary', { unread, count: items.length })}
               {nextUp
-                ? ` · next up ${nextUp.subscriptionName}, ${whenLabel(daysUntil(nextUp.dueDate, now))}`
+                ? ` ${t('nextUp', {
+                    name: nextUp.subscriptionName,
+                    when: whenLabel(daysUntil(nextUp.dueDate, now)),
+                  })}`
                 : ''}
               {summary.unconvertibleCurrencies.length > 0
-                ? ` · no rates for ${summary.unconvertibleCurrencies.join(', ')}`
+                ? ` ${t('noRates', {
+                    currencies: summary.unconvertibleCurrencies.join(', '),
+                  })}`
                 : ''}
             </p>
           </div>
@@ -164,12 +176,12 @@ function Inbox() {
             onClick={markAll}
             disabled={pending || unread === 0}
           >
-            Mark all read
+            {t('markAll')}
           </Button>
         </header>
 
         {groups.map((group, groupIndex) => (
-          <section key={group.title} className="flex flex-col gap-2">
+          <section key={group.key} className="flex flex-col gap-2">
             <h3
               className={cn(
                 'text-xs font-medium tracking-[0.08em] text-muted-foreground uppercase',
@@ -177,7 +189,7 @@ function Inbox() {
               )}
               style={{ animationDelay: `${60 + groupIndex * 60}ms` }}
             >
-              {group.title}
+              {t(group.key)}
             </h3>
             {group.items.map((item, index) => {
               const days = daysUntil(item.dueDate, now)
@@ -205,7 +217,12 @@ function Inbox() {
                       {item.subscriptionName}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      due {formatDate(new Date(item.dueDate), summary.locale)}
+                      {t('due', {
+                        date: formatDate(
+                          new Date(item.dueDate),
+                          summary.locale,
+                        ),
+                      })}
                     </p>
                   </div>
                   <p
@@ -230,7 +247,9 @@ function Inbox() {
                     <Button
                       variant="ghost"
                       size="icon-sm"
-                      aria-label={`Mark ${item.subscriptionName} as read`}
+                      aria-label={t('markReadAria', {
+                        name: item.subscriptionName,
+                      })}
                       className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100"
                       disabled={pendingIds.has(item.id)}
                       onClick={() => markRead(item.id)}

@@ -315,5 +315,25 @@
     "cancel": "Annuleren",
     "save": "Opslaan",
     "saving": "Opslaan…"
+  },
+  "inbox": {
+    "title": "Postvak in",
+    "weekTotal": "{amount} deze week verschuldigd",
+    "caughtUp": "Je bent helemaal bij.",
+    "caughtUpBody": "Herinneringen over aankomende betalingen komen hier terecht.",
+    "summary": "{unread} ongelezen van {count, plural, one {# herinnering} other {# herinneringen}}",
+    "nextUp": "· volgende: {name}, {when}",
+    "noRates": "· geen koersen voor {currencies}",
+    "markAll": "Alles als gelezen markeren",
+    "sectionOverdue": "Te laat",
+    "sectionThisWeek": "Deze week",
+    "sectionNextWeek": "Volgende week",
+    "sectionLater": "Later",
+    "due": "vervalt op {date}",
+    "whenToday": "vandaag",
+    "whenTomorrow": "morgen",
+    "whenInDays": "{count, plural, one {over # dag} other {over # dagen}}",
+    "whenOverdue": "{count, plural, one {# dag te laat} other {# dagen te laat}}",
+    "markReadAria": "{name} als gelezen markeren"
   }
 }

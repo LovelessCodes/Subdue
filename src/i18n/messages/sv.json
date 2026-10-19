@@ -315,5 +315,25 @@
     "cancel": "Avbryt",
     "save": "Spara",
     "saving": "Sparar…"
+  },
+  "inbox": {
+    "title": "Inkorg",
+    "weekTotal": "{amount} förfaller denna vecka",
+    "caughtUp": "Du är ikapp.",
+    "caughtUpBody": "Påminnelser om kommande betalningar hamnar här.",
+    "summary": "{unread} olästa av {count, plural, one {# påminnelse} other {# påminnelser}}",
+    "nextUp": "· näst på tur: {name}, {when}",
+    "noRates": "· inga kurser för {currencies}",
+    "markAll": "Markera alla som lästa",
+    "sectionOverdue": "Försenade",
+    "sectionThisWeek": "Denna vecka",
+    "sectionNextWeek": "Nästa vecka",
+    "sectionLater": "Senare",
+    "due": "förfaller {date}",
+    "whenToday": "i dag",
+    "whenTomorrow": "i morgon",
+    "whenInDays": "{count, plural, one {om # dag} other {om # dagar}}",
+    "whenOverdue": "{count, plural, one {# dag försenad} other {# dagar försenade}}",
+    "markReadAria": "Markera {name} som läst"
   }
 }

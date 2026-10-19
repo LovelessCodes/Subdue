@@ -315,5 +315,25 @@
     "cancel": "Anuluj",
     "save": "Zapisz",
     "saving": "Zapisywanie…"
+  },
+  "inbox": {
+    "title": "Skrzynka odbiorcza",
+    "weekTotal": "{amount} do zapłaty w tym tygodniu",
+    "caughtUp": "Wszystko przeczytane.",
+    "caughtUpBody": "Tutaj pojawiają się przypomnienia o nadchodzących płatnościach.",
+    "summary": "{unread} nieprzeczytanych · łącznie {count, plural, one {# przypomnienie} few {# przypomnienia} many {# przypomnień} other {# przypomnienia}}",
+    "nextUp": "· następne: {name}, {when}",
+    "noRates": "· brak kursów dla {currencies}",
+    "markAll": "Oznacz wszystkie jako przeczytane",
+    "sectionOverdue": "Zaległe",
+    "sectionThisWeek": "W tym tygodniu",
+    "sectionNextWeek": "W przyszłym tygodniu",
+    "sectionLater": "Później",
+    "due": "płatne {date}",
+    "whenToday": "dziś",
+    "whenTomorrow": "jutro",
+    "whenInDays": "{count, plural, one {za # dzień} few {za # dni} many {za # dni} other {za # dnia}}",
+    "whenOverdue": "{count, plural, one {# dzień po terminie} few {# dni po terminie} many {# dni po terminie} other {# dnia po terminie}}",
+    "markReadAria": "Oznacz {name} jako przeczytane"
   }
 }

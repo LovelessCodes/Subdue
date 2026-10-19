@@ -315,5 +315,25 @@
     "cancel": "Abbrechen",
     "save": "Speichern",
     "saving": "Speichern…"
+  },
+  "inbox": {
+    "title": "Posteingang",
+    "weekTotal": "{amount} diese Woche fällig",
+    "caughtUp": "Du bist auf dem neuesten Stand.",
+    "caughtUpBody": "Erinnerungen an anstehende Zahlungen landen hier.",
+    "summary": "{unread} ungelesen von {count, plural, one {# Erinnerung} other {# Erinnerungen}}",
+    "nextUp": "· als Nächstes: {name}, {when}",
+    "noRates": "· keine Kurse für {currencies}",
+    "markAll": "Alle als gelesen markieren",
+    "sectionOverdue": "Überfällig",
+    "sectionThisWeek": "Diese Woche",
+    "sectionNextWeek": "Nächste Woche",
+    "sectionLater": "Später",
+    "due": "fällig am {date}",
+    "whenToday": "heute",
+    "whenTomorrow": "morgen",
+    "whenInDays": "{count, plural, one {in # Tag} other {in # Tagen}}",
+    "whenOverdue": "{count, plural, one {# Tag überfällig} other {# Tage überfällig}}",
+    "markReadAria": "{name} als gelesen markieren"
   }
 }

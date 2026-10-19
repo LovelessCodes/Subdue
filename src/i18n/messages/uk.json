@@ -315,5 +315,25 @@
     "cancel": "Скасувати",
     "save": "Зберегти",
     "saving": "Зберігаємо…"
+  },
+  "inbox": {
+    "title": "Вхідні",
+    "weekTotal": "{amount} до сплати цього тижня",
+    "caughtUp": "У вас усе прочитано.",
+    "caughtUpBody": "Нагадування про майбутні списання з’являються тут.",
+    "summary": "Непрочитаних — {unread}, усього {count, plural, one {# нагадування} few {# нагадування} many {# нагадувань} other {# нагадування}}",
+    "nextUp": "· далі: {name}, {when}",
+    "noRates": "· немає курсів для {currencies}",
+    "markAll": "Позначити всі як прочитані",
+    "sectionOverdue": "Прострочені",
+    "sectionThisWeek": "Цього тижня",
+    "sectionNextWeek": "Наступного тижня",
+    "sectionLater": "Пізніше",
+    "due": "до сплати {date}",
+    "whenToday": "сьогодні",
+    "whenTomorrow": "завтра",
+    "whenInDays": "{count, plural, one {через # день} few {через # дні} many {через # днів} other {через # дня}}",
+    "whenOverdue": "{count, plural, one {прострочено на # день} few {прострочено на # дні} many {прострочено на # днів} other {прострочено на # дня}}",
+    "markReadAria": "Позначити {name} як прочитане"
   }
 }
