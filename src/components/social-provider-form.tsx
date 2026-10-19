@@ -8,6 +8,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
+  DialogPanel,
   DialogTitle,
 } from '@/components/ui/dialog'
 import {
@@ -127,7 +128,7 @@ export function SocialProviderForm({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>{provider.label}</DialogTitle>
           <DialogDescription>
@@ -135,82 +136,84 @@ export function SocialProviderForm({
           </DialogDescription>
         </DialogHeader>
 
-        <FieldGroup className="gap-4">
-          <Field>
-            <FieldLabel htmlFor="social-client-id">Client ID</FieldLabel>
-            <Input
-              id="social-client-id"
-              value={clientId}
-              onChange={(event) => setClientId(event.target.value)}
-            />
-          </Field>
-
-          <Field>
-            <FieldLabel htmlFor="social-client-secret">
-              Client secret
-            </FieldLabel>
-            <PasswordInput
-              id="social-client-secret"
-              value={clientSecret}
-              onChange={(event) => setClientSecret(event.target.value)}
-              placeholder={
-                item?.clientSecretSet
-                  ? 'Set — type to replace'
-                  : 'Paste the secret'
-              }
-            />
-          </Field>
-
-          {provider.fields.map((field) => (
-            <Field key={field.key}>
-              {field.kind === 'boolean' ? (
-                <div className="flex items-center gap-2">
-                  <Switch
-                    checked={extra[field.key] === true}
-                    onCheckedChange={(checked) =>
-                      setExtra((current) => ({
-                        ...current,
-                        [field.key]: checked,
-                      }))
-                    }
-                  />
-                  <FieldLabel>{field.label}</FieldLabel>
-                </div>
-              ) : (
-                <>
-                  <FieldLabel htmlFor={`social-${field.key}`}>
-                    {field.label}
-                  </FieldLabel>
-                  <Input
-                    id={`social-${field.key}`}
-                    value={String(extra[field.key] ?? '')}
-                    onChange={(event) =>
-                      setExtra((current) => ({
-                        ...current,
-                        [field.key]: event.target.value,
-                      }))
-                    }
-                    placeholder={
-                      field.placeholder ??
-                      (field.kind === 'text-list' ||
-                      field.kind === 'number-list'
-                        ? 'Comma-separated'
-                        : undefined)
-                    }
-                  />
-                </>
-              )}
-              {field.description ? (
-                <FieldDescription>{field.description}</FieldDescription>
-              ) : null}
+        <DialogPanel>
+          <FieldGroup className="gap-4">
+            <Field>
+              <FieldLabel htmlFor="social-client-id">Client ID</FieldLabel>
+              <Input
+                id="social-client-id"
+                value={clientId}
+                onChange={(event) => setClientId(event.target.value)}
+              />
             </Field>
-          ))}
 
-          <FieldDescription>
-            Register this callback URL at the provider:{' '}
-            <code>{callbackUrl}</code>
-          </FieldDescription>
-        </FieldGroup>
+            <Field>
+              <FieldLabel htmlFor="social-client-secret">
+                Client secret
+              </FieldLabel>
+              <PasswordInput
+                id="social-client-secret"
+                value={clientSecret}
+                onChange={(event) => setClientSecret(event.target.value)}
+                placeholder={
+                  item?.clientSecretSet
+                    ? 'Set — type to replace'
+                    : 'Paste the secret'
+                }
+              />
+            </Field>
+
+            {provider.fields.map((field) => (
+              <Field key={field.key}>
+                {field.kind === 'boolean' ? (
+                  <div className="flex items-center gap-2">
+                    <Switch
+                      checked={extra[field.key] === true}
+                      onCheckedChange={(checked) =>
+                        setExtra((current) => ({
+                          ...current,
+                          [field.key]: checked,
+                        }))
+                      }
+                    />
+                    <FieldLabel>{field.label}</FieldLabel>
+                  </div>
+                ) : (
+                  <>
+                    <FieldLabel htmlFor={`social-${field.key}`}>
+                      {field.label}
+                    </FieldLabel>
+                    <Input
+                      id={`social-${field.key}`}
+                      value={String(extra[field.key] ?? '')}
+                      onChange={(event) =>
+                        setExtra((current) => ({
+                          ...current,
+                          [field.key]: event.target.value,
+                        }))
+                      }
+                      placeholder={
+                        field.placeholder ??
+                        (field.kind === 'text-list' ||
+                        field.kind === 'number-list'
+                          ? 'Comma-separated'
+                          : undefined)
+                      }
+                    />
+                  </>
+                )}
+                {field.description ? (
+                  <FieldDescription>{field.description}</FieldDescription>
+                ) : null}
+              </Field>
+            ))}
+
+            <FieldDescription>
+              Register this callback URL at the provider:{' '}
+              <code>{callbackUrl}</code>
+            </FieldDescription>
+          </FieldGroup>
+        </DialogPanel>
 
         {error ? (
           <p role="alert" className="text-sm text-destructive">

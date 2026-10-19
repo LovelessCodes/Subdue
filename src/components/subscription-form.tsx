@@ -9,6 +9,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
+  DialogPanel,
   DialogTitle,
 } from '@/components/ui/dialog'
 import {
@@ -280,7 +281,7 @@ export function SubscriptionForm({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>
             {subscription ? `Edit ${subscription.name}` : 'Add subscription'}
@@ -291,277 +292,285 @@ export function SubscriptionForm({
           </DialogDescription>
         </DialogHeader>
 
-        <FieldGroup className="gap-4">
-          <Field>
-            <FieldLabel htmlFor="subscription-name">Name</FieldLabel>
-            <Input
-              id="subscription-name"
-              value={form.name}
-              onChange={(event) => set('name', event.target.value)}
-              placeholder="Spotify"
-            />
-          </Field>
-
-          <div className="grid grid-cols-2 gap-4">
+        <DialogPanel>
+          <FieldGroup className="gap-4">
             <Field>
-              <FieldLabel htmlFor="subscription-price">Price</FieldLabel>
+              <FieldLabel htmlFor="subscription-name">Name</FieldLabel>
               <Input
-                id="subscription-price"
-                value={form.price}
-                onChange={(event) => set('price', event.target.value)}
-                inputMode="decimal"
-                placeholder="199"
+                id="subscription-name"
+                value={form.name}
+                onChange={(event) => set('name', event.target.value)}
+                placeholder="Spotify"
               />
             </Field>
+
+            <div className="grid grid-cols-2 gap-4">
+              <Field>
+                <FieldLabel htmlFor="subscription-price">Price</FieldLabel>
+                <Input
+                  id="subscription-price"
+                  value={form.price}
+                  onChange={(event) => set('price', event.target.value)}
+                  inputMode="decimal"
+                  placeholder="199"
+                />
+              </Field>
+              <Field>
+                <FieldLabel htmlFor="subscription-currency">
+                  Currency
+                </FieldLabel>
+                <Input
+                  id="subscription-currency"
+                  value={form.currency}
+                  onChange={(event) =>
+                    set('currency', event.target.value.toUpperCase())
+                  }
+                  maxLength={3}
+                  placeholder={defaultCurrency}
+                />
+              </Field>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <Field>
+                <FieldLabel>Cycle</FieldLabel>
+                <Select
+                  value={form.cycleUnit}
+                  onValueChange={(value) => set('cycleUnit', String(value))}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CYCLE_UNITS.map((unit) => (
+                      <SelectItem key={unit} value={unit}>
+                        {unit}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </Field>
+              <Field>
+                <FieldLabel htmlFor="subscription-count">
+                  Every … cycles
+                </FieldLabel>
+                <Input
+                  id="subscription-count"
+                  value={form.cycleCount}
+                  onChange={(event) => set('cycleCount', event.target.value)}
+                  inputMode="numeric"
+                />
+              </Field>
+            </div>
+
             <Field>
-              <FieldLabel htmlFor="subscription-currency">Currency</FieldLabel>
+              <FieldLabel htmlFor="subscription-next">Next payment</FieldLabel>
               <Input
-                id="subscription-currency"
-                value={form.currency}
-                onChange={(event) =>
-                  set('currency', event.target.value.toUpperCase())
-                }
-                maxLength={3}
-                placeholder={defaultCurrency}
+                id="subscription-next"
+                type="date"
+                value={form.nextPayment}
+                onChange={(event) => set('nextPayment', event.target.value)}
               />
             </Field>
-          </div>
 
-          <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4">
+              <Field>
+                <FieldLabel>Category</FieldLabel>
+                <Select
+                  value={form.categoryId}
+                  items={[
+                    { label: 'None', value: NONE },
+                    ...shownCategories.map((category) => ({
+                      label: category.archivedAt
+                        ? `${category.name} (archived)`
+                        : category.name,
+                      value: category.id,
+                    })),
+                  ]}
+                  onValueChange={(value) => set('categoryId', String(value))}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={NONE}>None</SelectItem>
+                    {shownCategories.map((category) => (
+                      <SelectItem key={category.id} value={category.id}>
+                        {category.name}
+                        {category.archivedAt ? ' (archived)' : ''}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {shownCategories.length === 0 ? (
+                  <FieldDescription>
+                    None yet — add categories in Settings.
+                  </FieldDescription>
+                ) : null}
+              </Field>
+              <Field>
+                <FieldLabel>Payment method</FieldLabel>
+                <Select
+                  value={form.paymentMethodId}
+                  items={[
+                    { label: 'None', value: NONE },
+                    ...shownMethods.map((method) => ({
+                      label: (
+                        <span className="flex items-center gap-1.5">
+                          <PaymentMethodIcon icon={method.icon ?? null} />
+                          <span>
+                            {method.name}
+                            {method.archivedAt ? ' (archived)' : ''}
+                          </span>
+                        </span>
+                      ),
+                      value: method.id,
+                    })),
+                  ]}
+                  onValueChange={(value) =>
+                    set('paymentMethodId', String(value))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={NONE}>None</SelectItem>
+                    {shownMethods.map((method) => (
+                      <SelectItem key={method.id} value={method.id}>
+                        <span className="flex items-center gap-1.5">
+                          <PaymentMethodIcon icon={method.icon ?? null} />
+                          <span>
+                            {method.name}
+                            {method.archivedAt ? ' (archived)' : ''}
+                          </span>
+                        </span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {shownMethods.length === 0 ? (
+                  <FieldDescription>
+                    None yet — add payment methods in Settings.
+                  </FieldDescription>
+                ) : null}
+              </Field>
+            </div>
+
             <Field>
-              <FieldLabel>Cycle</FieldLabel>
-              <Select
-                value={form.cycleUnit}
-                onValueChange={(value) => set('cycleUnit', String(value))}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {CYCLE_UNITS.map((unit) => (
-                    <SelectItem key={unit} value={unit}>
-                      {unit}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <FieldLabel htmlFor="subscription-url">URL</FieldLabel>
+              <Input
+                id="subscription-url"
+                value={form.url}
+                onChange={(event) => set('url', event.target.value)}
+                placeholder="https://example.com/account"
+              />
             </Field>
+
             <Field>
-              <FieldLabel htmlFor="subscription-count">
-                Every … cycles
+              <FieldLabel htmlFor="subscription-notes">Notes</FieldLabel>
+              <Textarea
+                id="subscription-notes"
+                value={form.notes}
+                onChange={(event) => set('notes', event.target.value)}
+                placeholder="Anything worth remembering at renewal time"
+              />
+            </Field>
+
+            <Field orientation="horizontal">
+              <Switch
+                checked={form.remindEnabled}
+                onCheckedChange={(checked) => set('remindEnabled', checked)}
+              />
+              <FieldLabel>Notify me before it is due</FieldLabel>
+            </Field>
+
+            <Field>
+              <FieldLabel htmlFor="subscription-remind">
+                Days before the due date
               </FieldLabel>
               <Input
-                id="subscription-count"
-                value={form.cycleCount}
-                onChange={(event) => set('cycleCount', event.target.value)}
-                inputMode="numeric"
-              />
-            </Field>
-          </div>
-
-          <Field>
-            <FieldLabel htmlFor="subscription-next">Next payment</FieldLabel>
-            <Input
-              id="subscription-next"
-              type="date"
-              value={form.nextPayment}
-              onChange={(event) => set('nextPayment', event.target.value)}
-            />
-          </Field>
-
-          <div className="grid grid-cols-2 gap-4">
-            <Field>
-              <FieldLabel>Category</FieldLabel>
-              <Select
-                value={form.categoryId}
-                items={[
-                  { label: 'None', value: NONE },
-                  ...shownCategories.map((category) => ({
-                    label: category.archivedAt
-                      ? `${category.name} (archived)`
-                      : category.name,
-                    value: category.id,
-                  })),
-                ]}
-                onValueChange={(value) => set('categoryId', String(value))}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={NONE}>None</SelectItem>
-                  {shownCategories.map((category) => (
-                    <SelectItem key={category.id} value={category.id}>
-                      {category.name}
-                      {category.archivedAt ? ' (archived)' : ''}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {shownCategories.length === 0 ? (
-                <FieldDescription>
-                  None yet — add categories in Settings.
-                </FieldDescription>
-              ) : null}
-            </Field>
-            <Field>
-              <FieldLabel>Payment method</FieldLabel>
-              <Select
-                value={form.paymentMethodId}
-                items={[
-                  { label: 'None', value: NONE },
-                  ...shownMethods.map((method) => ({
-                    label: (
-                      <span className="flex items-center gap-1.5">
-                        <PaymentMethodIcon icon={method.icon ?? null} />
-                        <span>
-                          {method.name}
-                          {method.archivedAt ? ' (archived)' : ''}
-                        </span>
-                      </span>
-                    ),
-                    value: method.id,
-                  })),
-                ]}
-                onValueChange={(value) => set('paymentMethodId', String(value))}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={NONE}>None</SelectItem>
-                  {shownMethods.map((method) => (
-                    <SelectItem key={method.id} value={method.id}>
-                      <span className="flex items-center gap-1.5">
-                        <PaymentMethodIcon icon={method.icon ?? null} />
-                        <span>
-                          {method.name}
-                          {method.archivedAt ? ' (archived)' : ''}
-                        </span>
-                      </span>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {shownMethods.length === 0 ? (
-                <FieldDescription>
-                  None yet — add payment methods in Settings.
-                </FieldDescription>
-              ) : null}
-            </Field>
-          </div>
-
-          <Field>
-            <FieldLabel htmlFor="subscription-url">URL</FieldLabel>
-            <Input
-              id="subscription-url"
-              value={form.url}
-              onChange={(event) => set('url', event.target.value)}
-              placeholder="https://example.com/account"
-            />
-          </Field>
-
-          <Field>
-            <FieldLabel htmlFor="subscription-notes">Notes</FieldLabel>
-            <Textarea
-              id="subscription-notes"
-              value={form.notes}
-              onChange={(event) => set('notes', event.target.value)}
-              placeholder="Anything worth remembering at renewal time"
-            />
-          </Field>
-
-          <Field orientation="horizontal">
-            <Switch
-              checked={form.remindEnabled}
-              onCheckedChange={(checked) => set('remindEnabled', checked)}
-            />
-            <FieldLabel>Notify me before it is due</FieldLabel>
-          </Field>
-
-          <Field>
-            <FieldLabel htmlFor="subscription-remind">
-              Days before the due date
-            </FieldLabel>
-            <Input
-              id="subscription-remind"
-              value={form.remindDaysBefore}
-              onChange={(event) => set('remindDaysBefore', event.target.value)}
-              inputMode="numeric"
-              placeholder={`Default (${defaultRemindDays})`}
-              disabled={!form.remindEnabled}
-            />
-            <FieldDescription>
-              Leave empty to use the default; 0 reminds on the due date.
-            </FieldDescription>
-          </Field>
-
-          <Field orientation="horizontal">
-            <Switch
-              checked={form.autoRenew}
-              onCheckedChange={(checked) => set('autoRenew', checked)}
-            />
-            <FieldLabel>Auto-renew</FieldLabel>
-          </Field>
-
-          <Field>
-            <FieldLabel htmlFor="subscription-cancelled">
-              Ends on (optional)
-            </FieldLabel>
-            <Input
-              id="subscription-cancelled"
-              type="date"
-              value={form.cancelledAt}
-              onChange={(event) => set('cancelledAt', event.target.value)}
-            />
-            <FieldDescription>
-              After this date the subscription stops counting toward totals, the
-              calendar, the budget and reminders.
-            </FieldDescription>
-          </Field>
-
-          <Field>
-            <FieldLabel htmlFor="subscription-logo">Logo</FieldLabel>
-            <div className="flex items-center gap-3">
-              <SubscriptionAvatar name={form.name || '?'} logo={form.logo} />
-              <Input
-                id="subscription-logo"
-                type="file"
-                accept="image/png,image/jpeg,image/gif,image/webp"
+                id="subscription-remind"
+                value={form.remindDaysBefore}
                 onChange={(event) =>
-                  setLogoFile(event.target.files?.[0] ?? null)
+                  set('remindDaysBefore', event.target.value)
                 }
-                className="text-xs"
+                inputMode="numeric"
+                placeholder={`Default (${defaultRemindDays})`}
+                disabled={!form.remindEnabled}
               />
-              {form.logo ? (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    set('logo', null)
-                    setLogoFile(null)
-                  }}
-                >
-                  Remove
-                </Button>
-              ) : null}
-            </div>
-            <Input
-              id="subscription-logo-url"
-              value={isExternalLogo(form.logo ?? '') ? (form.logo ?? '') : ''}
-              onChange={(event) => {
-                const value = event.target.value
-                setLogoFile(null)
-                set('logo', value.trim() === '' ? null : value)
-              }}
-              placeholder="…or paste an image URL"
-            />
-            <FieldDescription>
-              Upload a PNG, JPEG, GIF or WebP (up to 1 MiB), or paste an image
-              URL — external ones load straight from that host.
-            </FieldDescription>
-          </Field>
-        </FieldGroup>
+              <FieldDescription>
+                Leave empty to use the default; 0 reminds on the due date.
+              </FieldDescription>
+            </Field>
+
+            <Field orientation="horizontal">
+              <Switch
+                checked={form.autoRenew}
+                onCheckedChange={(checked) => set('autoRenew', checked)}
+              />
+              <FieldLabel>Auto-renew</FieldLabel>
+            </Field>
+
+            <Field>
+              <FieldLabel htmlFor="subscription-cancelled">
+                Ends on (optional)
+              </FieldLabel>
+              <Input
+                id="subscription-cancelled"
+                type="date"
+                value={form.cancelledAt}
+                onChange={(event) => set('cancelledAt', event.target.value)}
+              />
+              <FieldDescription>
+                After this date the subscription stops counting toward totals,
+                the calendar, the budget and reminders.
+              </FieldDescription>
+            </Field>
+
+            <Field>
+              <FieldLabel htmlFor="subscription-logo">Logo</FieldLabel>
+              <div className="flex items-center gap-3">
+                <SubscriptionAvatar name={form.name || '?'} logo={form.logo} />
+                <Input
+                  id="subscription-logo"
+                  type="file"
+                  accept="image/png,image/jpeg,image/gif,image/webp"
+                  onChange={(event) =>
+                    setLogoFile(event.target.files?.[0] ?? null)
+                  }
+                  className="text-xs"
+                />
+                {form.logo ? (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      set('logo', null)
+                      setLogoFile(null)
+                    }}
+                  >
+                    Remove
+                  </Button>
+                ) : null}
+              </div>
+              <Input
+                id="subscription-logo-url"
+                value={isExternalLogo(form.logo ?? '') ? (form.logo ?? '') : ''}
+                onChange={(event) => {
+                  const value = event.target.value
+                  setLogoFile(null)
+                  set('logo', value.trim() === '' ? null : value)
+                }}
+                placeholder="…or paste an image URL"
+              />
+              <FieldDescription>
+                Upload a PNG, JPEG, GIF or WebP (up to 1 MiB), or paste an image
+                URL — external ones load straight from that host.
+              </FieldDescription>
+            </Field>
+          </FieldGroup>
+        </DialogPanel>
 
         {error ? (
           <p role="alert" className="text-sm text-destructive">

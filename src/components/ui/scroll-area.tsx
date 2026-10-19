@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils'
 
 export function ScrollArea({
   className,
+  viewportClassName,
   children,
   scrollFade = false,
   scrollbarGutter = false,
@@ -14,6 +15,7 @@ export function ScrollArea({
   overscrollContain = false,
   ...props
 }: ScrollAreaPrimitive.Root.Props & {
+  viewportClassName?: string
   scrollFade?: boolean
   scrollbarGutter?: boolean
   fill?: boolean
@@ -34,6 +36,7 @@ export function ScrollArea({
             'mask-t-from-[calc(100%-min(var(--fade-size),var(--scroll-area-overflow-y-start)))] mask-b-from-[calc(100%-min(var(--fade-size),var(--scroll-area-overflow-y-end)))] mask-l-from-[calc(100%-min(var(--fade-size),var(--scroll-area-overflow-x-start)))] mask-r-from-[calc(100%-min(var(--fade-size),var(--scroll-area-overflow-x-end)))] [--fade-size:1.5rem]',
           scrollbarGutter &&
             'data-has-overflow-y:pe-2.5 data-has-overflow-x:pb-2.5',
+          viewportClassName,
         )}
         data-slot="scroll-area-viewport"
       >

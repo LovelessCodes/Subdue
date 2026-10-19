@@ -8,6 +8,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
+  DialogPanel,
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
@@ -245,7 +246,7 @@ export function ChannelForm({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>
             {channel
@@ -255,68 +256,70 @@ export function ChannelForm({
           <DialogDescription>{t('formDescription')}</DialogDescription>
         </DialogHeader>
 
-        <FieldGroup className="gap-4">
-          <div className="grid grid-cols-2 gap-4">
-            <Field>
-              <FieldLabel htmlFor="channel-name">{t('name')}</FieldLabel>
-              <Input
-                id="channel-name"
-                value={name}
-                onChange={(event) => setName(event.target.value)}
-                placeholder={t('namePlaceholder')}
-              />
-            </Field>
-            <Field>
-              <FieldLabel>{t('type')}</FieldLabel>
-              {channel ? (
-                <Input readOnly value={typeLabel(type, t)} />
-              ) : (
-                <Select
-                  value={type}
-                  onValueChange={(value) => setType(String(value))}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {CHANNEL_TYPES.map((option) => (
-                      <SelectItem key={option} value={option}>
-                        {typeLabel(option, t)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            </Field>
-          </div>
+        <DialogPanel>
+          <FieldGroup className="gap-4">
+            <div className="grid grid-cols-2 gap-4">
+              <Field>
+                <FieldLabel htmlFor="channel-name">{t('name')}</FieldLabel>
+                <Input
+                  id="channel-name"
+                  value={name}
+                  onChange={(event) => setName(event.target.value)}
+                  placeholder={t('namePlaceholder')}
+                />
+              </Field>
+              <Field>
+                <FieldLabel>{t('type')}</FieldLabel>
+                {channel ? (
+                  <Input readOnly value={typeLabel(type, t)} />
+                ) : (
+                  <Select
+                    value={type}
+                    onValueChange={(value) => setType(String(value))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {CHANNEL_TYPES.map((option) => (
+                        <SelectItem key={option} value={option}>
+                          {typeLabel(option, t)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              </Field>
+            </div>
 
-          {(TYPE_FIELDS[type] ?? []).map((field) => (
-            <Field key={field.key}>
-              <FieldLabel htmlFor={`channel-${field.key}`}>
-                {t(field.labelKey)}
-              </FieldLabel>
-              <Input
-                id={`channel-${field.key}`}
-                type={field.secret ? 'password' : 'text'}
-                value={config[field.key] ?? ''}
-                onChange={(event) => setValue(field.key, event.target.value)}
-                placeholder={field.placeholder}
-              />
-            </Field>
-          ))}
+            {(TYPE_FIELDS[type] ?? []).map((field) => (
+              <Field key={field.key}>
+                <FieldLabel htmlFor={`channel-${field.key}`}>
+                  {t(field.labelKey)}
+                </FieldLabel>
+                <Input
+                  id={`channel-${field.key}`}
+                  type={field.secret ? 'password' : 'text'}
+                  value={config[field.key] ?? ''}
+                  onChange={(event) => setValue(field.key, event.target.value)}
+                  placeholder={field.placeholder}
+                />
+              </Field>
+            ))}
 
-          {type === 'email' ? (
+            {type === 'email' ? (
+              <Field orientation="horizontal">
+                <Switch checked={secure} onCheckedChange={setSecure} />
+                <FieldLabel>{t('fieldSecure')}</FieldLabel>
+              </Field>
+            ) : null}
+
             <Field orientation="horizontal">
-              <Switch checked={secure} onCheckedChange={setSecure} />
-              <FieldLabel>{t('fieldSecure')}</FieldLabel>
+              <Switch checked={enabled} onCheckedChange={setEnabled} />
+              <FieldLabel>{t('fieldEnabled')}</FieldLabel>
             </Field>
-          ) : null}
-
-          <Field orientation="horizontal">
-            <Switch checked={enabled} onCheckedChange={setEnabled} />
-            <FieldLabel>{t('fieldEnabled')}</FieldLabel>
-          </Field>
-        </FieldGroup>
+          </FieldGroup>
+        </DialogPanel>
 
         {error ? (
           <p role="alert" className="text-sm text-destructive">
