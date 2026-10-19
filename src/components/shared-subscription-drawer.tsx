@@ -5,6 +5,14 @@ import { Bell, Check, LogOut } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
+  Drawer,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerPanel,
+  DrawerPopup,
+  DrawerTitle,
+} from '@/components/ui/drawer'
+import {
   Dialog,
   DialogClose,
   DialogContent,
@@ -13,14 +21,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import {
-  Sheet,
-  SheetDescription,
-  SheetHeader,
-  SheetPanel,
-  SheetPopup,
-  SheetTitle,
-} from '@/components/ui/sheet'
 import { Switch } from '@/components/ui/switch'
 import { leaveSharedSubscription, setSharedReminder } from '@/lib/app.functions'
 import { formatDate, formatMinor } from '@/lib/money'
@@ -37,7 +37,7 @@ type Props = {
  * What a member sees: their share, the next charge, their own reminder, and
  * the way out. Everything else stays with the owner.
  */
-export function SharedSubscriptionSheet({
+export function SharedSubscriptionDrawer({
   subscription,
   open,
   onOpenChange,
@@ -94,20 +94,20 @@ export function SharedSubscriptionSheet({
   }
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetPopup side="right" variant="inset">
-        <SheetHeader>
+    <Drawer open={open} onOpenChange={onOpenChange} position="right">
+      <DrawerPopup variant="inset" showCloseButton>
+        <DrawerHeader>
           <div className="flex items-center gap-2">
-            <SheetTitle className="truncate">{subscription.name}</SheetTitle>
+            <DrawerTitle className="truncate">{subscription.name}</DrawerTitle>
             <Badge variant="secondary" className="gap-1">
               <Check className="size-3" />
               {t('memberBadge')}
             </Badge>
           </div>
-          <SheetDescription>{t('splitWith', { owner })}</SheetDescription>
-        </SheetHeader>
+          <DrawerDescription>{t('splitWith', { owner })}</DrawerDescription>
+        </DrawerHeader>
 
-        <SheetPanel className="flex flex-col gap-4">
+        <DrawerPanel className="flex flex-col gap-4">
           {error ? (
             <p role="alert" className="text-sm text-destructive">
               {error}
@@ -171,7 +171,7 @@ export function SharedSubscriptionSheet({
               {t('leave')}
             </Button>
           </div>
-        </SheetPanel>
+        </DrawerPanel>
 
         <Dialog open={confirmLeave} onOpenChange={setConfirmLeave}>
           <DialogContent>
@@ -193,7 +193,7 @@ export function SharedSubscriptionSheet({
             </DialogFooter>
           </DialogContent>
         </Dialog>
-      </SheetPopup>
-    </Sheet>
+      </DrawerPopup>
+    </Drawer>
   )
 }

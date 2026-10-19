@@ -23,13 +23,13 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import {
-  Sheet,
-  SheetDescription,
-  SheetHeader,
-  SheetPanel,
-  SheetPopup,
-  SheetTitle,
-} from '@/components/ui/sheet'
+  Drawer,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerPanel,
+  DrawerPopup,
+  DrawerTitle,
+} from '@/components/ui/drawer'
 import {
   addSplitMember,
   createSplitInvite,
@@ -62,7 +62,7 @@ type Props = {
  * remainder as a first-class row, and the links for people who have not
  * accepted yet.
  */
-export function SubscriptionSplitSheet({
+export function SubscriptionSplitDrawer({
   subscription,
   open,
   onOpenChange,
@@ -202,20 +202,20 @@ export function SubscriptionSplitSheet({
   const invited = people.filter((member) => member.status !== 'active')
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetPopup side="right" variant="inset" className="sm:max-w-lg">
-        <SheetHeader>
+    <Drawer open={open} onOpenChange={onOpenChange} position="right">
+      <DrawerPopup variant="inset" showCloseButton className="sm:max-w-lg">
+        <DrawerHeader>
           <p className="text-xs font-medium tracking-[0.08em] text-muted-foreground uppercase">
             {t('splitEyebrow')}
           </p>
-          <SheetTitle className="truncate">{subscription.name}</SheetTitle>
-          <SheetDescription>
+          <DrawerTitle className="truncate">{subscription.name}</DrawerTitle>
+          <DrawerDescription>
             {cycleText(t, subscription.cycleCount, subscription.cycleUnit)} ·{' '}
             {formatMinor(subscription.price, subscription.currency, locale)}
-          </SheetDescription>
-        </SheetHeader>
+          </DrawerDescription>
+        </DrawerHeader>
 
-        <SheetPanel className="flex flex-col gap-4">
+        <DrawerPanel className="flex flex-col gap-4">
           {error ? (
             <p role="alert" className="text-sm text-destructive">
               {error}
@@ -544,7 +544,7 @@ export function SubscriptionSplitSheet({
               ) : null}
             </>
           )}
-        </SheetPanel>
+        </DrawerPanel>
 
         <Dialog
           open={confirmRemove !== null}
@@ -580,8 +580,8 @@ export function SubscriptionSplitSheet({
             </DialogFooter>
           </DialogContent>
         </Dialog>
-      </SheetPopup>
-    </Sheet>
+      </DrawerPopup>
+    </Drawer>
   )
 }
 

@@ -8,8 +8,8 @@ import {
   Pencil,
   UsersRound,
 } from 'lucide-react'
-import { SharedSubscriptionSheet } from '@/components/shared-subscription-sheet'
-import { SubscriptionSplitSheet } from '@/components/subscription-split-sheet'
+import { SharedSubscriptionDrawer } from '@/components/shared-subscription-drawer'
+import { SubscriptionSplitDrawer } from '@/components/subscription-split-drawer'
 import { SubscriptionAvatar } from '@/components/subscription-avatar'
 import { SubscriptionForm } from '@/components/subscription-form'
 import { Badge } from '@/components/ui/badge'
@@ -317,7 +317,7 @@ function Subscriptions() {
       />
 
       {splitFor ? (
-        <SubscriptionSplitSheet
+        <SubscriptionSplitDrawer
           subscription={splitFor}
           open
           onOpenChange={(next) => {
@@ -329,7 +329,7 @@ function Subscriptions() {
       ) : null}
 
       {viewing ? (
-        <SharedSubscriptionSheet
+        <SharedSubscriptionDrawer
           subscription={viewing}
           open
           onOpenChange={(next) => {
