@@ -20,6 +20,7 @@ import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { getAuthProviders } from '@/lib/app.functions'
 import { authClient } from '@/lib/auth-client'
+import { nextPath } from '@/lib/next-path'
 import { socialProviderLabel } from '@/lib/social-providers'
 
 export const Route = createFileRoute('/sign-up')({
@@ -68,7 +69,7 @@ function SignUp() {
     try {
       await authClient.signIn.social({
         provider,
-        callbackURL: '/welcome',
+        callbackURL: nextPath(window.location.search) ?? '/welcome',
       } as Parameters<typeof authClient.signIn.social>[0])
     } catch {
       setError('Social sign-in failed to start.')
@@ -140,7 +141,7 @@ function SignUp() {
         setError(result.error.message ?? 'Could not create the account.')
         return
       }
-      window.location.assign('/welcome')
+      window.location.assign(nextPath(window.location.search) ?? '/welcome')
     } catch {
       setError('Something went wrong. Please try again.')
     } finally {

@@ -20,6 +20,7 @@ import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { getAuthProviders } from '@/lib/app.functions'
 import { authClient } from '@/lib/auth-client'
+import { nextPath } from '@/lib/next-path'
 import { socialProviderLabel } from '@/lib/social-providers'
 
 export const Route = createFileRoute('/sign-in')({
@@ -94,7 +95,7 @@ function SignIn() {
         )
         return
       }
-      window.location.assign('/')
+      window.location.assign(nextPath(window.location.search) ?? '/')
     } catch (caught) {
       setError(
         caught instanceof Error ? caught.message : 'Passkey sign-in failed.',
@@ -110,7 +111,7 @@ function SignIn() {
     try {
       await authClient.signIn.social({
         provider,
-        callbackURL: '/',
+        callbackURL: nextPath(window.location.search) ?? '/',
       } as Parameters<typeof authClient.signIn.social>[0])
     } catch {
       setError('Social sign-in failed to start.')
@@ -206,7 +207,9 @@ function SignIn() {
         return
       }
 
-      window.location.assign(data.url ?? '/')
+      window.location.assign(
+        nextPath(window.location.search) ?? data.url ?? '/',
+      )
     } catch {
       setError('Something went wrong. Please try again.')
     } finally {
