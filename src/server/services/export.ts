@@ -70,6 +70,8 @@ export async function exportBundle(
         .from(paymentMethod)
         .where(eq(paymentMethod.userId, userId))
         .orderBy(asc(paymentMethod.name)),
+      // Deliberately owner-scoped: a subscription someone else pays for is
+      // their record, not this user's, and share rows stay out of the bundle.
       db
         .select()
         .from(subscription)

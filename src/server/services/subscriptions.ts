@@ -1,13 +1,32 @@
 import { and, asc, count, desc, eq, getTableColumns } from 'drizzle-orm'
-import { paymentMethod, subscription } from '../../lib/auth-schema'
+import {
+  paymentMethod,
+  subscription,
+  subscriptionMember,
+  user,
+} from '../../lib/auth-schema'
 import type { Database } from '../../lib/db'
+import type { MemberStatus } from './sharing'
 import { rolledNextPayment, type CycleUnit } from './recurrence'
 
 export type Subscription = typeof subscription.$inferSelect
 
+export type SubscriptionViewer = 'owner' | 'member'
+
+export type SubscriptionShareView = {
+  id: string
+  shareMinor: number
+  status: MemberStatus
+}
+
 export type SubscriptionWithRecurrence = Subscription & {
   nextDue: Date
   paymentMethodName: string | null
+  viewer: SubscriptionViewer
+  /** Set on member rows: the share this viewer holds. */
+  member: SubscriptionShareView | null
+  /** Set on member rows: who pays the bill. */
+  ownerName: string | null
 }
 
 export type SubscriptionInput = {
@@ -37,6 +56,7 @@ type SubscriptionRow = Subscription & { paymentMethodName?: string | null }
 function withRecurrence(
   row: SubscriptionRow,
   now: Date,
+  viewer: SubscriptionViewer = 'owner',
 ): SubscriptionWithRecurrence {
   const cycle = { count: row.cycleCount, unit: row.cycleUnit as CycleUnit }
 
@@ -44,7 +64,66 @@ function withRecurrence(
     ...row,
     nextDue: rolledNextPayment(row.nextPayment, cycle, now),
     paymentMethodName: row.paymentMethodName ?? null,
+    viewer,
+    member: null,
+    ownerName: null,
   }
+}
+
+type MemberRow = {
+  subscription: Subscription
+  member: {
+    id: string
+    shareMinor: number
+    status: string
+    remindEnabled: boolean | null
+    categoryId: string | null
+  }
+  ownerName: string
+}
+
+/**
+ * A subscription seen through a member's eyes: their share as the price, and
+ * the owner's notes, payment method, payer label and reminder lead removed.
+ */
+function memberItem(row: MemberRow, now: Date): SubscriptionWithRecurrence {
+  const cycle = {
+    count: row.subscription.cycleCount,
+    unit: row.subscription.cycleUnit as CycleUnit,
+  }
+
+  return {
+    ...row.subscription,
+    price: row.member.shareMinor,
+    categoryId: row.member.categoryId,
+    paymentMethodId: null,
+    paymentMethodName: null,
+    payer: null,
+    notes: null,
+    remindEnabled: row.member.remindEnabled ?? true,
+    remindDaysBefore: null,
+    userId: '',
+    nextDue: rolledNextPayment(row.subscription.nextPayment, cycle, now),
+    viewer: 'member',
+    member: {
+      id: row.member.id,
+      shareMinor: row.member.shareMinor,
+      status: row.member.status as MemberStatus,
+    },
+    ownerName: row.ownerName,
+  }
+}
+
+const memberSelection = {
+  subscription: getTableColumns(subscription),
+  member: {
+    id: subscriptionMember.id,
+    shareMinor: subscriptionMember.shareMinor,
+    status: subscriptionMember.status,
+    remindEnabled: subscriptionMember.remindEnabled,
+    categoryId: subscriptionMember.categoryId,
+  },
+  ownerName: user.name,
 }
 
 export async function listSubscriptions(
@@ -73,27 +152,71 @@ export async function listSubscriptions(
   const where = and(...filters)
   const column = sortColumns[params.sort]
 
-  const [items, totals] = await Promise.all([
-    db
-      .select({
-        ...getTableColumns(subscription),
-        paymentMethodName: paymentMethod.name,
-      })
-      .from(subscription)
-      .leftJoin(
-        paymentMethod,
-        eq(subscription.paymentMethodId, paymentMethod.id),
-      )
-      .where(where)
-      .orderBy(params.order === 'desc' ? desc(column) : asc(column))
-      .limit(params.limit)
-      .offset(params.offset),
-    db.select({ value: count() }).from(subscription).where(where),
-  ])
+  const memberFilters = [
+    eq(subscriptionMember.userId, userId),
+    eq(subscriptionMember.status, 'active'),
+  ]
+  if (params.categoryId) {
+    memberFilters.push(eq(subscriptionMember.categoryId, params.categoryId))
+  }
+
+  // Owner rows are fetched up to the end of the requested page; member rows
+  // are merged in JS so one viewer-aware list carries both kinds.
+  const [ownerItems, ownerTotals, memberRows, memberTotals] = await Promise.all(
+    [
+      db
+        .select({
+          ...getTableColumns(subscription),
+          paymentMethodName: paymentMethod.name,
+        })
+        .from(subscription)
+        .leftJoin(
+          paymentMethod,
+          eq(subscription.paymentMethodId, paymentMethod.id),
+        )
+        .where(where)
+        .orderBy(params.order === 'desc' ? desc(column) : asc(column))
+        .limit(params.offset + params.limit),
+      db.select({ value: count() }).from(subscription).where(where),
+      db
+        .select(memberSelection)
+        .from(subscriptionMember)
+        .innerJoin(
+          subscription,
+          eq(subscriptionMember.subscriptionId, subscription.id),
+        )
+        .innerJoin(user, eq(subscription.userId, user.id))
+        .where(and(...memberFilters))
+        .limit(params.offset + params.limit),
+      db
+        .select({ value: count() })
+        .from(subscriptionMember)
+        .where(and(...memberFilters)),
+    ],
+  )
+
+  const merged = [
+    ...ownerItems.map((row) => withRecurrence(row, now)),
+    ...memberRows.map((row) => memberItem(row, now)),
+  ]
+
+  merged.sort((a, b) => {
+    let diff = 0
+    if (params.sort === 'next-payment') {
+      diff = a.nextPayment.getTime() - b.nextPayment.getTime()
+    } else if (params.sort === 'name') {
+      diff = a.name < b.name ? -1 : a.name > b.name ? 1 : 0
+    } else if (params.sort === 'price') {
+      diff = a.price - b.price
+    } else {
+      diff = a.createdAt.getTime() - b.createdAt.getTime()
+    }
+    return params.order === 'desc' ? -diff : diff
+  })
 
   return {
-    items: items.map((item) => withRecurrence(item, now)),
-    total: totals[0]?.value ?? 0,
+    items: merged.slice(params.offset, params.offset + params.limit),
+    total: (ownerTotals[0]?.value ?? 0) + (memberTotals[0]?.value ?? 0),
   }
 }
 

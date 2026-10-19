@@ -1,5 +1,9 @@
-import { and, count, desc, eq, inArray, isNull } from 'drizzle-orm'
-import { notification, subscription } from '../../lib/auth-schema'
+import { and, count, desc, eq, inArray, isNull, sql } from 'drizzle-orm'
+import {
+  notification,
+  subscription,
+  subscriptionMember,
+} from '../../lib/auth-schema'
 import type { Database } from '../../lib/db'
 import { convertMinorUnits, formatDate, formatMinor } from '../../lib/money'
 import type { Sender } from '../senders'
@@ -173,12 +177,20 @@ export async function listNotifications(
       subscriptionId: notification.subscriptionId,
       createdAt: notification.createdAt,
       subscriptionName: subscription.name,
-      subscriptionPrice: subscription.price,
+      // Members count their share; the owner counts the full charge.
+      subscriptionPrice: sql<number>`coalesce(${subscriptionMember.shareMinor}, ${subscription.price})`,
       subscriptionCurrency: subscription.currency,
       subscriptionLogo: subscription.logo,
     })
     .from(notification)
     .innerJoin(subscription, eq(notification.subscriptionId, subscription.id))
+    .leftJoin(
+      subscriptionMember,
+      and(
+        eq(subscriptionMember.subscriptionId, subscription.id),
+        eq(subscriptionMember.userId, userId),
+      ),
+    )
     .where(and(...filters))
     .orderBy(desc(notification.createdAt))
     .limit(params.limit)
