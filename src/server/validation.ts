@@ -117,6 +117,25 @@ export const incomeSourcePatchSchema = incomeSourceBodySchema
   .partial()
   .extend({ id: z.string() })
 
+export const memberBodySchema = z.object({
+  subscriptionId: z.string().min(1),
+  displayName: z.string().trim().min(1).max(100),
+  email: z.string().trim().max(320).nullish(),
+  shareMinor: z.number().int().min(0),
+})
+
+export const memberPatchSchema = z.object({
+  id: z.string().min(1),
+  displayName: z.string().trim().min(1).max(100).optional(),
+  email: z.string().trim().max(320).nullish(),
+  shareMinor: z.number().int().min(0).optional(),
+})
+
+export const memberReminderSchema = z.object({
+  id: z.string().min(1),
+  enabled: z.boolean(),
+})
+
 export const reorderIdsSchema = z.object({ ids: z.array(z.string()).max(500) })
 
 export const localeField = z.string().min(2).max(20)

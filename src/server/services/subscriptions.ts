@@ -1,4 +1,4 @@
-import { and, asc, count, desc, eq, getTableColumns } from 'drizzle-orm'
+import { and, asc, count, desc, eq, getTableColumns, sql } from 'drizzle-orm'
 import {
   paymentMethod,
   subscription,
@@ -27,6 +27,8 @@ export type SubscriptionWithRecurrence = Subscription & {
   member: SubscriptionShareView | null
   /** Set on member rows: who pays the bill. */
   ownerName: string | null
+  /** Owner rows only: how many people the charge is split with. */
+  sharedCount: number
 }
 
 export type SubscriptionInput = {
@@ -51,7 +53,10 @@ export type SubscriptionInput = {
 export const sortKeys = ['next-payment', 'name', 'price', 'created-at'] as const
 export type SortKey = (typeof sortKeys)[number]
 
-type SubscriptionRow = Subscription & { paymentMethodName?: string | null }
+type SubscriptionRow = Subscription & {
+  paymentMethodName?: string | null
+  sharedCount?: number
+}
 
 function withRecurrence(
   row: SubscriptionRow,
@@ -67,6 +72,7 @@ function withRecurrence(
     viewer,
     member: null,
     ownerName: null,
+    sharedCount: row.sharedCount ?? 0,
   }
 }
 
@@ -111,6 +117,7 @@ function memberItem(row: MemberRow, now: Date): SubscriptionWithRecurrence {
       status: row.member.status as MemberStatus,
     },
     ownerName: row.ownerName,
+    sharedCount: 0,
   }
 }
 
@@ -168,6 +175,7 @@ export async function listSubscriptions(
         .select({
           ...getTableColumns(subscription),
           paymentMethodName: paymentMethod.name,
+          sharedCount: sql<number>`(select count(*) from ${subscriptionMember} where ${subscriptionMember.subscriptionId} = ${subscription.id})`,
         })
         .from(subscription)
         .leftJoin(

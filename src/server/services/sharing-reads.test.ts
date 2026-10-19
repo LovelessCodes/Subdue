@@ -17,6 +17,7 @@ import {
   acceptInvite,
   createMember,
   mintInvite,
+  priceCoversShares,
   setMemberReminder,
 } from '@/server/services/sharing'
 import { createTestDb, insertTestUser } from '@/test/db'
@@ -126,6 +127,33 @@ describe('shared reads: the viewer-aware list', () => {
     expect(ownerPage.items[0]?.viewer).toBe('owner')
     expect(ownerPage.items[0]?.price).toBe(23_900)
     expect(ownerPage.items[0]?.notes).toBe('Family plan password: hunter2')
+  })
+
+  it('counts the split on the owner row only', async () => {
+    const { db } = await accepted()
+
+    const ownerPage = await listSubscriptions(db, 'owner', {
+      limit: 50,
+      offset: 0,
+      sort: 'next-payment',
+      order: 'asc',
+    })
+    expect(ownerPage.items[0]?.sharedCount).toBe(1)
+
+    const memberPage = await listSubscriptions(db, 'friend', {
+      limit: 50,
+      offset: 0,
+      sort: 'next-payment',
+      order: 'asc',
+    })
+    expect(memberPage.items[0]?.sharedCount).toBe(0)
+  })
+
+  it('knows when shrinking the price would strand agreed shares', async () => {
+    const { db, subscription } = await accepted()
+
+    expect(await priceCoversShares(db, subscription.id, 23_900)).toBe(true)
+    expect(await priceCoversShares(db, subscription.id, 5_000)).toBe(false)
   })
 })
 

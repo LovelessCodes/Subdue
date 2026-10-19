@@ -1,8 +1,8 @@
 import { createServerFn } from '@tanstack/react-start'
 import { getRequestHeaders, setCookie } from '@tanstack/react-start/server'
-import { eq } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 import * as z from 'zod'
-import { user } from '../lib/auth-schema'
+import { subscriptionMember, user } from '../lib/auth-schema'
 import { socialProviderIds } from '../lib/social-providers'
 import { envConfiguredProviderIds } from '../lib/social-config'
 import { getBudgetStatus } from '../server/services/budget'
@@ -30,6 +30,7 @@ import {
   updateSettings,
 } from '../server/services/settings'
 import * as subscriptions from '../server/services/subscriptions'
+import * as sharing from '../server/services/sharing'
 import {
   categoryBodySchema,
   categoryPatchSchema,
@@ -38,6 +39,9 @@ import {
   checkSubscriptionReferences,
   incomeSourceBodySchema,
   incomeSourcePatchSchema,
+  memberBodySchema,
+  memberPatchSchema,
+  memberReminderSchema,
   onboardingBodySchema,
   paymentMethodBodySchema,
   paymentMethodPatchSchema,
@@ -138,6 +142,12 @@ export const updateSubscription = createServerFn({ method: 'POST' })
     if (!existing) {
       throw new Error('SUBSCRIPTION_NOT_FOUND')
     }
+    if (
+      patch.price !== undefined &&
+      !(await sharing.priceCoversShares(db, id, patch.price))
+    ) {
+      throw new Error('SHARES_EXCEED_PRICE')
+    }
     const updated = await subscriptions.updateSubscription(
       db,
       userId,
@@ -168,6 +178,163 @@ export const deleteSubscription = createServerFn({ method: 'POST' })
     await subscriptions.deleteSubscription(db, userId, data.id)
     if (existing.logo) {
       removeLogo(existing.logo)
+    }
+    return { success: true }
+  })
+
+/** The owner's split panel for one subscription. */
+export const getSubscriptionSplit = createServerFn({ method: 'GET' })
+  .validator((input: { id: string }) => input)
+  .handler(async ({ data }) => {
+    const userId = await requireUserId()
+    const owned = await subscriptions.getSubscription(db, userId, data.id)
+    if (!owned) {
+      throw new Error('SUBSCRIPTION_NOT_FOUND')
+    }
+    const members = await sharing.listMembers(db, data.id)
+    return { subscription: owned, members: members.map(sharing.memberView) }
+  })
+
+export const addSplitMember = createServerFn({ method: 'POST' })
+  .validator((input: unknown) => memberBodySchema.parse(input))
+  .handler(async ({ data }) => {
+    const userId = await requireUserId()
+    const created = await sharing.createMember(
+      db,
+      userId,
+      data.subscriptionId,
+      {
+        displayName: data.displayName,
+        email: data.email ?? null,
+        shareMinor: data.shareMinor,
+      },
+    )
+    if (typeof created === 'string') {
+      throw new Error(created)
+    }
+    return sharing.memberView(created)
+  })
+
+export const updateSplitMember = createServerFn({ method: 'POST' })
+  .validator((input: unknown) => memberPatchSchema.parse(input))
+  .handler(async ({ data }) => {
+    const userId = await requireUserId()
+    const { id, ...patch } = data
+    const updated = await sharing.updateMember(db, userId, id, patch)
+    if (typeof updated === 'string') {
+      throw new Error(updated)
+    }
+    return sharing.memberView(updated)
+  })
+
+/** Also deletes that member's notifications for the subscription. */
+export const removeSplitMember = createServerFn({ method: 'POST' })
+  .validator((input: { id: string }) => input)
+  .handler(async ({ data }) => {
+    const userId = await requireUserId()
+    const removed = await sharing.deleteMember(db, userId, data.id)
+    if (!removed) {
+      throw new Error('MEMBER_NOT_FOUND')
+    }
+    return { success: true }
+  })
+
+/** Mints a link; the token is returned once and only its hash is stored. */
+export const createSplitInvite = createServerFn({ method: 'POST' })
+  .validator((input: { id: string }) => input)
+  .handler(async ({ data }) => {
+    const userId = await requireUserId()
+    const invite = await sharing.mintInvite(db, userId, data.id)
+    if (typeof invite === 'string') {
+      throw new Error(invite)
+    }
+    return invite
+  })
+
+export const revokeSplitInvite = createServerFn({ method: 'POST' })
+  .validator((input: { id: string }) => input)
+  .handler(async ({ data }) => {
+    const userId = await requireUserId()
+    const revoked = await sharing.revokeInvite(db, userId, data.id)
+    if (!revoked) {
+      throw new Error('MEMBER_NOT_FOUND')
+    }
+    return { success: true }
+  })
+
+/** Public: what the invited person sees behind `/share/<token>`. */
+export const getSharedInvite = createServerFn({ method: 'GET' })
+  .validator((input: { token: string }) => ({
+    token: z.string().trim().max(200).parse(input.token),
+  }))
+  .handler(async ({ data }) => {
+    const invite = await sharing.inviteByToken(db, data.token)
+    if (!invite) {
+      return { status: 'invalid' as const }
+    }
+
+    const session = await auth.api.getSession({ headers: getRequestHeaders() })
+    let viewer: 'anonymous' | 'ready' | 'member' = 'anonymous'
+    if (session) {
+      const existing = await db
+        .select({ id: subscriptionMember.id })
+        .from(subscriptionMember)
+        .where(
+          and(
+            eq(subscriptionMember.subscriptionId, invite.subscription.id),
+            eq(subscriptionMember.userId, session.user.id),
+          ),
+        )
+        .limit(1)
+      viewer = existing.length > 0 ? 'member' : 'ready'
+    }
+
+    return {
+      status: 'valid' as const,
+      viewer,
+      ownerName: invite.ownerName,
+      shareMinor: invite.member.shareMinor,
+      expiresAt: invite.member.inviteExpiresAt,
+      subscription: invite.subscription,
+    }
+  })
+
+export const acceptSharedInvite = createServerFn({ method: 'POST' })
+  .validator((input: { token: string }) => ({
+    token: z.string().trim().max(200).parse(input.token),
+  }))
+  .handler(async ({ data }) => {
+    const userId = await requireUserId()
+    const accepted = await sharing.acceptInvite(db, userId, data.token)
+    if (typeof accepted === 'string') {
+      throw new Error(accepted)
+    }
+    return accepted
+  })
+
+export const setSharedReminder = createServerFn({ method: 'POST' })
+  .validator((input: unknown) => memberReminderSchema.parse(input))
+  .handler(async ({ data }) => {
+    const userId = await requireUserId()
+    const updated = await sharing.setMemberReminder(
+      db,
+      userId,
+      data.id,
+      data.enabled,
+    )
+    if (!updated) {
+      throw new Error('MEMBER_NOT_FOUND')
+    }
+    return { success: true }
+  })
+
+export const leaveSharedSubscription = createServerFn({ method: 'POST' })
+  .validator((input: { id: string }) => input)
+  .handler(async ({ data }) => {
+    const userId = await requireUserId()
+    const left = await sharing.leaveSubscription(db, userId, data.id)
+    if (!left) {
+      throw new Error('MEMBER_NOT_FOUND')
     }
     return { success: true }
   })

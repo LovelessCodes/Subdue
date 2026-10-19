@@ -34,6 +34,53 @@ export function allocatedMinor(members: { shareMinor: number }[]): number {
   return members.reduce((sum, member) => sum + member.shareMinor, 0)
 }
 
+/** The client-safe shape: the invite hash never leaves the server. */
+export type MemberView = {
+  id: string
+  displayName: string
+  email: string | null
+  shareMinor: number
+  status: MemberStatus
+  inviteExpiresAt: Date | null
+  remindEnabled: boolean
+  createdAt: Date
+}
+
+export function memberView(member: SubscriptionMember): MemberView {
+  return {
+    id: member.id,
+    displayName: member.displayName,
+    email: member.email,
+    shareMinor: member.shareMinor,
+    status: member.status as MemberStatus,
+    inviteExpiresAt: member.inviteExpiresAt,
+    remindEnabled: member.remindEnabled ?? true,
+    createdAt: member.createdAt,
+  }
+}
+
+export async function allocatedFor(
+  db: Database,
+  subscriptionId: string,
+): Promise<number> {
+  const rows = await db
+    .select({
+      value: sql<number>`coalesce(sum(${subscriptionMember.shareMinor}), 0)`,
+    })
+    .from(subscriptionMember)
+    .where(eq(subscriptionMember.subscriptionId, subscriptionId))
+  return rows[0]?.value ?? 0
+}
+
+/** False when shrinking a price would strand shares people already agreed to. */
+export async function priceCoversShares(
+  db: Database,
+  subscriptionId: string,
+  price: number,
+): Promise<boolean> {
+  return (await allocatedFor(db, subscriptionId)) <= price
+}
+
 export function inviteExpiry(now: Date): Date {
   return new Date(now.getTime() + INVITE_TTL_DAYS * 24 * 60 * 60 * 1000)
 }
