@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  inboxSummary,
   listNotifications,
   markNotificationsRead,
   reminderCandidates,
@@ -14,6 +15,21 @@ import {
 import { createTestDb, insertTestUser } from '@/test/db'
 
 const now = new Date('2026-10-14T12:00:00.000Z')
+
+const ratesPayload = {
+  base: 'EUR',
+  date: '2026-10-14',
+  rates: { DKK: 7.46 },
+}
+
+function fakeFetch(payload: unknown) {
+  const fetchFn = async () => ({
+    ok: true,
+    status: 200,
+    json: async () => payload,
+  })
+  return { fetchFn }
+}
 
 async function enrichedFor(
   db: Parameters<typeof listSubscriptions>[0],
@@ -183,7 +199,72 @@ describe('reminder runs', () => {
     const items = await listNotifications(db, 'u1', { limit: 10 })
     expect(items).toHaveLength(1)
     expect(items[0]?.title).toContain('Netflix')
+    expect(items[0]?.subscriptionName).toBe('Netflix')
+    expect(items[0]?.subscriptionPrice).toBe(19900)
+    expect(items[0]?.subscriptionCurrency).toBe('DKK')
+    expect(items[0]?.subscriptionLogo).toBeNull()
     expect(await unreadCount(db, 'u1')).toBe(1)
+  })
+
+  it('totals reminders due within the week in the main currency', async () => {
+    const { db } = createTestDb()
+    await insertTestUser(db, 'u1')
+    await updateSettings(db, 'u1', { remindDaysBefore: 20 })
+
+    await createSubscription(
+      db,
+      'u1',
+      {
+        name: 'Weekly DKK',
+        price: 19900,
+        currency: 'DKK',
+        cycleUnit: 'months',
+        cycleCount: 1,
+        nextPayment: new Date('2026-10-16T00:00:00.000Z'),
+      },
+      now,
+    )
+    await createSubscription(
+      db,
+      'u1',
+      {
+        name: 'Weekly EUR',
+        price: 500,
+        currency: 'EUR',
+        cycleUnit: 'months',
+        cycleCount: 1,
+        nextPayment: new Date('2026-10-18T00:00:00.000Z'),
+      },
+      now,
+    )
+    await createSubscription(
+      db,
+      'u1',
+      {
+        name: 'Later DKK',
+        price: 9900,
+        currency: 'DKK',
+        cycleUnit: 'months',
+        cycleCount: 1,
+        nextPayment: new Date('2026-10-30T00:00:00.000Z'),
+      },
+      now,
+    )
+
+    await runDueReminders(db, 'u1', { now })
+    const items = await listNotifications(db, 'u1', { limit: 10 })
+    expect(items).toHaveLength(3)
+
+    const summary = await inboxSummary(db, 'u1', items, {
+      now,
+      ...fakeFetch(ratesPayload),
+    })
+
+    // 19900 DKK + 500 EUR minor at 7.46 = 3730 DKK; the third reminder
+    // due in 16 days sits outside the window.
+    expect(summary.weekTotalMinor).toBe(23630)
+    expect(summary.currency).toBe('DKK')
+    expect(summary.unconvertibleCurrencies).toEqual([])
   })
 
   it('uses the user default and marks notifications read', async () => {

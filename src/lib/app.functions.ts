@@ -18,6 +18,7 @@ import * as ical from '../server/services/ical'
 import * as incomeSources from '../server/services/income-sources'
 import * as paymentMethods from '../server/services/payment-methods'
 import {
+  inboxSummary,
   listNotifications,
   markNotificationsRead,
   maybeRunReminders,
@@ -78,7 +79,8 @@ export const getInbox = createServerFn({ method: 'GET' }).handler(async () => {
     listNotifications(db, userId, { limit: 50 }),
     unreadCount(db, userId),
   ])
-  return { items, unread }
+  const summary = await inboxSummary(db, userId, items)
+  return { items, unread, summary }
 })
 
 export const markInboxRead = createServerFn({ method: 'POST' })

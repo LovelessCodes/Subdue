@@ -1,9 +1,10 @@
 import { and, count, desc, eq, inArray, isNull } from 'drizzle-orm'
-import { notification } from '../../lib/auth-schema'
+import { notification, subscription } from '../../lib/auth-schema'
 import type { Database } from '../../lib/db'
-import { formatDate, formatMinor } from '../../lib/money'
+import { convertMinorUnits, formatDate, formatMinor } from '../../lib/money'
 import type { Sender } from '../senders'
 import type { ChannelType } from './channels'
+import { crossRate, ensureRates, ratesMap, type Fetcher } from './currencies'
 import { dispatchUserDeliveries, enqueueDeliveries } from './deliveries'
 import { getSettings } from './settings'
 import {
@@ -136,22 +137,114 @@ export async function runDueReminders(
   return { created, ids }
 }
 
+export type NotificationView = {
+  id: string
+  type: string
+  title: string
+  body: string
+  dueDate: Date
+  readAt: Date | null
+  subscriptionId: string
+  createdAt: Date
+  subscriptionName: string
+  subscriptionPrice: number
+  subscriptionCurrency: string
+  subscriptionLogo: string | null
+}
+
 export async function listNotifications(
   db: Database,
   userId: string,
   params: { limit: number; unreadOnly?: boolean },
-) {
+): Promise<NotificationView[]> {
   const filters = [eq(notification.userId, userId)]
   if (params.unreadOnly) {
     filters.push(isNull(notification.readAt))
   }
 
   return db
-    .select()
+    .select({
+      id: notification.id,
+      type: notification.type,
+      title: notification.title,
+      body: notification.body,
+      dueDate: notification.dueDate,
+      readAt: notification.readAt,
+      subscriptionId: notification.subscriptionId,
+      createdAt: notification.createdAt,
+      subscriptionName: subscription.name,
+      subscriptionPrice: subscription.price,
+      subscriptionCurrency: subscription.currency,
+      subscriptionLogo: subscription.logo,
+    })
     .from(notification)
+    .innerJoin(subscription, eq(notification.subscriptionId, subscription.id))
     .where(and(...filters))
     .orderBy(desc(notification.createdAt))
     .limit(params.limit)
+}
+
+export type InboxSummary = {
+  currency: string
+  locale: string
+  weekTotalMinor: number
+  unconvertibleCurrencies: string[]
+}
+
+/**
+ * Total of reminders due within the next week, converted to the main
+ * currency — mirrors the dashboard's conversion rules.
+ */
+export async function inboxSummary(
+  db: Database,
+  userId: string,
+  items: NotificationView[],
+  options: { now?: Date; fetchFn?: Fetcher } = {},
+): Promise<InboxSummary> {
+  const now = options.now ?? new Date()
+  const settings = await getSettings(db, userId)
+  const today = dayNumber(now)
+  const dueSoon = items.filter((item) => {
+    const days = dayNumber(item.dueDate) - today
+    return days >= 0 && days <= 7
+  })
+
+  let weekTotalMinor = 0
+  const unconvertible = new Set<string>()
+
+  if (dueSoon.length > 0) {
+    const { rows: rateRows } = await ensureRates(db, {
+      now,
+      fetchFn: options.fetchFn,
+    })
+    const rates = ratesMap(rateRows)
+
+    for (const item of dueSoon) {
+      const rate = crossRate(
+        item.subscriptionCurrency,
+        settings.currency,
+        rates,
+      )
+      if (rate === null) {
+        unconvertible.add(item.subscriptionCurrency)
+        continue
+      }
+
+      weekTotalMinor += convertMinorUnits(
+        item.subscriptionPrice,
+        rate,
+        item.subscriptionCurrency,
+        settings.currency,
+      )
+    }
+  }
+
+  return {
+    currency: settings.currency,
+    locale: settings.locale,
+    weekTotalMinor,
+    unconvertibleCurrencies: [...unconvertible].sort(),
+  }
 }
 
 export async function unreadCount(
