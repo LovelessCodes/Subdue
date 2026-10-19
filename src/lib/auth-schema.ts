@@ -414,6 +414,42 @@ export const subscription = sqliteTable(
   ],
 )
 
+/**
+ * A split of a subscription. The owner keeps the canonical row; every other
+ * person is a member row with a share in the subscription's currency.
+ * `user_id` is null until the person accepts an invite (or forever, for a
+ * name-only placeholder).
+ */
+export const subscriptionMember = sqliteTable(
+  'subscription_member',
+  {
+    id: text('id').primaryKey(),
+    subscriptionId: text('subscription_id')
+      .notNull()
+      .references(() => subscription.id, { onDelete: 'cascade' }),
+    userId: text('user_id').references(() => user.id, { onDelete: 'cascade' }),
+    displayName: text('display_name').notNull(),
+    email: text('email'),
+    shareMinor: integer('share_minor').notNull(),
+    status: text('status').notNull(),
+    /** SHA-256 of the one-time invite token; null unless `status = invited`. */
+    inviteHash: text('invite_hash'),
+    inviteExpiresAt: integer('invite_expires_at', { mode: 'timestamp_ms' }),
+    categoryId: text('category_id').references(() => category.id, {
+      onDelete: 'set null',
+    }),
+    remindEnabled: integer('remind_enabled', { mode: 'boolean' }).default(true),
+    createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
+  },
+  (table) => [
+    index('subscriptionMember_subscriptionId_idx').on(table.subscriptionId),
+    index('subscriptionMember_userId_idx').on(table.userId),
+    uniqueIndex('subscriptionMember_subscriptionId_userId_uidx')
+      .on(table.subscriptionId, table.userId)
+      .where(sql`${table.userId} is not null`),
+  ],
+)
+
 export const oauthClient = sqliteTable(
   'oauth_client',
   {
