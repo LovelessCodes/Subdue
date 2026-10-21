@@ -28,7 +28,7 @@ import { splitErrorText } from '@/lib/sharing-copy'
 import type { SubscriptionWithRecurrence } from '@/server/services/subscriptions'
 
 type Props = {
-  subscription: SubscriptionWithRecurrence
+  subscription: SubscriptionWithRecurrence | null
   open: boolean
   onOpenChange: (open: boolean) => void
 }
@@ -45,21 +45,22 @@ export function SharedSubscriptionDrawer({
   const t = useTranslations('sharing')
   const locale = useLocale()
   const router = useRouter()
-  const [remind, setRemind] = useState(subscription.remindEnabled !== false)
+  const subscriptionId = subscription?.id
+  const remindEnabled = subscription?.remindEnabled
+  const [remind, setRemind] = useState(remindEnabled !== false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [confirmLeave, setConfirmLeave] = useState(false)
 
   useEffect(() => {
-    if (open) {
-      setRemind(subscription.remindEnabled !== false)
+    if (open && subscriptionId) {
+      setRemind(remindEnabled !== false)
       setError(null)
       setConfirmLeave(false)
     }
-  }, [open, subscription.remindEnabled, subscription.id])
+  }, [open, subscriptionId, remindEnabled])
 
-  const owner = subscription.ownerName ?? ''
-  const memberId = subscription.member?.id
+  const memberId = subscription?.member?.id
 
   async function toggleReminder(enabled: boolean) {
     if (!memberId) return
@@ -92,6 +93,16 @@ export function SharedSubscriptionDrawer({
       setBusy(false)
     }
   }
+
+  if (!subscription) {
+    return (
+      <Drawer open={false} onOpenChange={onOpenChange} position="right">
+        <DrawerPopup variant="inset" showCloseButton />
+      </Drawer>
+    )
+  }
+
+  const owner = subscription.ownerName ?? ''
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange} position="right">

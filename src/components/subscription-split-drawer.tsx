@@ -52,7 +52,7 @@ import type { SubscriptionWithRecurrence } from '@/server/services/subscriptions
 const MS_PER_DAY = 24 * 60 * 60 * 1000
 
 type Props = {
-  subscription: SubscriptionWithRecurrence
+  subscription: SubscriptionWithRecurrence | null
   open: boolean
   onOpenChange: (open: boolean) => void
 }
@@ -79,7 +79,7 @@ export function SubscriptionSplitDrawer({
   const [addName, setAddName] = useState('')
   const [addAmount, setAddAmount] = useState('')
 
-  const subscriptionId = subscription.id
+  const subscriptionId = subscription?.id
 
   // The translator identity can change when the page re-renders around the
   // sheet; the fetch must not restart because of that.
@@ -89,6 +89,7 @@ export function SubscriptionSplitDrawer({
   }, [t])
 
   const refresh = useCallback(async () => {
+    if (!subscriptionId) return
     try {
       const data = await getSubscriptionSplit({ data: { id: subscriptionId } })
       setMembers(data.members)
@@ -99,7 +100,7 @@ export function SubscriptionSplitDrawer({
   }, [subscriptionId])
 
   useEffect(() => {
-    if (!open) return
+    if (!open || !subscriptionId) return
     setMembers(null)
     setError(null)
     setTokens({})
@@ -108,8 +109,17 @@ export function SubscriptionSplitDrawer({
     setAddName('')
     setAddAmount('')
     void refresh()
-  }, [open, refresh])
+  }, [open, refresh, subscriptionId])
 
+  if (!subscription) {
+    return (
+      <Drawer open={false} onOpenChange={onOpenChange} position="right">
+        <DrawerPopup variant="inset" showCloseButton className="sm:max-w-lg" />
+      </Drawer>
+    )
+  }
+
+  const id = subscription.id
   const people = members ?? []
   const allocated = people.reduce((sum, member) => sum + member.shareMinor, 0)
   const over = Math.max(0, allocated - subscription.price)
@@ -162,7 +172,7 @@ export function SubscriptionSplitDrawer({
     await run('add', async () => {
       await addSplitMember({
         data: {
-          subscriptionId,
+          subscriptionId: id,
           displayName: name,
           shareMinor: Math.round(parsed * 100),
         },

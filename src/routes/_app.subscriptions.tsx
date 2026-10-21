@@ -62,9 +62,11 @@ function Subscriptions() {
   const [splitFor, setSplitFor] = useState<SubscriptionWithRecurrence | null>(
     null,
   )
+  const [splitOpen, setSplitOpen] = useState(false)
   const [viewing, setViewing] = useState<SubscriptionWithRecurrence | null>(
     null,
   )
+  const [viewingOpen, setViewingOpen] = useState(false)
 
   const own = items.filter((subscription) => subscription.viewer === 'owner')
   const shared = items.filter(
@@ -194,7 +196,10 @@ function Subscriptions() {
                         aria-label={t('splitButton', {
                           name: subscription.name,
                         })}
-                        onClick={() => setSplitFor(subscription)}
+                        onClick={() => {
+                          setSplitFor(subscription)
+                          setSplitOpen(true)
+                        }}
                       >
                         <UsersRound />
                       </Button>
@@ -284,7 +289,10 @@ function Subscriptions() {
                         aria-label={t('viewDetails', {
                           name: subscription.name,
                         })}
-                        onClick={() => setViewing(subscription)}
+                        onClick={() => {
+                          setViewing(subscription)
+                          setViewingOpen(true)
+                        }}
                       >
                         <ChevronRight />
                       </Button>
@@ -316,27 +324,17 @@ function Subscriptions() {
         defaultRemindDays={settings.remindDaysBefore}
       />
 
-      {splitFor ? (
-        <SubscriptionSplitDrawer
-          subscription={splitFor}
-          open
-          onOpenChange={(next) => {
-            if (!next) {
-              setSplitFor(null)
-            }
-          }}
-        />
-      ) : null}
+      <SubscriptionSplitDrawer
+        subscription={splitFor}
+        open={splitOpen}
+        onOpenChange={setSplitOpen}
+      />
 
-      {viewing ? (
-        <SharedSubscriptionDrawer
-          subscription={viewing}
-          open
-          onOpenChange={(next) => {
-            if (!next) setViewing(null)
-          }}
-        />
-      ) : null}
+      <SharedSubscriptionDrawer
+        subscription={viewing}
+        open={viewingOpen}
+        onOpenChange={setViewingOpen}
+      />
     </div>
   )
 }
