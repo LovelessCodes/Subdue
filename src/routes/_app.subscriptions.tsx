@@ -80,17 +80,21 @@ function RowStatuses({
   locale: string
   t: SharingTranslator
 }) {
+  const tPage = useTranslations('subscriptions')
+
   return (
     <div className="flex flex-wrap items-center gap-1">
       {subscription.cancelledAt ? (
         <Badge variant="outline">
-          ends {formatDate(subscription.cancelledAt, locale)}
+          {tPage('endsOn', {
+            date: formatDate(subscription.cancelledAt, locale),
+          })}
         </Badge>
       ) : subscription.autoRenew === false ? (
-        <Badge variant="outline">no auto-renew</Badge>
+        <Badge variant="outline">{tPage('noAutoRenew')}</Badge>
       ) : null}
       {subscription.remindEnabled === false ? (
-        <Badge variant="outline">no reminders</Badge>
+        <Badge variant="outline">{tPage('noReminders')}</Badge>
       ) : null}
       {subscription.sharedCount > 0 ? (
         <Badge variant="secondary" className="gap-1">
@@ -115,6 +119,7 @@ function OwnRow({
   onEdit: (subscription: SubscriptionWithRecurrence) => void
   onSplit: (subscription: SubscriptionWithRecurrence) => void
 }) {
+  const tPage = useTranslations('subscriptions')
   const amount = formatMinor(subscription.price, subscription.currency, locale)
 
   return (
@@ -129,7 +134,9 @@ function OwnRow({
                 href={subscription.url}
                 target="_blank"
                 rel="noreferrer"
-                aria-label={`Open ${subscription.name}`}
+                aria-label={tPage('openSubscription', {
+                  name: subscription.name,
+                })}
                 className="text-muted-foreground hover:text-foreground"
               >
                 <ExternalLink className="size-3.5" />
@@ -137,8 +144,10 @@ function OwnRow({
             ) : null}
           </div>
           <p className="truncate text-xs text-muted-foreground">
-            {cycleText(t, subscription.cycleCount, subscription.cycleUnit)} ·
-            next {formatDate(subscription.nextDue, locale)}
+            {cycleText(t, subscription.cycleCount, subscription.cycleUnit)} ·{' '}
+            {tPage('nextOn', {
+              date: formatDate(subscription.nextDue, locale),
+            })}
             {subscription.paymentMethodName
               ? ` · ${subscription.paymentMethodName}`
               : ''}
@@ -153,12 +162,13 @@ function OwnRow({
         <p className="text-sm tabular-nums">{amount}</p>
         {subscription.sharedCount > 0 ? (
           <p className="text-[11px] text-muted-foreground">
-            your share{' '}
-            {formatMinor(
-              subscription.viewerShareMinor,
-              subscription.currency,
-              locale,
-            )}
+            {tPage('yourShare', {
+              amount: formatMinor(
+                subscription.viewerShareMinor,
+                subscription.currency,
+                locale,
+              ),
+            })}
           </p>
         ) : null}
       </div>
@@ -181,7 +191,9 @@ function OwnRow({
         <Button
           variant="ghost"
           size="icon-sm"
-          aria-label={`Edit ${subscription.name}`}
+          aria-label={tPage('editSubscription', {
+            name: subscription.name,
+          })}
           onClick={() => onEdit(subscription)}
         >
           <Pencil />
@@ -202,6 +214,8 @@ function SharedRow({
   t: SharingTranslator
   onView: (subscription: SubscriptionWithRecurrence) => void
 }) {
+  const tPage = useTranslations('subscriptions')
+
   return (
     <div className="flex w-full items-start gap-3 px-4 py-2.5 sm:items-center">
       <div className="flex min-w-0 flex-1 items-center gap-3">
@@ -214,7 +228,9 @@ function SharedRow({
                 href={subscription.url}
                 target="_blank"
                 rel="noreferrer"
-                aria-label={`Open ${subscription.name}`}
+                aria-label={tPage('openSubscription', {
+                  name: subscription.name,
+                })}
                 className="text-muted-foreground hover:text-foreground"
               >
                 <ExternalLink className="size-3.5" />
@@ -223,8 +239,10 @@ function SharedRow({
           </div>
           <p className="truncate text-xs text-muted-foreground">
             {t('splitWith', { owner: subscription.ownerName ?? '' })} ·{' '}
-            {cycleText(t, subscription.cycleCount, subscription.cycleUnit)} ·
-            next {formatDate(subscription.nextDue, locale)}
+            {cycleText(t, subscription.cycleCount, subscription.cycleUnit)} ·{' '}
+            {tPage('nextOn', {
+              date: formatDate(subscription.nextDue, locale),
+            })}
           </p>
         </div>
       </div>
@@ -275,6 +293,7 @@ export const Route = createFileRoute('/_app/subscriptions')({
 function Subscriptions() {
   const { items, settings, categories, paymentMethods } = Route.useLoaderData()
   const t = useTranslations('sharing')
+  const tPage = useTranslations('subscriptions')
   const [open, setOpen] = useState(false)
   const [editing, setEditing] = useState<SubscriptionWithRecurrence | null>(
     null,
@@ -306,7 +325,7 @@ function Subscriptions() {
       const id = category?.id ?? 'uncategorized'
       const group = grouped.get(id) ?? {
         id,
-        name: category?.name ?? 'Uncategorized',
+        name: category?.name ?? tPage('uncategorized'),
         color: category?.color ?? null,
         items: [],
         monthlyMinor: 0,
@@ -333,9 +352,10 @@ function Subscriptions() {
           ),
           totalsLabel: [...totals.entries()]
             .sort((a, b) => b[1] - a[1])
-            .map(
-              ([currency, minor]) =>
-                `${formatMinor(minor, currency, settings.locale)}/mo`,
+            .map(([currency, minor]) =>
+              tPage('perMonth', {
+                amount: formatMinor(minor, currency, settings.locale),
+              }),
             )
             .join(' · '),
         }
@@ -379,25 +399,24 @@ function Subscriptions() {
           <CardHeader>
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <CardTitle>Subscriptions</CardTitle>
+                <CardTitle>{tPage('title')}</CardTitle>
                 <CardDescription>
-                  {own.length} tracked
+                  {tPage('trackedCount', { count: own.length })}
                   {settings.currency !== 'DKK'
-                    ? ` · totals in ${settings.currency}`
+                    ? ` · ${tPage('totalsIn', {
+                        currency: settings.currency,
+                      })}`
                     : ''}
                 </CardDescription>
               </div>
               <Button size="sm" onClick={openCreate}>
-                Add subscription
+                {tPage('addSubscription')}
               </Button>
             </div>
           </CardHeader>
           <CardContent className={groups.length ? 'px-0' : undefined}>
             {own.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                Nothing here yet — add your first subscription with the button
-                above, or import one (see “Moving your data” in the README).
-              </p>
+              <p className="text-sm text-muted-foreground">{tPage('empty')}</p>
             ) : (
               groups.map((group, index) => (
                 <section key={group.id} className={index > 0 ? 'border-t' : ''}>

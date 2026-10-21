@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
+import { useTranslations } from 'use-intl'
 import { PaymentMethodIcon } from '@/components/payment-method-icon'
 import { SubscriptionAvatar } from '@/components/subscription-avatar'
 import { Button } from '@/components/ui/button'
@@ -111,19 +112,6 @@ function initialForm(
   }
 }
 
-function friendly(message: string): string {
-  if (message.includes('PAYMENT_METHOD_NOT_FOUND')) {
-    return 'That payment method no longer exists — pick another.'
-  }
-  if (message.includes('LOGO_NOT_FOUND')) {
-    return 'The logo upload did not finish — try again.'
-  }
-  if (message.includes('SUBSCRIPTION_NOT_FOUND')) {
-    return 'That subscription no longer exists.'
-  }
-  return message
-}
-
 export function SubscriptionForm({
   open,
   onOpenChange,
@@ -147,6 +135,8 @@ export function SubscriptionForm({
   defaultRemindDays: number
 }) {
   const router = useRouter()
+  const t = useTranslations('subscriptionForm')
+  const tSharing = useTranslations('sharing')
   const [form, setForm] = useState<FormState>(() =>
     initialForm(subscription, defaultCurrency),
   )
@@ -177,6 +167,26 @@ export function SubscriptionForm({
     setForm((current) => ({ ...current, [key]: value }))
   }
 
+  function friendly(message: string): string {
+    if (message.includes('PAYMENT_METHOD_NOT_FOUND')) {
+      return t('errPaymentMethod')
+    }
+    if (message.includes('LOGO_NOT_FOUND')) {
+      return t('errLogoMissing')
+    }
+    if (message.includes('SUBSCRIPTION_NOT_FOUND')) {
+      return t('errSubscription')
+    }
+    return message
+  }
+
+  function unitLabel(unit: string): string {
+    if (unit === 'days') return tSharing('unitDays')
+    if (unit === 'weeks') return tSharing('unitWeeks')
+    if (unit === 'years') return tSharing('unitYears')
+    return tSharing('unitMonths')
+  }
+
   async function save() {
     setError(null)
 
@@ -185,19 +195,19 @@ export function SubscriptionForm({
     const count = Number(form.cycleCount)
 
     if (!form.name.trim()) {
-      setError('Give the subscription a name.')
+      setError(t('errName'))
       return
     }
     if (!Number.isFinite(priceNumber) || priceNumber < 0) {
-      setError('Price must be a positive number.')
+      setError(t('errPrice'))
       return
     }
     if (!/^\d{4}-\d{2}-\d{2}$/.test(form.nextPayment)) {
-      setError('A next payment date is required.')
+      setError(t('errNext'))
       return
     }
     if (!Number.isInteger(count) || count < 1) {
-      setError('The cycle needs a whole number of at least 1.')
+      setError(t('errCycle'))
       return
     }
 
@@ -212,10 +222,10 @@ export function SubscriptionForm({
         if (!response.ok) {
           throw new Error(
             response.status === 413
-              ? 'Logo is larger than 1 MiB.'
+              ? t('errLogoSize')
               : response.status === 415
-                ? 'Logo must be a PNG, JPEG, GIF or WebP.'
-                : 'Logo upload failed.',
+                ? t('errLogoType')
+                : t('errLogoUpload'),
           )
         }
         logo = ((await response.json()) as { logo: string }).logo
@@ -254,7 +264,7 @@ export function SubscriptionForm({
       onOpenChange(false)
     } catch (caught) {
       setError(
-        friendly(caught instanceof Error ? caught.message : 'Save failed.'),
+        friendly(caught instanceof Error ? caught.message : t('errSave')),
       )
     } finally {
       setPending(false)
@@ -272,7 +282,7 @@ export function SubscriptionForm({
       onOpenChange(false)
     } catch (caught) {
       setError(
-        friendly(caught instanceof Error ? caught.message : 'Delete failed.'),
+        friendly(caught instanceof Error ? caught.message : t('errDelete')),
       )
     } finally {
       setPending(false)
@@ -284,18 +294,17 @@ export function SubscriptionForm({
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>
-            {subscription ? `Edit ${subscription.name}` : 'Add subscription'}
+            {subscription
+              ? t('titleEdit', { name: subscription.name })
+              : t('titleAdd')}
           </DialogTitle>
-          <DialogDescription>
-            Everything is optional beyond the name, price, cycle and next
-            payment date.
-          </DialogDescription>
+          <DialogDescription>{t('description')}</DialogDescription>
         </DialogHeader>
 
         <DialogPanel>
           <FieldGroup className="gap-4">
             <Field>
-              <FieldLabel htmlFor="subscription-name">Name</FieldLabel>
+              <FieldLabel htmlFor="subscription-name">{t('name')}</FieldLabel>
               <Input
                 id="subscription-name"
                 value={form.name}
@@ -306,7 +315,9 @@ export function SubscriptionForm({
 
             <div className="grid grid-cols-2 gap-4">
               <Field>
-                <FieldLabel htmlFor="subscription-price">Price</FieldLabel>
+                <FieldLabel htmlFor="subscription-price">
+                  {t('price')}
+                </FieldLabel>
                 <Input
                   id="subscription-price"
                   value={form.price}
@@ -317,7 +328,7 @@ export function SubscriptionForm({
               </Field>
               <Field>
                 <FieldLabel htmlFor="subscription-currency">
-                  Currency
+                  {t('currency')}
                 </FieldLabel>
                 <Input
                   id="subscription-currency"
@@ -333,9 +344,13 @@ export function SubscriptionForm({
 
             <div className="grid grid-cols-2 gap-4">
               <Field>
-                <FieldLabel>Cycle</FieldLabel>
+                <FieldLabel>{t('cycle')}</FieldLabel>
                 <Select
                   value={form.cycleUnit}
+                  items={CYCLE_UNITS.map((unit) => ({
+                    value: unit,
+                    label: unitLabel(unit),
+                  }))}
                   onValueChange={(value) => set('cycleUnit', String(value))}
                 >
                   <SelectTrigger>
@@ -344,7 +359,7 @@ export function SubscriptionForm({
                   <SelectContent>
                     {CYCLE_UNITS.map((unit) => (
                       <SelectItem key={unit} value={unit}>
-                        {unit}
+                        {unitLabel(unit)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -352,7 +367,7 @@ export function SubscriptionForm({
               </Field>
               <Field>
                 <FieldLabel htmlFor="subscription-count">
-                  Every … cycles
+                  {t('everyCycles')}
                 </FieldLabel>
                 <Input
                   id="subscription-count"
@@ -364,7 +379,9 @@ export function SubscriptionForm({
             </div>
 
             <Field>
-              <FieldLabel htmlFor="subscription-next">Next payment</FieldLabel>
+              <FieldLabel htmlFor="subscription-next">
+                {t('nextPayment')}
+              </FieldLabel>
               <Input
                 id="subscription-next"
                 type="date"
@@ -375,14 +392,14 @@ export function SubscriptionForm({
 
             <div className="grid grid-cols-2 gap-4">
               <Field>
-                <FieldLabel>Category</FieldLabel>
+                <FieldLabel>{t('category')}</FieldLabel>
                 <Select
                   value={form.categoryId}
                   items={[
-                    { label: 'None', value: NONE },
+                    { label: t('none'), value: NONE },
                     ...shownCategories.map((category) => ({
                       label: category.archivedAt
-                        ? `${category.name} (archived)`
+                        ? `${category.name} ${t('archived')}`
                         : category.name,
                       value: category.id,
                     })),
@@ -393,34 +410,32 @@ export function SubscriptionForm({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value={NONE}>None</SelectItem>
+                    <SelectItem value={NONE}>{t('none')}</SelectItem>
                     {shownCategories.map((category) => (
                       <SelectItem key={category.id} value={category.id}>
                         {category.name}
-                        {category.archivedAt ? ' (archived)' : ''}
+                        {category.archivedAt ? ` ${t('archived')}` : ''}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
                 {shownCategories.length === 0 ? (
-                  <FieldDescription>
-                    None yet — add categories in Settings.
-                  </FieldDescription>
+                  <FieldDescription>{t('noneCategories')}</FieldDescription>
                 ) : null}
               </Field>
               <Field>
-                <FieldLabel>Payment method</FieldLabel>
+                <FieldLabel>{t('paymentMethod')}</FieldLabel>
                 <Select
                   value={form.paymentMethodId}
                   items={[
-                    { label: 'None', value: NONE },
+                    { label: t('none'), value: NONE },
                     ...shownMethods.map((method) => ({
                       label: (
                         <span className="flex items-center gap-1.5">
                           <PaymentMethodIcon icon={method.icon ?? null} />
                           <span>
                             {method.name}
-                            {method.archivedAt ? ' (archived)' : ''}
+                            {method.archivedAt ? ` ${t('archived')}` : ''}
                           </span>
                         </span>
                       ),
@@ -435,14 +450,14 @@ export function SubscriptionForm({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value={NONE}>None</SelectItem>
+                    <SelectItem value={NONE}>{t('none')}</SelectItem>
                     {shownMethods.map((method) => (
                       <SelectItem key={method.id} value={method.id}>
                         <span className="flex items-center gap-1.5">
                           <PaymentMethodIcon icon={method.icon ?? null} />
                           <span>
                             {method.name}
-                            {method.archivedAt ? ' (archived)' : ''}
+                            {method.archivedAt ? ` ${t('archived')}` : ''}
                           </span>
                         </span>
                       </SelectItem>
@@ -450,15 +465,13 @@ export function SubscriptionForm({
                   </SelectContent>
                 </Select>
                 {shownMethods.length === 0 ? (
-                  <FieldDescription>
-                    None yet — add payment methods in Settings.
-                  </FieldDescription>
+                  <FieldDescription>{t('nonePaymentMethods')}</FieldDescription>
                 ) : null}
               </Field>
             </div>
 
             <Field>
-              <FieldLabel htmlFor="subscription-url">URL</FieldLabel>
+              <FieldLabel htmlFor="subscription-url">{t('url')}</FieldLabel>
               <Input
                 id="subscription-url"
                 value={form.url}
@@ -468,12 +481,12 @@ export function SubscriptionForm({
             </Field>
 
             <Field>
-              <FieldLabel htmlFor="subscription-notes">Notes</FieldLabel>
+              <FieldLabel htmlFor="subscription-notes">{t('notes')}</FieldLabel>
               <Textarea
                 id="subscription-notes"
                 value={form.notes}
                 onChange={(event) => set('notes', event.target.value)}
-                placeholder="Anything worth remembering at renewal time"
+                placeholder={t('notesPlaceholder')}
               />
             </Field>
 
@@ -482,12 +495,12 @@ export function SubscriptionForm({
                 checked={form.remindEnabled}
                 onCheckedChange={(checked) => set('remindEnabled', checked)}
               />
-              <FieldLabel>Notify me before it is due</FieldLabel>
+              <FieldLabel>{t('notifyBefore')}</FieldLabel>
             </Field>
 
             <Field>
               <FieldLabel htmlFor="subscription-remind">
-                Days before the due date
+                {t('daysBefore')}
               </FieldLabel>
               <Input
                 id="subscription-remind"
@@ -496,12 +509,10 @@ export function SubscriptionForm({
                   set('remindDaysBefore', event.target.value)
                 }
                 inputMode="numeric"
-                placeholder={`Default (${defaultRemindDays})`}
+                placeholder={t('defaultDays', { days: defaultRemindDays })}
                 disabled={!form.remindEnabled}
               />
-              <FieldDescription>
-                Leave empty to use the default; 0 reminds on the due date.
-              </FieldDescription>
+              <FieldDescription>{t('remindHint')}</FieldDescription>
             </Field>
 
             <Field orientation="horizontal">
@@ -509,12 +520,12 @@ export function SubscriptionForm({
                 checked={form.autoRenew}
                 onCheckedChange={(checked) => set('autoRenew', checked)}
               />
-              <FieldLabel>Auto-renew</FieldLabel>
+              <FieldLabel>{t('autoRenew')}</FieldLabel>
             </Field>
 
             <Field>
               <FieldLabel htmlFor="subscription-cancelled">
-                Ends on (optional)
+                {t('endsOn')}
               </FieldLabel>
               <Input
                 id="subscription-cancelled"
@@ -522,14 +533,11 @@ export function SubscriptionForm({
                 value={form.cancelledAt}
                 onChange={(event) => set('cancelledAt', event.target.value)}
               />
-              <FieldDescription>
-                After this date the subscription stops counting toward totals,
-                the calendar, the budget and reminders.
-              </FieldDescription>
+              <FieldDescription>{t('endsHint')}</FieldDescription>
             </Field>
 
             <Field>
-              <FieldLabel htmlFor="subscription-logo">Logo</FieldLabel>
+              <FieldLabel htmlFor="subscription-logo">{t('logo')}</FieldLabel>
               <div className="flex items-center gap-3">
                 <SubscriptionAvatar name={form.name || '?'} logo={form.logo} />
                 <Input
@@ -550,7 +558,7 @@ export function SubscriptionForm({
                       setLogoFile(null)
                     }}
                   >
-                    Remove
+                    {t('remove')}
                   </Button>
                 ) : null}
               </div>
@@ -562,12 +570,9 @@ export function SubscriptionForm({
                   setLogoFile(null)
                   set('logo', value.trim() === '' ? null : value)
                 }}
-                placeholder="…or paste an image URL"
+                placeholder={t('logoUrlPlaceholder')}
               />
-              <FieldDescription>
-                Upload a PNG, JPEG, GIF or WebP (up to 1 MiB), or paste an image
-                URL — external ones load straight from that host.
-              </FieldDescription>
+              <FieldDescription>{t('logoHint')}</FieldDescription>
             </Field>
           </FieldGroup>
         </DialogPanel>
@@ -587,7 +592,7 @@ export function SubscriptionForm({
                   onClick={remove}
                   disabled={pending}
                 >
-                  Confirm delete
+                  {t('confirmDelete')}
                 </Button>
               ) : (
                 <Button
@@ -595,7 +600,7 @@ export function SubscriptionForm({
                   onClick={() => setConfirmDelete(true)}
                   disabled={pending}
                 >
-                  Delete
+                  {t('delete')}
                 </Button>
               )
             ) : null}
@@ -606,10 +611,10 @@ export function SubscriptionForm({
               onClick={() => onOpenChange(false)}
               disabled={pending}
             >
-              Cancel
+              {t('cancel')}
             </Button>
             <Button onClick={save} disabled={pending}>
-              {pending ? 'Saving…' : 'Save'}
+              {pending ? t('saving') : t('save')}
             </Button>
           </div>
         </DialogFooter>
