@@ -532,5 +532,32 @@
     "errPaymentMethod": "Hesin gjaldingarhátturin er ikki longur til — vel ein annan.",
     "errLogoMissing": "Innleggingin av logo varð ikki liðug — royn aftur.",
     "errSubscription": "Henda áskriftin er ikki longur til."
+  },
+  "calendar": {
+    "wallEyebrow": "Kalendari",
+    "agendaEyebrow": "Mánaðurin, í rað",
+    "chargesCount": "{count, plural, one {# ávísing} other {# ávísingar}}",
+    "arrivalsCount": "{count, plural, one {# innkoma} other {# innkomur}}",
+    "due": "til gjalds",
+    "arriving": "kemur inn",
+    "net": "Netto",
+    "noRates": "eingir kursar fyri {currencies}",
+    "previousMonth": "Fyrri mánaður",
+    "nextMonth": "Næsti mánaður",
+    "today": "Í dag",
+    "calendarMonth": "Kalendarmánaður",
+    "selectedDay": "Valdur dagur",
+    "entries": "{count, plural, one {# postur} other {# postar}}",
+    "dayAria": "{date}, {count, plural, one {# postur} other {# postar}}",
+    "nothingScheduled": "Einki áætlað.",
+    "clearSelectedDay": "Strika valdan dag",
+    "selectDayHint": "Vel ein dag fyri at síggja alla uppbýtið.",
+    "chargeLegend": "Ávísing",
+    "incomeLegend": "Inntøka",
+    "monthAtGlance": "Mánaðurin í stuttum",
+    "dailyCharges": "Dagligar ávísingar",
+    "peakOn": "Toppur {date} · {amount}",
+    "largestCharge": "Størsta ávísing",
+    "moreCount": "{count, plural, one {+# fleiri} other {+# fleiri}}"
   }
 }

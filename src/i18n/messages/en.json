@@ -532,5 +532,32 @@
     "errPaymentMethod": "That payment method no longer exists — pick another.",
     "errLogoMissing": "The logo upload did not finish — try again.",
     "errSubscription": "That subscription no longer exists."
+  },
+  "calendar": {
+    "wallEyebrow": "Calendar",
+    "agendaEyebrow": "The month, in order",
+    "chargesCount": "{count, plural, one {# charge} other {# charges}}",
+    "arrivalsCount": "{count, plural, one {# arrival} other {# arrivals}}",
+    "due": "due",
+    "arriving": "arriving",
+    "net": "Net",
+    "noRates": "no rates for {currencies}",
+    "previousMonth": "Previous month",
+    "nextMonth": "Next month",
+    "today": "Today",
+    "calendarMonth": "Calendar month",
+    "selectedDay": "Selected day",
+    "entries": "{count, plural, one {# entry} other {# entries}}",
+    "dayAria": "{date}, {count, plural, one {# entry} other {# entries}}",
+    "nothingScheduled": "Nothing scheduled.",
+    "clearSelectedDay": "Clear selected day",
+    "selectDayHint": "Select a day for the full breakdown.",
+    "chargeLegend": "Charge",
+    "incomeLegend": "Income",
+    "monthAtGlance": "Month at a glance",
+    "dailyCharges": "Daily charges",
+    "peakOn": "Peak on {date} · {amount}",
+    "largestCharge": "Largest charge",
+    "moreCount": "{count, plural, one {+# more} other {+# more}}"
   }
 }

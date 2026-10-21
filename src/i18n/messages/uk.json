@@ -532,5 +532,32 @@
     "errPaymentMethod": "Цього способу оплати більше не існує — виберіть інший.",
     "errLogoMissing": "Завантаження логотипу не завершилося — спробуйте ще раз.",
     "errSubscription": "Цієї підписки більше не існує."
+  },
+  "calendar": {
+    "wallEyebrow": "Календар",
+    "agendaEyebrow": "Місяць у хронологічному порядку",
+    "chargesCount": "{count, plural, one {# списання} few {# списання} many {# списань} other {# списання}}",
+    "arrivalsCount": "{count, plural, one {# надходження} few {# надходження} many {# надходжень} other {# надходження}}",
+    "due": "до сплати",
+    "arriving": "надходить",
+    "net": "Чистий",
+    "noRates": "немає курсів для {currencies}",
+    "previousMonth": "Попередній місяць",
+    "nextMonth": "Наступний місяць",
+    "today": "Сьогодні",
+    "calendarMonth": "Календарний місяць",
+    "selectedDay": "Вибраний день",
+    "entries": "{count, plural, one {# запис} few {# записи} many {# записів} other {# запису}}",
+    "dayAria": "{date}, {count, plural, one {# запис} few {# записи} many {# записів} other {# запису}}",
+    "nothingScheduled": "Нічого не заплановано.",
+    "clearSelectedDay": "Очистити вибраний день",
+    "selectDayHint": "Виберіть день, щоб побачити повний розподіл.",
+    "chargeLegend": "Списання",
+    "incomeLegend": "Надходження",
+    "monthAtGlance": "Місяць стисло",
+    "dailyCharges": "Щоденні списання",
+    "peakOn": "Пік {date} · {amount}",
+    "largestCharge": "Найбільше списання",
+    "moreCount": "{count, plural, one {+# ще} other {+# ще}}"
   }
 }

@@ -532,5 +532,32 @@
     "errPaymentMethod": "Ce moyen de paiement n’existe plus — choisissez-en un autre.",
     "errLogoMissing": "Le téléversement du logo ne s’est pas terminé — réessayez.",
     "errSubscription": "Cet abonnement n’existe plus."
+  },
+  "calendar": {
+    "wallEyebrow": "Calendrier",
+    "agendaEyebrow": "Le mois, dans l’ordre",
+    "chargesCount": "{count, plural, one {# prélèvement} other {# prélèvements}}",
+    "arrivalsCount": "{count, plural, one {# arrivée} other {# arrivées}}",
+    "due": "à payer",
+    "arriving": "entrant",
+    "net": "Net",
+    "noRates": "aucun taux pour {currencies}",
+    "previousMonth": "Mois précédent",
+    "nextMonth": "Mois suivant",
+    "today": "Aujourd’hui",
+    "calendarMonth": "Mois calendaire",
+    "selectedDay": "Jour sélectionné",
+    "entries": "{count, plural, one {# entrée} other {# entrées}}",
+    "dayAria": "{date}, {count, plural, one {# entrée} other {# entrées}}",
+    "nothingScheduled": "Rien de prévu.",
+    "clearSelectedDay": "Effacer le jour sélectionné",
+    "selectDayHint": "Sélectionnez un jour pour le détail complet.",
+    "chargeLegend": "Prélèvement",
+    "incomeLegend": "Revenu",
+    "monthAtGlance": "Le mois en un coup d’œil",
+    "dailyCharges": "Prélèvements quotidiens",
+    "peakOn": "Pic le {date} · {amount}",
+    "largestCharge": "Prélèvement le plus élevé",
+    "moreCount": "{count, plural, one {+# autre} other {+# autres}}"
   }
 }

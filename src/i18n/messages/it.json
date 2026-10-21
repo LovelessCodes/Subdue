@@ -532,5 +532,32 @@
     "errPaymentMethod": "Quel metodo di pagamento non esiste più: scegline un altro.",
     "errLogoMissing": "Il caricamento del logo non è terminato: riprova.",
     "errSubscription": "Quell’abbonamento non esiste più."
+  },
+  "calendar": {
+    "wallEyebrow": "Calendario",
+    "agendaEyebrow": "Il mese, in ordine",
+    "chargesCount": "{count, plural, one {# addebito} other {# addebiti}}",
+    "arrivalsCount": "{count, plural, one {# arrivo} other {# arrivi}}",
+    "due": "da pagare",
+    "arriving": "in arrivo",
+    "net": "Netto",
+    "noRates": "nessun tasso per {currencies}",
+    "previousMonth": "Mese precedente",
+    "nextMonth": "Mese successivo",
+    "today": "Oggi",
+    "calendarMonth": "Mese di calendario",
+    "selectedDay": "Giorno selezionato",
+    "entries": "{count, plural, one {# voce} other {# voci}}",
+    "dayAria": "{date}, {count, plural, one {# voce} other {# voci}}",
+    "nothingScheduled": "Niente in programma.",
+    "clearSelectedDay": "Cancella giorno selezionato",
+    "selectDayHint": "Seleziona un giorno per il dettaglio completo.",
+    "chargeLegend": "Addebito",
+    "incomeLegend": "Entrata",
+    "monthAtGlance": "Il mese in sintesi",
+    "dailyCharges": "Addebiti giornalieri",
+    "peakOn": "Picco il {date} · {amount}",
+    "largestCharge": "Addebito più alto",
+    "moreCount": "{count, plural, one {+# altro} other {+# altri}}"
   }
 }

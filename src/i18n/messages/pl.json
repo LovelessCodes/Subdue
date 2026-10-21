@@ -532,5 +532,32 @@
     "errPaymentMethod": "Ta metoda płatności już nie istnieje — wybierz inną.",
     "errLogoMissing": "Przesyłanie logo nie zostało ukończone — spróbuj ponownie.",
     "errSubscription": "Ta subskrypcja już nie istnieje."
+  },
+  "calendar": {
+    "wallEyebrow": "Kalendarz",
+    "agendaEyebrow": "Miesiąc po kolei",
+    "chargesCount": "{count, plural, one {# obciążenie} few {# obciążenia} many {# obciążeń} other {# obciążenia}}",
+    "arrivalsCount": "{count, plural, one {# wpływ} few {# wpływy} many {# wpływów} other {# wpływu}}",
+    "due": "do zapłaty",
+    "arriving": "wpływa",
+    "net": "Netto",
+    "noRates": "brak kursów dla {currencies}",
+    "previousMonth": "Poprzedni miesiąc",
+    "nextMonth": "Następny miesiąc",
+    "today": "Dzisiaj",
+    "calendarMonth": "Miesiąc kalendarzowy",
+    "selectedDay": "Wybrany dzień",
+    "entries": "{count, plural, one {# wpis} few {# wpisy} many {# wpisów} other {# wpisu}}",
+    "dayAria": "{date}, {count, plural, one {# wpis} few {# wpisy} many {# wpisów} other {# wpisu}}",
+    "nothingScheduled": "Nic nie zaplanowano.",
+    "clearSelectedDay": "Wyczyść wybrany dzień",
+    "selectDayHint": "Wybierz dzień, aby zobaczyć pełne zestawienie.",
+    "chargeLegend": "Obciążenie",
+    "incomeLegend": "Wpływ",
+    "monthAtGlance": "Miesiąc w skrócie",
+    "dailyCharges": "Codzienne obciążenia",
+    "peakOn": "Szczyt {date} · {amount}",
+    "largestCharge": "Największe obciążenie",
+    "moreCount": "{count, plural, one {+# więcej} other {+# więcej}}"
   }
 }

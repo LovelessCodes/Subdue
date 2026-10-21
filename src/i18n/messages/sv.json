@@ -532,5 +532,32 @@
     "errPaymentMethod": "Betalningsmetoden finns inte längre — välj en annan.",
     "errLogoMissing": "Uppladdningen av logotypen slutfördes inte — försök igen.",
     "errSubscription": "Prenumerationen finns inte längre."
+  },
+  "calendar": {
+    "wallEyebrow": "Kalender",
+    "agendaEyebrow": "Månaden, i ordning",
+    "chargesCount": "{count, plural, one {# debitering} other {# debiteringar}}",
+    "arrivalsCount": "{count, plural, one {# inbetalning} other {# inbetalningar}}",
+    "due": "förfaller",
+    "arriving": "in",
+    "net": "Netto",
+    "noRates": "inga kurser för {currencies}",
+    "previousMonth": "Föregående månad",
+    "nextMonth": "Nästa månad",
+    "today": "I dag",
+    "calendarMonth": "Kalendermånad",
+    "selectedDay": "Vald dag",
+    "entries": "{count, plural, one {# post} other {# poster}}",
+    "dayAria": "{date}, {count, plural, one {# post} other {# poster}}",
+    "nothingScheduled": "Inget planerat.",
+    "clearSelectedDay": "Rensa vald dag",
+    "selectDayHint": "Välj en dag för hela uppdelningen.",
+    "chargeLegend": "Debitering",
+    "incomeLegend": "Inkomst",
+    "monthAtGlance": "Månaden i korthet",
+    "dailyCharges": "Dagliga debiteringar",
+    "peakOn": "Topp den {date} · {amount}",
+    "largestCharge": "Största debitering",
+    "moreCount": "{count, plural, one {+# till} other {+# till}}"
   }
 }

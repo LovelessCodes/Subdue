@@ -532,5 +532,32 @@
     "errPaymentMethod": "Maksutapaa ei enää ole — valitse toinen.",
     "errLogoMissing": "Logon lataus ei valmistunut — yritä uudelleen.",
     "errSubscription": "Tilausta ei enää ole."
+  },
+  "calendar": {
+    "wallEyebrow": "Kalenteri",
+    "agendaEyebrow": "Kuukausi järjestyksessä",
+    "chargesCount": "{count, plural, one {# veloitus} other {# veloitusta}}",
+    "arrivalsCount": "{count, plural, one {# saapuminen} other {# saapumista}}",
+    "due": "erääntyy",
+    "arriving": "saapuu",
+    "net": "Netto",
+    "noRates": "ei kursseja: {currencies}",
+    "previousMonth": "Edellinen kuukausi",
+    "nextMonth": "Seuraava kuukausi",
+    "today": "Tänään",
+    "calendarMonth": "Kalenterikuukausi",
+    "selectedDay": "Valittu päivä",
+    "entries": "{count, plural, one {# merkintä} other {# merkintää}}",
+    "dayAria": "{date}, {count, plural, one {# merkintä} other {# merkintää}}",
+    "nothingScheduled": "Ei mitään suunniteltua.",
+    "clearSelectedDay": "Tyhjennä valittu päivä",
+    "selectDayHint": "Valitse päivä nähdäksesi koko erittelyn.",
+    "chargeLegend": "Veloitus",
+    "incomeLegend": "Tulo",
+    "monthAtGlance": "Kuukausi yhdellä silmäyksellä",
+    "dailyCharges": "Päivittäiset veloitukset",
+    "peakOn": "Huippu {date} · {amount}",
+    "largestCharge": "Suurin veloitus",
+    "moreCount": "{count, plural, one {+# lisää} other {+# lisää}}"
   }
 }

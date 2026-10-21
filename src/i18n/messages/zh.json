@@ -532,5 +532,32 @@
     "errPaymentMethod": "该支付方式已不存在——请选择其他方式。",
     "errLogoMissing": "徽标上传未完成——请重试。",
     "errSubscription": "该订阅已不存在。"
+  },
+  "calendar": {
+    "wallEyebrow": "日历",
+    "agendaEyebrow": "按时间排列的月份",
+    "chargesCount": "{count, plural, one {# 笔扣费} other {# 笔扣费}}",
+    "arrivalsCount": "{count, plural, one {# 笔到账} other {# 笔到账}}",
+    "due": "待付",
+    "arriving": "到账",
+    "net": "净额",
+    "noRates": "{currencies} 没有汇率",
+    "previousMonth": "上个月",
+    "nextMonth": "下个月",
+    "today": "今天",
+    "calendarMonth": "日历月份",
+    "selectedDay": "选定日期",
+    "entries": "{count, plural, one {# 项} other {# 项}}",
+    "dayAria": "{date}，{count, plural, one {# 项} other {# 项}}",
+    "nothingScheduled": "没有安排。",
+    "clearSelectedDay": "清除选定日期",
+    "selectDayHint": "选择日期以查看完整明细。",
+    "chargeLegend": "扣费",
+    "incomeLegend": "收入",
+    "monthAtGlance": "本月概览",
+    "dailyCharges": "每日扣费",
+    "peakOn": "峰值 {date} · {amount}",
+    "largestCharge": "最大扣费",
+    "moreCount": "{count, plural, one {+# 项} other {+# 项}}"
   }
 }

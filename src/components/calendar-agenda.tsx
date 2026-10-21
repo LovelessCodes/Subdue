@@ -1,4 +1,5 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { useTranslations } from 'use-intl'
 import { Button } from '@/components/ui/button'
 import { cn } from 'cn'
 import {
@@ -25,26 +26,27 @@ export function CalendarAgenda({
     day.dueMinor > peak.dueMinor ? day : peak,
   )
   const maxDue = Math.max(1, ...model.days.map((day) => day.dueMinor))
+  const t = useTranslations('calendar')
 
   return (
     <div className="mx-auto flex w-full max-w-[1100px] flex-col gap-6">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div className="min-w-0">
           <p className="text-[10px] font-medium tracking-[0.16em] text-muted-foreground uppercase">
-            The month, in order
+            {t('agendaEyebrow')}
           </p>
           <h1 className="mt-1 text-[2.4rem] leading-none font-semibold tracking-[-0.045em] capitalize">
             {model.monthLabel}
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            {model.dueCount} {model.dueCount === 1 ? 'charge' : 'charges'}
+            {t('chargesCount', { count: model.dueCount })}
             {' · '}
             {formatMoney(
               calendar.totalMinor,
               calendar.currency,
               calendar.locale,
             )}{' '}
-            due
+            {t('due')}
             {calendar.arrivingMinor > 0 ? (
               <>
                 {' · '}
@@ -53,17 +55,20 @@ export function CalendarAgenda({
                   calendar.currency,
                   calendar.locale,
                 )}{' '}
-                arriving
+                {t('arriving')}
               </>
             ) : null}
           </p>
         </div>
 
-        <nav className="flex items-center gap-1" aria-label="Calendar month">
+        <nav
+          className="flex items-center gap-1"
+          aria-label={t('calendarMonth')}
+        >
           <Button
             variant="ghost"
             size="icon-sm"
-            aria-label="Previous month"
+            aria-label={t('previousMonth')}
             onClick={onPrev}
             disabled={!canPrev}
           >
@@ -75,12 +80,12 @@ export function CalendarAgenda({
             onClick={onToday}
             disabled={model.isCurrentMonth}
           >
-            Today
+            {t('today')}
           </Button>
           <Button
             variant="ghost"
             size="icon-sm"
-            aria-label="Next month"
+            aria-label={t('nextMonth')}
             onClick={onNext}
             disabled={!canNext}
           >
@@ -200,11 +205,13 @@ export function CalendarAgenda({
         <aside className="h-fit space-y-4 lg:sticky lg:top-6">
           <section className="rounded-2xl border bg-card p-4">
             <p className="text-[9.5px] font-medium tracking-[0.14em] text-muted-foreground uppercase">
-              Month at a glance
+              {t('monthAtGlance')}
             </p>
             <dl className="mt-3 space-y-2.5">
               <div className="flex items-baseline justify-between gap-3">
-                <dt className="text-xs text-muted-foreground">Due</dt>
+                <dt className="text-xs text-muted-foreground capitalize">
+                  {t('due')}
+                </dt>
                 <dd className="text-sm font-medium tabular-nums">
                   {formatMoney(
                     calendar.totalMinor,
@@ -214,7 +221,9 @@ export function CalendarAgenda({
                 </dd>
               </div>
               <div className="flex items-baseline justify-between gap-3">
-                <dt className="text-xs text-muted-foreground">Arriving</dt>
+                <dt className="text-xs text-muted-foreground capitalize">
+                  {t('arriving')}
+                </dt>
                 <dd className="text-sm font-medium text-primary tabular-nums">
                   +
                   {formatMoney(
@@ -225,7 +234,7 @@ export function CalendarAgenda({
                 </dd>
               </div>
               <div className="flex items-baseline justify-between gap-3 border-t pt-2.5">
-                <dt className="text-xs text-muted-foreground">Net</dt>
+                <dt className="text-xs text-muted-foreground">{t('net')}</dt>
                 <dd
                   className={cn(
                     'text-sm font-semibold tabular-nums',
@@ -245,7 +254,7 @@ export function CalendarAgenda({
           <section className="rounded-2xl border bg-card p-4">
             <div className="flex items-baseline justify-between gap-3">
               <p className="text-[9.5px] font-medium tracking-[0.14em] text-muted-foreground uppercase">
-                Daily charges
+                {t('dailyCharges')}
               </p>
               <span className="text-[9.5px] text-muted-foreground">
                 1–{model.daysInMonth}
@@ -273,14 +282,14 @@ export function CalendarAgenda({
             </div>
             {peakDay.dueMinor > 0 ? (
               <p className="mt-2 text-[10.5px] text-muted-foreground">
-                Peak on {formatDayShort(peakDay.date, calendar.locale)} ·{' '}
-                <span className="text-foreground/75">
-                  {formatMoney(
+                {t('peakOn', {
+                  date: formatDayShort(peakDay.date, calendar.locale),
+                  amount: formatMoney(
                     peakDay.dueMinor,
                     calendar.currency,
                     calendar.locale,
-                  )}
-                </span>
+                  ),
+                })}
               </p>
             ) : null}
           </section>
@@ -288,7 +297,7 @@ export function CalendarAgenda({
           {largest ? (
             <section className="rounded-2xl border bg-card p-4">
               <p className="text-[9.5px] font-medium tracking-[0.14em] text-muted-foreground uppercase">
-                Largest charge
+                {t('largestCharge')}
               </p>
               <p className="mt-2 text-sm font-medium">{largest.item.name}</p>
               <div className="mt-1 flex items-baseline justify-between gap-3">

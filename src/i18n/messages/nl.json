@@ -532,5 +532,32 @@
     "errPaymentMethod": "Die betaalmethode bestaat niet meer — kies een andere.",
     "errLogoMissing": "Het uploaden van de logo is niet voltooid — probeer het opnieuw.",
     "errSubscription": "Dat abonnement bestaat niet meer."
+  },
+  "calendar": {
+    "wallEyebrow": "Kalender",
+    "agendaEyebrow": "De maand, in volgorde",
+    "chargesCount": "{count, plural, one {# afschrijving} other {# afschrijvingen}}",
+    "arrivalsCount": "{count, plural, one {# binnenkomst} other {# binnenkomsten}}",
+    "due": "verschuldigd",
+    "arriving": "binnen",
+    "net": "Netto",
+    "noRates": "geen koersen voor {currencies}",
+    "previousMonth": "Vorige maand",
+    "nextMonth": "Volgende maand",
+    "today": "Vandaag",
+    "calendarMonth": "Kalendermaand",
+    "selectedDay": "Geselecteerde dag",
+    "entries": "{count, plural, one {# post} other {# posten}}",
+    "dayAria": "{date}, {count, plural, one {# post} other {# posten}}",
+    "nothingScheduled": "Niets gepland.",
+    "clearSelectedDay": "Geselecteerde dag wissen",
+    "selectDayHint": "Selecteer een dag voor de volledige uitsplitsing.",
+    "chargeLegend": "Afschrijving",
+    "incomeLegend": "Inkomsten",
+    "monthAtGlance": "De maand in één oogopslag",
+    "dailyCharges": "Dagelijkse afschrijvingen",
+    "peakOn": "Piek op {date} · {amount}",
+    "largestCharge": "Grootste afschrijving",
+    "moreCount": "{count, plural, one {+# meer} other {+# meer}}"
   }
 }

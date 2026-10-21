@@ -532,5 +532,32 @@
     "errPaymentMethod": "Betalingsmetoden findes ikke længere — vælg en anden.",
     "errLogoMissing": "Upload af logo blev ikke færdiggjort — prøv igen.",
     "errSubscription": "Abonnementet findes ikke længere."
+  },
+  "calendar": {
+    "wallEyebrow": "Kalender",
+    "agendaEyebrow": "Måneden, i rækkefølge",
+    "chargesCount": "{count, plural, one {# opkrævning} other {# opkrævninger}}",
+    "arrivalsCount": "{count, plural, one {# ankomst} other {# ankomster}}",
+    "due": "forfalder",
+    "arriving": "ind",
+    "net": "Netto",
+    "noRates": "ingen kurser for {currencies}",
+    "previousMonth": "Forrige måned",
+    "nextMonth": "Næste måned",
+    "today": "I dag",
+    "calendarMonth": "Kalendermåned",
+    "selectedDay": "Valgt dag",
+    "entries": "{count, plural, one {# postering} other {# posteringer}}",
+    "dayAria": "{date}, {count, plural, one {# postering} other {# posteringer}}",
+    "nothingScheduled": "Intet planlagt.",
+    "clearSelectedDay": "Ryd valgt dag",
+    "selectDayHint": "Vælg en dag for at se hele opdelingen.",
+    "chargeLegend": "Opkrævning",
+    "incomeLegend": "Indkomst",
+    "monthAtGlance": "Måneden i overblik",
+    "dailyCharges": "Daglige opkrævninger",
+    "peakOn": "Højeste den {date} · {amount}",
+    "largestCharge": "Største opkrævning",
+    "moreCount": "{count, plural, one {+# mere} other {+# mere}}"
   }
 }

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ChevronLeft, ChevronRight, X } from 'lucide-react'
+import { useTranslations } from 'use-intl'
 import { cn } from 'cn'
 import { Button } from '@/components/ui/button'
 import {
@@ -26,19 +27,20 @@ export function CalendarWall({
     model.days.find((day) => day.iso === selectedIso) ??
     null
   const labels = weekdayLabels(calendar.weekStart, calendar.locale)
+  const t = useTranslations('calendar')
 
   return (
     <div className="mx-auto flex w-full max-w-[1100px] flex-col gap-5">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div className="min-w-0">
           <p className="text-[10px] font-medium tracking-[0.16em] text-muted-foreground uppercase">
-            Calendar
+            {t('wallEyebrow')}
           </p>
           <h1 className="mt-1 text-[2rem] font-semibold tracking-[-0.035em] capitalize">
             {model.monthLabel}
           </h1>
           <p className="mt-1.5 text-sm text-muted-foreground">
-            {model.dueCount} {model.dueCount === 1 ? 'charge' : 'charges'}
+            {t('chargesCount', { count: model.dueCount })}
             {' · '}
             <span className="text-foreground">
               {formatMoney(
@@ -47,7 +49,7 @@ export function CalendarWall({
                 calendar.locale,
               )}
             </span>{' '}
-            due
+            {t('due')}
             {calendar.arrivingMinor > 0 ? (
               <>
                 {' · '}
@@ -58,23 +60,28 @@ export function CalendarWall({
                     calendar.locale,
                   )}
                 </span>{' '}
-                arriving
+                {t('arriving')}
               </>
             ) : null}
             {calendar.unconvertibleCurrencies.length > 0 ? (
               <span className="text-muted-foreground/70">
-                {' · '}no rates for{' '}
-                {calendar.unconvertibleCurrencies.join(', ')}
+                {' · '}
+                {t('noRates', {
+                  currencies: calendar.unconvertibleCurrencies.join(', '),
+                })}
               </span>
             ) : null}
           </p>
         </div>
 
-        <nav className="flex items-center gap-1" aria-label="Calendar month">
+        <nav
+          className="flex items-center gap-1"
+          aria-label={t('calendarMonth')}
+        >
           <Button
             variant="ghost"
             size="icon-sm"
-            aria-label="Previous month"
+            aria-label={t('previousMonth')}
             onClick={onPrev}
             disabled={!canPrev}
           >
@@ -86,12 +93,12 @@ export function CalendarWall({
             onClick={onToday}
             disabled={model.isCurrentMonth}
           >
-            Today
+            {t('today')}
           </Button>
           <Button
             variant="ghost"
             size="icon-sm"
-            aria-label="Next month"
+            aria-label={t('nextMonth')}
             onClick={onNext}
             disabled={!canNext}
           >
@@ -124,7 +131,10 @@ export function CalendarWall({
                     key={day.iso}
                     type="button"
                     onClick={() => setSelectedIso(day.iso)}
-                    aria-label={`${formatDayShort(day.date, calendar.locale)}, ${charges} ${charges === 1 ? 'entry' : 'entries'}`}
+                    aria-label={t('dayAria', {
+                      date: formatDayShort(day.date, calendar.locale),
+                      count: charges,
+                    })}
                     aria-pressed={isSelected}
                     className={cn(
                       'relative flex min-h-[104px] flex-col border-r border-b p-2 text-left transition-colors duration-100 ease-out outline-none last:border-r-0 [&:nth-child(7n)]:border-r-0 [&:nth-last-child(-n+7)]:border-b-0',
@@ -174,7 +184,7 @@ export function CalendarWall({
                       ))}
                       {day.due.length > 3 ? (
                         <span className="text-[9.5px] text-muted-foreground">
-                          +{day.due.length - 3} more
+                          {t('moreCount', { count: day.due.length - 3 })}
                         </span>
                       ) : null}
                       {day.income.map((item) => (
@@ -213,19 +223,17 @@ export function CalendarWall({
             <>
               <div className="min-w-[132px]">
                 <p className="text-[9px] font-medium tracking-[0.14em] text-muted-foreground uppercase">
-                  Selected day
+                  {t('selectedDay')}
                 </p>
                 <p className="mt-0.5 text-sm font-medium">
                   {formatDayShort(selected.date, calendar.locale)}
                 </p>
                 <p className="mt-0.5 text-[10px] text-muted-foreground">
-                  {selected.due.length + selected.income.length}
-                  {}
-                  {selected.due.length + selected.income.length === 1
-                    ? 'entry'
-                    : 'entries'}
+                  {t('entries', {
+                    count: selected.due.length + selected.income.length,
+                  })}
                   {selected.dueMinor > 0
-                    ? ` · ${formatMoney(selected.dueMinor, calendar.currency, calendar.locale)} due`
+                    ? ` · ${formatMoney(selected.dueMinor, calendar.currency, calendar.locale)} ${t('due')}`
                     : ''}
                 </p>
               </div>
@@ -264,7 +272,7 @@ export function CalendarWall({
                 ))}
                 {selected.due.length === 0 && selected.income.length === 0 ? (
                   <span className="text-xs text-muted-foreground">
-                    Nothing scheduled.
+                    {t('nothingScheduled')}
                   </span>
                 ) : null}
               </div>
@@ -272,7 +280,7 @@ export function CalendarWall({
               <Button
                 variant="ghost"
                 size="icon-xs"
-                aria-label="Clear selected day"
+                aria-label={t('clearSelectedDay')}
                 onClick={() => setSelectedIso(null)}
                 className="text-muted-foreground"
               >
@@ -281,7 +289,7 @@ export function CalendarWall({
             </>
           ) : (
             <p className="text-xs text-muted-foreground">
-              Select a day for the full breakdown.
+              {t('selectDayHint')}
             </p>
           )}
         </div>
@@ -290,21 +298,18 @@ export function CalendarWall({
           <div className="flex items-center gap-4">
             <span className="inline-flex items-center gap-1.5">
               <span className="size-1.5 rounded-full bg-foreground/30" />
-              Charge
+              {t('chargeLegend')}
             </span>
             <span className="inline-flex items-center gap-1.5">
               <span className="size-1.5 rounded-full bg-primary" />
-              Income
+              {t('incomeLegend')}
             </span>
             <span className="inline-flex items-center gap-1.5">
               <span className="size-1.5 rounded-full bg-primary/25 ring-1 ring-primary/40" />
-              Today
+              {t('today')}
             </span>
           </div>
-          <span>
-            {model.incomeCount}{' '}
-            {model.incomeCount === 1 ? 'arrival' : 'arrivals'}
-          </span>
+          <span>{t('arrivalsCount', { count: model.incomeCount })}</span>
         </div>
       </section>
     </div>

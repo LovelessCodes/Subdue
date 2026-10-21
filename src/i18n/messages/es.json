@@ -532,5 +532,32 @@
     "errPaymentMethod": "Ese método de pago ya no existe: elige otro.",
     "errLogoMissing": "La subida del logotipo no terminó: inténtalo de nuevo.",
     "errSubscription": "Esa suscripción ya no existe."
+  },
+  "calendar": {
+    "wallEyebrow": "Calendario",
+    "agendaEyebrow": "El mes, en orden",
+    "chargesCount": "{count, plural, one {# cargo} other {# cargos}}",
+    "arrivalsCount": "{count, plural, one {# llegada} other {# llegadas}}",
+    "due": "a pagar",
+    "arriving": "en camino",
+    "net": "Neto",
+    "noRates": "sin tipos de cambio para {currencies}",
+    "previousMonth": "Mes anterior",
+    "nextMonth": "Mes siguiente",
+    "today": "Hoy",
+    "calendarMonth": "Mes del calendario",
+    "selectedDay": "Día seleccionado",
+    "entries": "{count, plural, one {# entrada} other {# entradas}}",
+    "dayAria": "{date}, {count, plural, one {# entrada} other {# entradas}}",
+    "nothingScheduled": "Nada programado.",
+    "clearSelectedDay": "Borrar día seleccionado",
+    "selectDayHint": "Selecciona un día para ver el desglose completo.",
+    "chargeLegend": "Cargo",
+    "incomeLegend": "Ingreso",
+    "monthAtGlance": "El mes de un vistazo",
+    "dailyCharges": "Cargos diarios",
+    "peakOn": "Máximo el {date} · {amount}",
+    "largestCharge": "Cargo más alto",
+    "moreCount": "{count, plural, one {+# más} other {+# más}}"
   }
 }

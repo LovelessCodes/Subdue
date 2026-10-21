@@ -532,5 +532,32 @@
     "errPaymentMethod": "Diese Zahlungsmethode existiert nicht mehr — wähle eine andere.",
     "errLogoMissing": "Der Logo-Upload wurde nicht abgeschlossen — versuche es erneut.",
     "errSubscription": "Dieses Abonnement existiert nicht mehr."
+  },
+  "calendar": {
+    "wallEyebrow": "Kalender",
+    "agendaEyebrow": "Der Monat, der Reihe nach",
+    "chargesCount": "{count, plural, one {# Abbuchung} other {# Abbuchungen}}",
+    "arrivalsCount": "{count, plural, one {# Eingang} other {# Eingänge}}",
+    "due": "fällig",
+    "arriving": "eingehend",
+    "net": "Netto",
+    "noRates": "keine Kurse für {currencies}",
+    "previousMonth": "Voriger Monat",
+    "nextMonth": "Nächster Monat",
+    "today": "Heute",
+    "calendarMonth": "Kalendermonat",
+    "selectedDay": "Ausgewählter Tag",
+    "entries": "{count, plural, one {# Eintrag} other {# Einträge}}",
+    "dayAria": "{date}, {count, plural, one {# Eintrag} other {# Einträge}}",
+    "nothingScheduled": "Nichts geplant.",
+    "clearSelectedDay": "Ausgewählten Tag entfernen",
+    "selectDayHint": "Wähle einen Tag für die vollständige Aufschlüsselung.",
+    "chargeLegend": "Abbuchung",
+    "incomeLegend": "Eingang",
+    "monthAtGlance": "Der Monat im Überblick",
+    "dailyCharges": "Tägliche Abbuchungen",
+    "peakOn": "Höchster Wert am {date} · {amount}",
+    "largestCharge": "Größte Abbuchung",
+    "moreCount": "{count, plural, one {+# weiteres} other {+# weitere}}"
   }
 }
