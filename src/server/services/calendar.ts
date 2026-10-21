@@ -64,11 +64,14 @@ export async function getCalendarMonth(
       unit: subscription.cycleUnit as CycleUnit,
     }
 
+    // nextPayment is the next occurrence, not the first one: reach back to
+    // the month start so charges already taken this month still count.
     for (const date of occurrencesBetween(
       subscription.nextPayment,
       cycle,
       monthStart,
       monthEnd,
+      monthStart,
     )) {
       if (
         subscription.cancelledAt &&
@@ -79,7 +82,7 @@ export async function getCalendarMonth(
       entries.push({
         subscriptionId: subscription.id,
         name: subscription.name,
-        price: subscription.price,
+        price: subscription.viewerShareMinor,
         currency: subscription.currency,
         date,
       })

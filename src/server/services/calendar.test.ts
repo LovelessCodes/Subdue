@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { toIsoDay } from '@/lib/money'
 import { getCalendarMonth } from '@/server/services/calendar'
 import { createIncomeSource } from '@/server/services/income-sources'
+import { createMember } from '@/server/services/sharing'
 import { createSubscription } from '@/server/services/subscriptions'
 import { createTestDb, insertTestUser } from '@/test/db'
 
@@ -72,6 +73,73 @@ describe('calendar service', () => {
     expect(september.entries[0]?.date).toEqual(
       new Date('2026-09-01T00:00:00.000Z'),
     )
+  })
+
+  it('counts a rolled monthly subscription in the current month', async () => {
+    const { db } = createTestDb()
+    await insertTestUser(db, 'u1')
+
+    await createSubscription(
+      db,
+      'u1',
+      {
+        name: 'Rolled monthly',
+        price: 9900,
+        currency: 'DKK',
+        cycleUnit: 'months',
+        cycleCount: 1,
+        nextPayment: new Date('2026-11-01T00:00:00.000Z'),
+      },
+      now,
+    )
+
+    const october = await getCalendarMonth(
+      db,
+      'u1',
+      { year: 2026, month: 10 },
+      options,
+    )
+
+    expect(october.entries.map((entry) => toIsoDay(entry.date))).toEqual([
+      '2026-10-01',
+    ])
+    expect(october.totalMinor).toBe(9900)
+  })
+
+  it('uses the viewer share for the month total and entries', async () => {
+    const { db } = createTestDb()
+    await insertTestUser(db, 'u1')
+
+    const subscription = await createSubscription(
+      db,
+      'u1',
+      {
+        name: 'Split',
+        price: 10000,
+        currency: 'DKK',
+        cycleUnit: 'months',
+        cycleCount: 1,
+        nextPayment: new Date('2026-11-01T00:00:00.000Z'),
+      },
+      now,
+    )
+    if (!subscription) throw new Error('could not create subscription')
+
+    const member = await createMember(db, 'u1', subscription.id, {
+      displayName: 'Friend',
+      shareMinor: 4000,
+    })
+    if (typeof member === 'string') throw new Error(member)
+
+    const november = await getCalendarMonth(
+      db,
+      'u1',
+      { year: 2026, month: 11 },
+      options,
+    )
+
+    expect(november.entries[0]?.price).toBe(6000)
+    expect(november.totalMinor).toBe(6000)
   })
 
   it('keeps anniversary dates for quarterly and yearly cycles', async () => {
