@@ -1,6 +1,7 @@
 import type { Database } from '../../lib/db'
 import { convertMinorUnits } from '../../lib/money'
 import { crossRate, ensureRates, ratesMap, type Fetcher } from './currencies'
+import { listCategories } from './categories'
 import {
   listIncomeSources,
   nextArrival,
@@ -79,6 +80,20 @@ export type UpcomingIncome = {
   date: Date
 }
 
+export type CategorySubscriptionSpend = {
+  id: string
+  name: string
+  amountMinor: number
+}
+
+export type CategorySpend = {
+  id: string | null
+  name: string
+  color: string | null
+  amountMinor: number
+  subscriptions: CategorySubscriptionSpend[]
+}
+
 export type BudgetStatus = {
   currency: string
   locale: string
@@ -90,7 +105,10 @@ export type BudgetStatus = {
   incomeMinor: number | null
   /** The soonest pay ahead across active sources; null without any. */
   nextIncome: UpcomingIncome | null
+  /** Charges dated inside the period, including ones already taken. */
   dueMinor: number
+  /** The same charges grouped by category, largest first. */
+  byCategory: CategorySpend[]
   remainingMinor: number | null
   overBudget: boolean
   unconvertibleCurrencies: string[]
@@ -105,7 +123,7 @@ export async function getBudgetStatus(
   const settings = await getSettings(db, userId)
   const period = getBudgetPeriod(now, settings.payAnchorDay)
 
-  const [page, sources] = await Promise.all([
+  const [page, sources, categoryPage] = await Promise.all([
     listSubscriptions(
       db,
       userId,
@@ -113,6 +131,11 @@ export async function getBudgetStatus(
       now,
     ),
     listIncomeSources(db, userId),
+    listCategories(db, userId, {
+      limit: 1000,
+      offset: 0,
+      includeArchived: true,
+    }),
   ])
 
   const { rows: rateRows } = await ensureRates(db, {
@@ -120,9 +143,11 @@ export async function getBudgetStatus(
     fetchFn: options.fetchFn,
   })
   const rates = ratesMap(rateRows)
+  const categoryById = new Map(categoryPage.items.map((row) => [row.id, row]))
 
   let dueMinor = 0
   const unconvertible = new Set<string>()
+  const categorySpend = new Map<string, CategorySpend>()
 
   for (const subscription of page.items) {
     const cycle = {
@@ -130,11 +155,14 @@ export async function getBudgetStatus(
       unit: subscription.cycleUnit as CycleUnit,
     }
 
+    // nextPayment is the next occurrence, not the first one: reach back to
+    // the period start so charges already taken this period still count.
     const occurrences = occurrencesBetween(
       subscription.nextPayment,
       cycle,
       period.start,
       period.end,
+      period.start,
     ).filter(
       (date) =>
         !subscription.cancelledAt ||
@@ -151,14 +179,51 @@ export async function getBudgetStatus(
       continue
     }
 
-    dueMinor +=
+    const amountMinor =
       occurrences *
       convertMinorUnits(
-        subscription.price,
+        subscription.viewerShareMinor,
         rate,
         subscription.currency,
         settings.currency,
       )
+    dueMinor += amountMinor
+    if (amountMinor === 0) {
+      continue
+    }
+
+    const category = subscription.categoryId
+      ? categoryById.get(subscription.categoryId)
+      : undefined
+    const key = category?.id ?? 'uncategorized'
+    const row = categorySpend.get(key) ?? {
+      id: category?.id ?? null,
+      name: category?.name ?? 'Uncategorized',
+      color: category?.color ?? null,
+      amountMinor: 0,
+      subscriptions: [],
+    }
+    row.amountMinor += amountMinor
+
+    const subscriptionShare = row.subscriptions.find(
+      (item) => item.id === subscription.id,
+    )
+    if (subscriptionShare) {
+      subscriptionShare.amountMinor += amountMinor
+    } else {
+      row.subscriptions.push({
+        id: subscription.id,
+        name: subscription.name,
+        amountMinor,
+      })
+    }
+    categorySpend.set(key, row)
+  }
+
+  for (const row of categorySpend.values()) {
+    row.subscriptions.sort(
+      (a, b) => b.amountMinor - a.amountMinor || a.name.localeCompare(b.name),
+    )
   }
 
   let incomeMinor: number | null = null
@@ -217,6 +282,9 @@ export async function getBudgetStatus(
     incomeMinor,
     nextIncome,
     dueMinor,
+    byCategory: [...categorySpend.values()].sort(
+      (a, b) => b.amountMinor - a.amountMinor || a.name.localeCompare(b.name),
+    ),
     remainingMinor: budgetMinor === null ? null : budgetMinor - dueMinor,
     overBudget: budgetMinor !== null && dueMinor > budgetMinor,
     unconvertibleCurrencies: [...unconvertible].sort(),

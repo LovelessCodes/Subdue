@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { getBudgetPeriod, getBudgetStatus } from '@/server/services/budget'
+import { createCategory } from '@/server/services/categories'
 import { createIncomeSource } from '@/server/services/income-sources'
+import { createMember } from '@/server/services/sharing'
 import { createSubscription } from '@/server/services/subscriptions'
 import { updateSettings } from '@/server/services/settings'
 import { createTestDb, insertTestUser } from '@/test/db'
@@ -97,9 +99,9 @@ describe('budget: status', () => {
         name: 'After Period',
         price: 19900,
         currency: 'DKK',
-        cycleUnit: 'months',
+        cycleUnit: 'years',
         cycleCount: 1,
-        nextPayment: new Date('2026-10-28T00:00:00.000Z'),
+        nextPayment: new Date('2027-10-28T00:00:00.000Z'),
       },
       now,
     )
@@ -124,6 +126,161 @@ describe('budget: status', () => {
     expect(status.budgetMinor).toBe(20000)
     expect(status.remainingMinor).toBe(10100)
     expect(status.overBudget).toBe(false)
+  })
+
+  it('counts charges that were already taken this period', async () => {
+    const { db } = createTestDb()
+    await insertTestUser(db, 'u1')
+    await updateSettings(db, 'u1', { budgetAmountMinor: 200000 })
+
+    await createSubscription(
+      db,
+      'u1',
+      {
+        name: 'Monthly, rolled to next month',
+        price: 9900,
+        currency: 'DKK',
+        cycleUnit: 'months',
+        cycleCount: 1,
+        nextPayment: new Date('2026-11-01T00:00:00.000Z'),
+      },
+      now,
+    )
+    await createSubscription(
+      db,
+      'u1',
+      {
+        name: 'Quarterly, rolled to next quarter',
+        price: 5000,
+        currency: 'DKK',
+        cycleUnit: 'months',
+        cycleCount: 3,
+        nextPayment: new Date('2027-01-05T00:00:00.000Z'),
+      },
+      now,
+    )
+
+    const status = await getBudgetStatus(db, 'u1', options)
+
+    expect(status.period.start).toEqual(new Date('2026-10-01T00:00:00.000Z'))
+    expect(status.dueMinor).toBe(9900 + 5000)
+  })
+
+  it('breaks the period total down by category', async () => {
+    const { db } = createTestDb()
+    await insertTestUser(db, 'u1')
+
+    const travel = await createCategory(db, 'u1', { name: 'Travel' })
+    const music = await createCategory(db, 'u1', { name: 'Music' })
+    if (!travel || !music) throw new Error('could not create categories')
+
+    await createSubscription(
+      db,
+      'u1',
+      {
+        name: 'Train',
+        price: 1000,
+        currency: 'DKK',
+        cycleUnit: 'months',
+        cycleCount: 1,
+        nextPayment: new Date('2026-10-02T00:00:00.000Z'),
+        categoryId: travel.id,
+      },
+      now,
+    )
+    await createSubscription(
+      db,
+      'u1',
+      {
+        name: 'Gig',
+        price: 500,
+        currency: 'DKK',
+        cycleUnit: 'months',
+        cycleCount: 1,
+        nextPayment: new Date('2026-10-05T00:00:00.000Z'),
+        categoryId: music.id,
+      },
+      now,
+    )
+    await createSubscription(
+      db,
+      'u1',
+      {
+        name: 'Misc',
+        price: 250,
+        currency: 'DKK',
+        cycleUnit: 'months',
+        cycleCount: 1,
+        nextPayment: new Date('2026-10-10T00:00:00.000Z'),
+      },
+      now,
+    )
+
+    const status = await getBudgetStatus(db, 'u1', options)
+
+    expect(status.dueMinor).toBe(1750)
+    expect(status.byCategory).toMatchObject([
+      {
+        id: travel.id,
+        name: 'Travel',
+        color: null,
+        amountMinor: 1000,
+        subscriptions: [{ name: 'Train', amountMinor: 1000 }],
+      },
+      {
+        id: music.id,
+        name: 'Music',
+        color: null,
+        amountMinor: 500,
+        subscriptions: [{ name: 'Gig', amountMinor: 500 }],
+      },
+      {
+        id: null,
+        name: 'Uncategorized',
+        color: null,
+        amountMinor: 250,
+        subscriptions: [{ name: 'Misc', amountMinor: 250 }],
+      },
+    ])
+  })
+
+  it('counts only the owner share of a split subscription', async () => {
+    const { db } = createTestDb()
+    await insertTestUser(db, 'u1')
+
+    const subscription = await createSubscription(
+      db,
+      'u1',
+      {
+        name: 'Split',
+        price: 10000,
+        currency: 'DKK',
+        cycleUnit: 'months',
+        cycleCount: 1,
+        nextPayment: new Date('2026-10-01T00:00:00.000Z'),
+      },
+      now,
+    )
+    if (!subscription) throw new Error('could not create subscription')
+
+    const member = await createMember(db, 'u1', subscription.id, {
+      displayName: 'Friend',
+      shareMinor: 4000,
+    })
+    if (typeof member === 'string') throw new Error(member)
+
+    const status = await getBudgetStatus(db, 'u1', options)
+
+    expect(status.dueMinor).toBe(6000)
+    expect(status.byCategory).toMatchObject([
+      {
+        id: null,
+        name: 'Uncategorized',
+        color: null,
+        amountMinor: 6000,
+        subscriptions: [{ name: 'Split', amountMinor: 6000 }],
+      },
+    ])
   })
 
   it('flags over-budget periods and converts foreign occurrences', async () => {

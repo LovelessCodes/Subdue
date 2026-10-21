@@ -1,5 +1,7 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { ExternalLink } from 'lucide-react'
+import { useTranslations } from 'use-intl'
+import { DashboardSummary } from '@/components/dashboard-summary'
 import { SubscriptionAvatar } from '@/components/subscription-avatar'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -28,215 +30,30 @@ export const Route = createFileRoute('/_app/')({
   component: Dashboard,
 })
 
-function periodLabel(
-  period: { start: string | Date; end: string | Date; anchored: boolean },
-  locale: string,
-): string {
-  const start = new Date(period.start)
-  const end = new Date(period.end)
-
-  if (!period.anchored) {
-    return new Intl.DateTimeFormat(locale, {
-      month: 'long',
-      year: 'numeric',
-      timeZone: 'UTC',
-    }).format(start)
-  }
-
-  const short = new Intl.DateTimeFormat(locale, {
-    month: 'short',
-    day: 'numeric',
-    timeZone: 'UTC',
-  })
-
-  return `${short.format(start)} – ${short.format(end)}`
-}
-
 function Dashboard() {
   const { summary, budget } = Route.useLoaderData()
-  const money = (amountMinor: number) =>
-    formatMinor(amountMinor, summary.currency, summary.locale)
-  const next = summary.upcoming[0]
-
-  const percent =
-    budget.budgetMinor !== null && budget.budgetMinor > 0
-      ? Math.min(100, Math.round((budget.dueMinor / budget.budgetMinor) * 100))
-      : 100
+  const t = useTranslations('dashboard')
 
   return (
     <div className="min-h-full">
       <main className="flex w-full flex-col gap-6 px-6 py-8">
-        <div className="grid gap-4 sm:grid-cols-3">
-          <Card>
-            <CardHeader>
-              <CardDescription>Monthly cost</CardDescription>
-              <CardTitle className="text-2xl">
-                {money(summary.monthlyTotalMinor)}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-xs text-muted-foreground">
-                {summary.change
-                  ? `${summary.change.amountMinor >= 0 ? '+' : ''}${money(summary.change.amountMinor)} since ${summary.change.since}`
-                  : 'First month tracked'}
-                {summary.unconvertibleCurrencies.length > 0
-                  ? ` · no rates for ${summary.unconvertibleCurrencies.join(', ')}`
-                  : ''}
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardDescription>Upcoming</CardDescription>
-              <CardTitle className="text-2xl">
-                {summary.upcoming.length}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-xs text-muted-foreground">
-                through {formatDate(summary.horizon, summary.locale)} ·{' '}
-                {summary.subscriptionCount}{' '}
-                {summary.subscriptionCount === 1
-                  ? 'subscription'
-                  : 'subscriptions'}{' '}
-                tracked
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardDescription>Next charge</CardDescription>
-              <CardTitle className="text-2xl">
-                {next
-                  ? formatMinor(next.price, next.currency, summary.locale)
-                  : '—'}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-xs text-muted-foreground">
-                {next
-                  ? `${next.name} · ${formatDate(next.nextDue, summary.locale)}`
-                  : 'Nothing due in this window.'}
-              </p>
-            </CardContent>
-          </Card>
-        </div>
+        <DashboardSummary summary={summary} budget={budget} />
 
         <Card>
           <CardHeader>
+            <CardTitle>{t('upcomingPayments')}</CardTitle>
             <CardDescription>
-              {periodLabel(budget.period, budget.locale)}
-            </CardDescription>
-            <CardTitle className="text-2xl">
-              {formatMinor(budget.dueMinor, budget.currency, budget.locale)} due
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {budget.budgetMinor === null ? (
-              <p className="text-xs text-muted-foreground">
-                {budget.incomeMinor === 0 && budget.nextIncome
-                  ? `No income lands in this period — next pay ${formatDate(new Date(budget.nextIncome.date), budget.locale)}${budget.nextIncome.amountMinor > 0 ? ` (${formatMinor(budget.nextIncome.amountMinor, budget.nextIncome.currency, budget.locale)})` : ''}.`
-                  : 'No budget set for this period — configure one through the settings API to track headroom.'}
-              </p>
-            ) : (
-              <>
-                <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
-                  <div
-                    className={`h-full rounded-full ${
-                      budget.overBudget ? 'bg-destructive' : 'bg-primary'
-                    }`}
-                    style={{ width: `${percent}%` }}
-                  />
-                </div>
-                <p className="mt-2 text-xs text-muted-foreground">
-                  {budget.incomeMinor !== null ? (
-                    budget.incomeMinor > 0 ? (
-                      <>
-                        {formatMinor(
-                          budget.incomeMinor,
-                          budget.currency,
-                          budget.locale,
-                        )}{' '}
-                        arriving this period
-                        {budget.ceilingMinor !== null
-                          ? ` · capped at ${formatMinor(
-                              budget.ceilingMinor,
-                              budget.currency,
-                              budget.locale,
-                            )}`
-                          : ''}{' '}
-                        ·{' '}
-                      </>
-                    ) : budget.nextIncome ? (
-                      <>
-                        no income this period — next pay{' '}
-                        {formatDate(
-                          new Date(budget.nextIncome.date),
-                          budget.locale,
-                        )}
-                        {budget.nextIncome.amountMinor > 0
-                          ? ` (${formatMinor(
-                              budget.nextIncome.amountMinor,
-                              budget.nextIncome.currency,
-                              budget.locale,
-                            )})`
-                          : ''}{' '}
-                        ·{' '}
-                      </>
-                    ) : (
-                      <>
-                        {formatMinor(
-                          budget.incomeMinor,
-                          budget.currency,
-                          budget.locale,
-                        )}{' '}
-                        arriving this period ·{' '}
-                      </>
-                    )
-                  ) : (
-                    <>
-                      of{' '}
-                      {formatMinor(
-                        budget.budgetMinor ?? 0,
-                        budget.currency,
-                        budget.locale,
-                      )}{' '}
-                      budget ·{' '}
-                    </>
-                  )}
-                  {budget.overBudget
-                    ? `over by ${formatMinor(
-                        -(budget.remainingMinor ?? 0),
-                        budget.currency,
-                        budget.locale,
-                      )}`
-                    : `${formatMinor(
-                        budget.remainingMinor ?? 0,
-                        budget.currency,
-                        budget.locale,
-                      )} left`}
-                  {budget.unconvertibleCurrencies.length > 0
-                    ? ` · no rates for ${budget.unconvertibleCurrencies.join(', ')}`
-                    : ''}
-                </p>
-              </>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Upcoming payments</CardTitle>
-            <CardDescription>
-              Rolled forward from their cycles · through{' '}
-              {formatDate(summary.horizon, summary.locale)}.
+              {t('upcomingDescription', {
+                date: formatDate(summary.horizon, summary.locale),
+              })}
             </CardDescription>
           </CardHeader>
           <CardContent>
             {summary.upcoming.length === 0 ? (
               <p className="text-sm text-muted-foreground">
-                Nothing due through{' '}
-                {formatDate(summary.horizon, summary.locale)}.
+                {t('nothingDue', {
+                  date: formatDate(summary.horizon, summary.locale),
+                })}
               </p>
             ) : (
               <ul className="flex flex-col divide-y">
@@ -270,7 +87,7 @@ function Dashboard() {
                         <p className="text-xs text-muted-foreground">
                           {formatDate(subscription.nextDue, summary.locale)} ·{' '}
                           {formatMinor(
-                            subscription.price,
+                            subscription.viewerShareMinor,
                             subscription.currency,
                             summary.locale,
                           )}
@@ -280,8 +97,12 @@ function Dashboard() {
                     <div className="flex items-center gap-2">
                       {subscription.cancelledAt ? (
                         <Badge variant="outline">
-                          ends{' '}
-                          {formatDate(subscription.cancelledAt, summary.locale)}
+                          {t('endsOn', {
+                            date: formatDate(
+                              subscription.cancelledAt,
+                              summary.locale,
+                            ),
+                          })}
                         </Badge>
                       ) : null}
                     </div>

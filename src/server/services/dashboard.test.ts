@@ -6,6 +6,7 @@ import {
   monthlyEquivalentMinor,
   upsertCostSnapshot,
 } from '@/server/services/dashboard'
+import { createMember } from '@/server/services/sharing'
 import { createSubscription } from '@/server/services/subscriptions'
 import { createTestDb, insertTestUser } from '@/test/db'
 
@@ -76,6 +77,40 @@ describe('dashboard: summary', () => {
     expect(summary.monthlyTotalMinor).toBe(19900 + 7460)
     expect(summary.unconvertibleCurrencies).toEqual([])
     expect(summary.subscriptionCount).toBe(2)
+  })
+
+  it('totals only the owner share of a split subscription', async () => {
+    const { db } = createTestDb()
+    await insertTestUser(db, 'u1')
+
+    const subscription = await createSubscription(
+      db,
+      'u1',
+      {
+        name: 'Split',
+        price: 12000,
+        currency: 'DKK',
+        cycleUnit: 'months',
+        cycleCount: 1,
+        nextPayment: new Date('2026-11-01T00:00:00.000Z'),
+      },
+      now,
+    )
+    if (!subscription) throw new Error('could not create subscription')
+
+    const member = await createMember(db, 'u1', subscription.id, {
+      displayName: 'Friend',
+      shareMinor: 5000,
+    })
+    if (typeof member === 'string') throw new Error(member)
+
+    const summary = await getDashboardSummary(db, 'u1', {
+      now,
+      fetchFn: fakeFetch(payload).fetchFn,
+    })
+
+    expect(summary.monthlyTotalMinor).toBe(7000)
+    expect(summary.upcoming[0]?.viewerShareMinor).toBe(7000)
   })
 
   it('reports currencies it cannot convert instead of guessing', async () => {

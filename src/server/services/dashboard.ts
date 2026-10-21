@@ -120,7 +120,7 @@ export async function getDashboardSummary(
       continue
     }
     const monthly = monthlyEquivalentMinor(
-      subscription.price,
+      subscription.viewerShareMinor,
       subscription.cycleUnit as CycleUnit,
       subscription.cycleCount,
     )

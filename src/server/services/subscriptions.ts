@@ -21,6 +21,8 @@ export type SubscriptionShareView = {
 
 export type SubscriptionWithRecurrence = Subscription & {
   nextDue: Date
+  /** What the viewer pays: their share on a split, or the full price. */
+  viewerShareMinor: number
   paymentMethodName: string | null
   viewer: SubscriptionViewer
   /** Set on member rows: the share this viewer holds. */
@@ -55,6 +57,7 @@ export type SortKey = (typeof sortKeys)[number]
 type SubscriptionRow = Subscription & {
   paymentMethodName?: string | null
   sharedCount?: number
+  allocatedMinor?: number
 }
 
 function withRecurrence(
@@ -67,6 +70,7 @@ function withRecurrence(
   return {
     ...row,
     nextDue: rolledNextPayment(row.nextPayment, cycle, now),
+    viewerShareMinor: Math.max(0, row.price - (row.allocatedMinor ?? 0)),
     paymentMethodName: row.paymentMethodName ?? null,
     viewer,
     member: null,
@@ -108,6 +112,7 @@ function memberItem(row: MemberRow, now: Date): SubscriptionWithRecurrence {
     remindDaysBefore: null,
     userId: '',
     nextDue: rolledNextPayment(row.subscription.nextPayment, cycle, now),
+    viewerShareMinor: row.member.shareMinor,
     viewer: 'member',
     member: {
       id: row.member.id,
@@ -174,6 +179,7 @@ export async function listSubscriptions(
           ...getTableColumns(subscription),
           paymentMethodName: paymentMethod.name,
           sharedCount: sql<number>`(select count(*) from ${subscriptionMember} where ${subscriptionMember.subscriptionId} = ${subscription.id})`,
+          allocatedMinor: sql<number>`coalesce((select sum(${subscriptionMember.shareMinor}) from ${subscriptionMember} where ${subscriptionMember.subscriptionId} = ${subscription.id}), 0)`,
         })
         .from(subscription)
         .leftJoin(

@@ -137,6 +137,7 @@ describe('shared reads: the viewer-aware list', () => {
       order: 'asc',
     })
     expect(ownerPage.items[0]?.sharedCount).toBe(1)
+    expect(ownerPage.items[0]?.viewerShareMinor).toBe(17_925)
 
     const memberPage = await listSubscriptions(db, 'friend', {
       limit: 50,
@@ -156,7 +157,7 @@ describe('shared reads: the viewer-aware list', () => {
 })
 
 describe('shared reads: money', () => {
-  it('counts only the share in the member’s budget', async () => {
+  it('counts only each viewer’s share in the budget', async () => {
     const { db } = await accepted()
 
     const status = await getBudgetStatus(db, 'friend', {
@@ -169,10 +170,10 @@ describe('shared reads: money', () => {
       now,
       ...fakeFetch(ratesPayload),
     })
-    expect(ownerStatus.dueMinor).toBe(23_900)
+    expect(ownerStatus.dueMinor).toBe(17_925)
   })
 
-  it('counts only the share in the member’s dashboard', async () => {
+  it('counts only each viewer’s share in the dashboard', async () => {
     const { db } = await accepted()
 
     const summary = await getDashboardSummary(db, 'friend', {
@@ -187,7 +188,8 @@ describe('shared reads: money', () => {
       now,
       ...fakeFetch(ratesPayload),
     })
-    expect(ownerSummary.monthlyTotalMinor).toBe(23_900)
+    expect(ownerSummary.monthlyTotalMinor).toBe(17_925)
+    expect(ownerSummary.upcoming[0]?.viewerShareMinor).toBe(17_925)
   })
 })
 
