@@ -74,8 +74,6 @@ services:
 
 Then `docker compose up -d`. A fresh GHCR package starts **private**, so either flip it to public in the package settings or `docker login ghcr.io` once before pulling.
 
-**Before the first Frist release:** the current 0.2.0 image is still published as `ghcr.io/lovelesscodes/subdue:latest`. Use that tag until the 0.3.0 image is out; the compose file above is the post-0.3.0 shape.
-
 Prefer building from a checkout? `docker build -t frist . && docker run -d --name frist -p 3000:3000 -v ./data:/data frist`.
 
 **Upgrading from 0.2.0:** the database file was renamed from `subdue.db` to `frist.db`. Stop the container, rename `data/subdue.db` to `data/frist.db`, and rename `data/subdue.db-wal` / `data/subdue.db-shm` to the matching `frist.db` names, then start the new image. Keep a copy until the new install has booted once.

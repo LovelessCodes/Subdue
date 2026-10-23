@@ -20,7 +20,7 @@ function json(value: unknown) {
 }
 
 export function createFristMcpServer(authInfo?: AuthInfo) {
-  const server = new McpServer({ name: 'frist', version: '0.2.0' })
+  const server = new McpServer({ name: 'frist', version: '0.3.0' })
 
   server.registerTool(
     'list_subscriptions',
