@@ -100,7 +100,7 @@ export function buildIcalEvents(
         continue
       }
       events.push({
-        uid: `${subscription.id}-${toIsoDay(occurrence).replace(/-/g, '')}@subdue`,
+        uid: `${subscription.id}-${toIsoDay(occurrence).replace(/-/g, '')}@frist`,
         date: occurrence,
         summary: `${subscription.name} — ${formatMinor(subscription.price, subscription.currency, settings.locale)}`,
         description: subscription.notes,
@@ -120,7 +120,7 @@ export function buildIcalEvents(
 
     for (const arrival of arrivals) {
       events.push({
-        uid: `${source.id}-${toIsoDay(arrival.date).replace(/-/g, '')}@subdue`,
+        uid: `${source.id}-${toIsoDay(arrival.date).replace(/-/g, '')}@frist`,
         date: arrival.date,
         summary: `${source.name} → ${formatMinor(source.amountMinor, source.currency, settings.locale)}`,
         description: null,
@@ -140,9 +140,9 @@ export function renderIcal(
   const lines: string[] = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//Subdue//Subscription tracker//EN',
+    'PRODID:-//Frist//Subscription tracker//EN',
     'CALSCALE:GREGORIAN',
-    `X-WR-CALNAME:${escapeIcalText(options.name ?? 'Subdue')}`,
+    `X-WR-CALNAME:${escapeIcalText(options.name ?? 'Frist')}`,
   ]
 
   for (const event of events) {

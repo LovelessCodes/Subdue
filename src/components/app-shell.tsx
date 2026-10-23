@@ -16,7 +16,7 @@ import {
 import { authClient } from '@/lib/auth-client'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { BudgetSummary } from '@/components/budget-summary'
-import { SubdueMark } from '@/components/subdue-mark'
+import { FristMark } from '@/components/frist-mark'
 import { ThemeToggle } from '@/components/theme-toggle'
 import {
   Drawer,
@@ -73,9 +73,9 @@ function Wordmark({ className }: { className?: string }) {
         (className ?? '')
       }
     >
-      <SubdueMark className="size-6 shrink-0" />
+      <FristMark className="size-6 shrink-0" />
       <span className="truncate text-sm font-semibold tracking-tight group-data-[collapsible=icon]:hidden">
-        Subdue
+        Frist
       </span>
     </span>
   )
@@ -283,7 +283,7 @@ export function AppShell({
               </DrawerPanel>
             </DrawerPopup>
           </Drawer>
-          <span className="text-sm font-medium md:hidden">Subdue</span>
+          <span className="text-sm font-medium md:hidden">Frist</span>
           <div className="ml-auto flex items-center">
             <ThemeToggle />
           </div>

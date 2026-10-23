@@ -1,8 +1,8 @@
-# Subdue
+# Frist
 
 **Self-hosted subscription tracker.** Your subscriptions, their due dates, and what they actually cost — in one place you own.
 
-> Subdue: subscription **due** dates — and a good verb for taking control of them.
+> **Frist** means deadline — every one of yours, in one place.
 
 **Status: early, but alive.** Dashboard (with pay-period budgets driven by your income sources), calendar (due dates and paydays), subscriptions, and the reminder inbox are live in the browser, backed by a tested engine for recurrence, currencies, and monthly totals. Everything from subscriptions to integrations is managed in the browser, reminders deliver through email, ntfy, Telegram, Discord, and webhooks, and your data moves in and out freely — JSON, CSV, a one-file backup, and a Wallos importer that reads the real thing.
 
@@ -10,7 +10,7 @@
 
 Subscription trackers keep getting solved and unsolved at the same time: clouds that charge a monthly fee to track your monthly fees, self-hosted tools that get 90% right and stall on the last 10%, and "simple CRUD" apps where the recurrence math quietly lies to you.
 
-Subdue is our answer to all three. Four principles:
+Frist is our answer to all three. Four principles:
 
 - **Your data is yours.** One SQLite file, one folder of logos. A backup is a file copy; a restore is putting it back.
 - **Boring deployment.** One container, one volume, fine on a NAS. No database to babysit, no account to create.
@@ -40,7 +40,7 @@ Subdue is our answer to all three. Four principles:
 
 Needs [Bun](https://bun.sh) (preferred) or a recent Node.
 
-First run: `cp .env.example .env`. Everything in it is optional — the auth secret is generated on first boot (stored next to the database) and the base URL is derived from requests. Then open Subdue, create an account, and claim the administrator role: the claim URL is printed to the server logs on first boot.
+First run: `cp .env.example .env`. Everything in it is optional — the auth secret is generated on first boot (stored next to the database) and the base URL is derived from requests. Then open Frist, create an account, and claim the administrator role: the claim URL is printed to the server logs on first boot.
 
 ```bash
 bun install                # dependencies
@@ -63,8 +63,8 @@ The published image is a multi-arch build (amd64 + arm64) on GHCR. The minimal `
 
 ```yaml
 services:
-  subdue:
-    image: ghcr.io/lovelesscodes/subdue:latest
+  frist:
+    image: ghcr.io/lovelesscodes/frist:latest
     ports:
       - '3000:3000'
     volumes:
@@ -74,12 +74,16 @@ services:
 
 Then `docker compose up -d`. A fresh GHCR package starts **private**, so either flip it to public in the package settings or `docker login ghcr.io` once before pulling.
 
-Prefer building from a checkout? `docker build -t subdue . && docker run -d --name subdue -p 3000:3000 -v ./data:/data subdue`.
+**Before the first Frist release:** the current 0.2.0 image is still published as `ghcr.io/lovelesscodes/subdue:latest`. Use that tag until the 0.3.0 image is out; the compose file above is the post-0.3.0 shape.
 
-One volume (`/data`) holds the SQLite database — WAL mode, so the `-wal` and `-shm` files travel with it — plus the `logos/` folder for uploaded images. Migrations run automatically on every boot: upgrading is pulling a new image. On a fresh install the logs print a claim URL (`docker compose logs subdue | grep Subdue`) and the account that opens it becomes the administrator — the token lives at `data/setup-token` and is deleted once claimed. Tagged releases publish a multi-arch image to `ghcr.io/lovelesscodes/subdue`:
+Prefer building from a checkout? `docker build -t frist . && docker run -d --name frist -p 3000:3000 -v ./data:/data frist`.
+
+**Upgrading from 0.2.0:** the database file was renamed from `subdue.db` to `frist.db`. Stop the container, rename `data/subdue.db` to `data/frist.db`, and rename `data/subdue.db-wal` / `data/subdue.db-shm` to the matching `frist.db` names, then start the new image. Keep a copy until the new install has booted once.
+
+One volume (`/data`) holds the SQLite database — WAL mode, so the `-wal` and `-shm` files travel with it — plus the `logos/` folder for uploaded images. Migrations run automatically on every boot: upgrading is pulling a new image. On a fresh install the logs print a claim URL (`docker compose logs frist | grep Frist`) and the account that opens it becomes the administrator — the token lives at `data/setup-token` and is deleted once claimed. Tagged releases publish a multi-arch image to `ghcr.io/lovelesscodes/frist`:
 
 ```bash
-git tag v0.2.0 && git push origin v0.2.0   # builds amd64 + arm64, writes release notes
+git tag v0.3.0 && git push origin v0.3.0   # builds amd64 + arm64, writes release notes
 ```
 
 The workflow can also be run manually from the Actions tab — manual runs build without pushing anything, so the pipeline is verifiable without cutting a release.
@@ -99,7 +103,7 @@ The container runs as root and writes to `/data`; on a NAS, pre-create that fold
 - **Interactive reference** (Scalar): `/api/auth/reference` on a running instance — covers every endpoint, including the plugin ones.
 - **Machine-readable spec**: [`openapi.json`](./openapi.json); regenerate with `bun run openapi` after endpoint changes.
 - **MCP**: the app serves an MCP endpoint at `/api/mcp`, protected by OAuth (dynamic client registration, CIMD, PKCE). Point an MCP client at `http://localhost:3000/api/mcp` — it discovers the authorization server, and you approve access on the consent page.
-- **Scripts & API keys**: `POST /api/auth/api-key/create` returns a key (shown once). Call any endpoint with `x-api-key: <key>` instead of a session cookie — keys are full-access per user, rate-limited (600 requests/hour), and revocable through the same API. A management UI is [#7](https://github.com/LovelessCodes/Subdue/issues/7).
+- **Scripts & API keys**: `POST /api/auth/api-key/create` returns a key (shown once). Call any endpoint with `x-api-key: <key>` instead of a session cookie — keys are full-access per user, rate-limited (600 requests/hour), and revocable through the same API. A management UI is [#7](https://github.com/LovelessCodes/Frist/issues/7).
 
 ## Notifications
 
@@ -138,16 +142,16 @@ Two imports, both with a dry run that reports exactly what would happen without 
 curl -b cookies.txt -X POST 'http://localhost:3000/api/import/wallos?dryRun=1' \
   --data-binary @Wallos-Backup-20260101-120000.zip
 curl -b cookies.txt -X POST 'http://localhost:3000/api/import/csv?dryRun=1' \
-  --data-binary @subdue-subscriptions-2026-01-01.csv
+  --data-binary @frist-subscriptions-2026-01-01.csv
 ```
 
-The Wallos importer reads the raw `wallos.db` inside a backup zip (a bare `.db` works too) and follows Wallos semantics: cycle days plus frequency become Subdue cycles, decimal prices become minor units, per-subscription reminder overrides carry over, and logos, URLs, payment methods and cancellation dates come along too. Duplicate names are skipped; inactive subscriptions and one-time payments are reported rather than imported.
+The Wallos importer reads the raw `wallos.db` inside a backup zip (a bare `.db` works too) and follows Wallos semantics: cycle days plus frequency become Frist cycles, decimal prices become minor units, per-subscription reminder overrides carry over, and logos, URLs, payment methods and cancellation dates come along too. Duplicate names are skipped; inactive subscriptions and one-time payments are reported rather than imported.
 
 Logos are files in the data folder (`data/logos/`), so a complete backup is the database plus that folder; the JSON export records the filenames. A logo can also be an external URL, stored as the URL and loaded by your browser straight from that host.
 
 ## Calendar feed
 
-Subscribe your calendar to Subdue — every payment in the next 12 months, expanded by the same recurrence engine that powers the app, with an alarm set from each subscription's reminder days (per-subscription overrides included):
+Subscribe your calendar to Frist — every payment in the next 12 months, expanded by the same recurrence engine that powers the app, with an alarm set from each subscription's reminder days (per-subscription overrides included):
 
 ```bash
 curl -b cookies.txt -X POST http://localhost:3000/api/auth/ical/enable
@@ -158,7 +162,7 @@ Add `http://localhost:3000/api/ical/<token>` as a calendar subscription in anyth
 
 ## Install it
 
-Subdue is a PWA: it installs from any modern browser (manifest, icons, theme color). Pages are cached network-first, so whenever the server is reachable the data is fresh; when it is not, the last-rendered copy appears with a banner naming the cache time. API calls are never cached. The reasoning and its trade-offs live in [docs/adr/0001-offline-behaviour.md](./docs/adr/0001-offline-behaviour.md).
+Frist is a PWA: it installs from any modern browser (manifest, icons, theme color). Pages are cached network-first, so whenever the server is reachable the data is fresh; when it is not, the last-rendered copy appears with a banner naming the cache time. API calls are never cached. The reasoning and its trade-offs live in [docs/adr/0001-offline-behaviour.md](./docs/adr/0001-offline-behaviour.md).
 
 ## Two-factor authentication
 
@@ -166,13 +170,13 @@ TOTP two-factor is per account: **Settings → Two-factor authentication**. Enab
 
 ## Passkeys
 
-Accounts can register passkeys (WebAuthn) from **Settings → Passkeys** and sign in with them from the sign-in page — Touch ID, Windows Hello or a hardware key, no password typed. Two constraints come from WebAuthn itself, not from Subdue: passkeys require a **secure context** (HTTPS, or http on localhost), and they are bound to the **domain** they were registered on — localhost, a LAN name and a public domain are three separate passkey worlds. Behind a real domain, set `PASSKEY_RP_ID=your.hostname` (the plugin's default is `localhost`); on plain http across a LAN, browsers refuse to create passkeys until TLS is in front.
+Accounts can register passkeys (WebAuthn) from **Settings → Passkeys** and sign in with them from the sign-in page — Touch ID, Windows Hello or a hardware key, no password typed. Two constraints come from WebAuthn itself, not from Frist: passkeys require a **secure context** (HTTPS, or http on localhost), and they are bound to the **domain** they were registered on — localhost, a LAN name and a public domain are three separate passkey worlds. Behind a real domain, set `PASSKEY_RP_ID=your.hostname` (the plugin's default is `localhost`); on plain http across a LAN, browsers refuse to create passkeys until TLS is in front.
 
 ## Social sign-in
 
 Two first-class ways to configure providers — the environment wins when they overlap:
 
-**In the browser:** an administrator opens `/admin`, picks from 34 providers, pastes the credentials plus any provider-specific fields (Microsoft tenant, Cognito domain/region/pool, Discord permissions, Facebook scopes, …), registers the callback URL shown, and restarts Subdue. Secrets live in the database and are never returned by the API.
+**In the browser:** an administrator opens `/admin`, picks from 34 providers, pastes the credentials plus any provider-specific fields (Microsoft tenant, Cognito domain/region/pool, Discord permissions, Facebook scopes, …), registers the callback URL shown, and restarts Frist. Secrets live in the database and are never returned by the API.
 
 **In the container:** environment variables follow `${PROVIDER}_CLIENT_ID` / `${PROVIDER}_CLIENT_SECRET`, with extras as `${PROVIDER}_${KEY}`:
 
@@ -192,7 +196,7 @@ Very early days: for anything structural, please open an issue before a big pull
 
 ## Credits & thanks
 
-- **[Wallos](https://github.com/ellite/Wallos)** — the self-hosted subscription tracker that showed this category deserves to exist. Subdue is an independent, from-scratch rebuild: it shares no code with Wallos and is not affiliated with it. The nod is one of respect — if you want a mature tracker today, go run Wallos.
+- **[Wallos](https://github.com/ellite/Wallos)** — the self-hosted subscription tracker that showed this category deserves to exist. Frist is an independent, from-scratch rebuild: it shares no code with Wallos and is not affiliated with it. The nod is one of respect — if you want a mature tracker today, go run Wallos.
 - **[TanStack](https://tanstack.com)** — for Start, Router, and making the web fun again.
 - Every self-hoster who would rather run `docker compose up` than rent another subscription.
 

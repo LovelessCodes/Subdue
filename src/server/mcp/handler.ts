@@ -1,10 +1,10 @@
 import { requireMcpAuth } from '@better-auth/mcp'
 import { createMcpHandler } from '@modelcontextprotocol/server'
 import { auth, mcpResource } from '../../lib/auth'
-import { createSubdueMcpServer } from './server'
+import { createFristMcpServer } from './server'
 
 const mcpHandler = createMcpHandler(
-  (ctx) => createSubdueMcpServer(ctx.authInfo),
+  (ctx) => createFristMcpServer(ctx.authInfo),
   { legacy: 'reject' },
 )
 

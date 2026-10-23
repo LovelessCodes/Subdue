@@ -1,7 +1,7 @@
 import { cn } from 'cn'
 
 // The app mark: #18181b tile, #f8f8f8 ring, #f97316 dot — mirrors public/icons.
-export function SubdueMark({ className }: { className?: string }) {
+export function FristMark({ className }: { className?: string }) {
   return (
     <span
       className={cn(

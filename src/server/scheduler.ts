@@ -4,7 +4,7 @@ import { tickUser, type TickOptions } from './services/reminders'
 
 export const SCHEDULER_INTERVAL_MS = 5 * 60 * 1000
 export const SCHEDULER_BOOT_DELAY_MS = 5 * 1000
-const SCHEDULER_KEY = Symbol.for('subdue.scheduler')
+const SCHEDULER_KEY = Symbol.for('frist.scheduler')
 
 export async function tickAllUsers(
   db: Database,

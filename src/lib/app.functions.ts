@@ -810,8 +810,8 @@ export const testMyChannel = createServerFn({ method: 'POST' })
     try {
       await sender(
         {
-          title: 'Subdue test notification',
-          body: `This is a test from Subdue. If you can read this, "${target.name}" works.`,
+          title: 'Frist test notification',
+          body: `This is a test from Frist. If you can read this, "${target.name}" works.`,
         },
         channels.decodeChannelConfig(type, target.config),
       )

@@ -21,7 +21,7 @@ describe('logos', () => {
   let dir: string
 
   beforeEach(() => {
-    dir = mkdtempSync(join(tmpdir(), 'subdue-logo-'))
+    dir = mkdtempSync(join(tmpdir(), 'frist-logo-'))
     process.env.DATA_DIR = dir
   })
 

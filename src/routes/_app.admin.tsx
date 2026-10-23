@@ -83,7 +83,7 @@ function AdminPage() {
             <CardTitle>Social sign-in</CardTitle>
             <CardDescription>
               Paste the client credentials from each provider's console. Changes
-              from this page apply after restarting Subdue; providers configured
+              from this page apply after restarting Frist; providers configured
               through environment variables win over these rows.
             </CardDescription>
           </CardHeader>

@@ -10,7 +10,7 @@ describe('admin claim', () => {
   let dir: string
 
   beforeEach(() => {
-    dir = mkdtempSync(join(tmpdir(), 'subdue-claim-'))
+    dir = mkdtempSync(join(tmpdir(), 'frist-claim-'))
     process.env.DATA_DIR = dir
   })
 

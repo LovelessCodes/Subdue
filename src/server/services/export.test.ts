@@ -49,7 +49,7 @@ describe('export', () => {
     const db = await seed()
     const bundle = await exportBundle(db, 'u1')
 
-    expect(bundle.app).toBe('subdue')
+    expect(bundle.app).toBe('frist')
     expect(bundle.version).toBe(1)
     expect(bundle.categories.map((item) => item.name)).toEqual([
       'Domains',
@@ -101,7 +101,7 @@ describe('export', () => {
 
   it('creates a consistent one-file backup', async () => {
     const db = await seed()
-    const dir = await mkdtemp(join(tmpdir(), 'subdue-backup-test-'))
+    const dir = await mkdtemp(join(tmpdir(), 'frist-backup-test-'))
     const path = join(dir, 'backup.db')
 
     try {

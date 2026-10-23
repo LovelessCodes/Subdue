@@ -42,7 +42,7 @@ export type ExportedIncomeSource = {
 }
 
 export type ExportBundle = {
-  app: 'subdue'
+  app: 'frist'
   version: number
   exportedAt: string
   settings: Settings
@@ -89,7 +89,7 @@ export async function exportBundle(
   )
 
   return {
-    app: 'subdue',
+    app: 'frist',
     version: EXPORT_VERSION,
     exportedAt: new Date().toISOString(),
     settings,

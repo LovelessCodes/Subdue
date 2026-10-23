@@ -5,6 +5,6 @@ export default defineConfig({
   schema: './src/lib/auth-schema.ts',
   out: './drizzle',
   dbCredentials: {
-    url: './data/subdue.db',
+    url: './data/frist.db',
   },
 })

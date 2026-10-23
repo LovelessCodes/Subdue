@@ -45,7 +45,7 @@ function SetupPage() {
       const message = caught instanceof Error ? caught.message : 'Claim failed.'
       setError(
         message.includes('SETUP_TOKEN_INVALID')
-          ? 'That token does not match. Copy it from the server logs (docker compose logs | grep Subdue).'
+          ? 'That token does not match. Copy it from the server logs (docker compose logs | grep Frist).'
           : message,
       )
     } finally {
@@ -90,7 +90,7 @@ function SetupPage() {
               </p>
             ) : !status.hasToken ? (
               <p className="text-sm text-muted-foreground">
-                No claim token found. Restart Subdue — a fresh token is printed
+                No claim token found. Restart Frist — a fresh token is printed
                 to the logs on every boot until it is claimed.
               </p>
             ) : (
@@ -99,7 +99,7 @@ function SetupPage() {
                   First boot prints a claim token to the container logs, on
                   purpose: whoever can read the server's logs owns the server.
                   Find it with something like{' '}
-                  <code>docker compose logs | grep Subdue</code> — it also lives
+                  <code>docker compose logs | grep Frist</code> — it also lives
                   in <code>data/setup-token</code> on the host.
                 </p>
                 <Field className="max-w-md">

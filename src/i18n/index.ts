@@ -23,7 +23,7 @@ export const SUPPORTED_LOCALES = [
 export type MessageLocale = (typeof SUPPORTED_LOCALES)[number]
 
 /** Mirrors the language choice for signed-out pages on the same browser. */
-export const LOCALE_COOKIE = 'subdue-locale'
+export const LOCALE_COOKIE = 'frist-locale'
 
 const loaders: Record<MessageLocale, () => Promise<{ default: unknown }>> = {
   en: () => import('./messages/en.json'),

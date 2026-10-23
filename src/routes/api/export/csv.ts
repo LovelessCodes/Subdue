@@ -18,7 +18,7 @@ export const Route = createFileRoute('/api/export/csv')({
         return new Response(csv, {
           headers: {
             'content-type': 'text/csv; charset=utf-8',
-            'content-disposition': `attachment; filename="subdue-subscriptions-${fileStamp()}.csv"`,
+            'content-disposition': `attachment; filename="frist-subscriptions-${fileStamp()}.csv"`,
             'cache-control': 'no-store',
           },
         })

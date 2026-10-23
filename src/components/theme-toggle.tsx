@@ -3,7 +3,7 @@ import type { MouseEvent } from 'react'
 import { Moon, Sun } from 'lucide-react'
 import { updateMySettings } from '@/lib/app.functions'
 
-const KEY = 'subdue-theme'
+const KEY = 'frist-theme'
 
 type ViewTransitionDocument = Document & {
   startViewTransition?: (callback: () => void) => { ready: Promise<void> }

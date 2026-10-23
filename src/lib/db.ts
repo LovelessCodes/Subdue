@@ -37,7 +37,7 @@ if (setupToken) {
     process.env.BETTER_AUTH_URL?.trim() || 'http://localhost:3000'
   ).replace(/\/+$/, '')
   console.log(
-    `[Subdue] No administrator yet — sign in, then open ${base}/setup?token=${setupToken} to claim it.`,
+    `[Frist] No administrator yet — sign in, then open ${base}/setup?token=${setupToken} to claim it.`,
   )
 }
 

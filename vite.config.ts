@@ -13,7 +13,7 @@ const config = defineConfig({
       // better-auth rate limits per client IP (single-value x-forwarded-for);
       // Vite's dev server has no such header, so provide the socket address
       // like serve.ts does in production.
-      name: 'subdue-client-ip',
+      name: 'frist-client-ip',
       configureServer(server) {
         server.middlewares.use((req, _res, next) => {
           const address = req.socket.remoteAddress
@@ -30,7 +30,7 @@ const config = defineConfig({
     viteReact(),
   ],
   server: {
-    // Subdue accepts any host in production (dynamic base URL); the dev
+    // Frist accepts any host in production (dynamic base URL); the dev
     // server should not be stricter than the real thing.
     allowedHosts: true,
     // Vite auto-enables client-console forwarding to the terminal when it

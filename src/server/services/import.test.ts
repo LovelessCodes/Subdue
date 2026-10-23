@@ -95,7 +95,7 @@ describe('wallos import', () => {
   let logoDir: string
 
   beforeEach(() => {
-    logoDir = mkdtempSync(join(tmpdir(), 'subdue-import-logos-'))
+    logoDir = mkdtempSync(join(tmpdir(), 'frist-import-logos-'))
     process.env.DATA_DIR = logoDir
   })
 

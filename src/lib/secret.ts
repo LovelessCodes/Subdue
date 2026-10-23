@@ -32,7 +32,7 @@ export function resolveAuthSecret(): string {
   mkdirSync(dirname(secretPath), { recursive: true })
   writeFileSync(secretPath, `${secret}\n`, { mode: 0o600 })
   console.warn(
-    `[Subdue] Generated an auth secret at ${secretPath}. Keep it with the database — without it, sessions and tokens reset.`,
+    `[Frist] Generated an auth secret at ${secretPath}. Keep it with the database — without it, sessions and tokens reset.`,
   )
   return secret
 }

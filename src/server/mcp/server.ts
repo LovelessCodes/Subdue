@@ -19,8 +19,8 @@ function json(value: unknown) {
   }
 }
 
-export function createSubdueMcpServer(authInfo?: AuthInfo) {
-  const server = new McpServer({ name: 'subdue', version: '0.2.0' })
+export function createFristMcpServer(authInfo?: AuthInfo) {
+  const server = new McpServer({ name: 'frist', version: '0.2.0' })
 
   server.registerTool(
     'list_subscriptions',

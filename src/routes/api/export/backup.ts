@@ -15,7 +15,7 @@ export const Route = createFileRoute('/api/export/backup')({
         }
 
         const { createBackup } = await import('@/server/services/export')
-        const path = join(tmpdir(), `subdue-backup-${crypto.randomUUID()}.db`)
+        const path = join(tmpdir(), `frist-backup-${crypto.randomUUID()}.db`)
 
         try {
           createBackup(db, path)
@@ -23,7 +23,7 @@ export const Route = createFileRoute('/api/export/backup')({
           return new Response(new Uint8Array(bytes), {
             headers: {
               'content-type': 'application/octet-stream',
-              'content-disposition': `attachment; filename="subdue-backup-${fileStamp()}.db"`,
+              'content-disposition': `attachment; filename="frist-backup-${fileStamp()}.db"`,
               'cache-control': 'no-store',
             },
           })

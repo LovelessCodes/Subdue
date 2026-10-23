@@ -5,7 +5,7 @@ import { Link, createFileRoute } from '@tanstack/react-router'
 import { CircleAlert } from 'lucide-react'
 import { cn } from 'cn'
 import { Kbd } from '@/components/kbd'
-import { SubdueMark } from '@/components/subdue-mark'
+import { FristMark } from '@/components/frist-mark'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -149,9 +149,9 @@ function TwoFactorPage() {
         >
           <div className="flex items-center justify-between px-4 pt-3.5 pb-1">
             <span className={cn('flex items-center gap-2', fade)}>
-              <SubdueMark className="size-5" />
+              <FristMark className="size-5" />
               <span className="text-sm font-semibold tracking-tight">
-                Subdue
+                Frist
               </span>
             </span>
             <span className="text-xs text-muted-foreground">Two-factor</span>

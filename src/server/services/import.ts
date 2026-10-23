@@ -340,7 +340,7 @@ function readWallosDatabase(
   }
   if (skippedOneTime > 0) {
     warnings.push(
-      `Skipped ${skippedOneTime} one-time payments — Subdue tracks subscriptions only.`,
+      `Skipped ${skippedOneTime} one-time payments — Frist tracks subscriptions only.`,
     )
   }
   if (currencyFallbacks > 0) {

@@ -20,7 +20,7 @@ WORKDIR /app
 
 ENV NODE_ENV=production \
     PORT=3000 \
-    DATABASE_PATH=/data/subdue.db \
+    DATABASE_PATH=/data/frist.db \
     MIGRATIONS_PATH=/app/drizzle
 
 COPY --from=prod-deps /app/node_modules ./node_modules

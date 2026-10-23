@@ -13,7 +13,7 @@ describe('setup token', () => {
   let dir: string
 
   beforeEach(() => {
-    dir = mkdtempSync(join(tmpdir(), 'subdue-setup-'))
+    dir = mkdtempSync(join(tmpdir(), 'frist-setup-'))
     process.env.DATA_DIR = dir
   })
 

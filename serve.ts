@@ -121,4 +121,4 @@ Bun.serve({
   },
 })
 
-console.log(`Subdue listening on http://0.0.0.0:${port}`)
+console.log(`Frist listening on http://0.0.0.0:${port}`)

@@ -1,4 +1,4 @@
-// Subdue service worker.
+// Frist service worker.
 //
 // Network-first for page navigations, cache-first for content-hashed assets.
 // API and server-function responses are never cached, so whenever the server
@@ -6,7 +6,7 @@
 // from cache with a timestamped banner; an unvisited page gets a notice.
 // The full reasoning lives in docs/adr/0001-offline-behaviour.md.
 
-const CACHE = 'subdue-pages-v2'
+const CACHE = 'frist-pages-v2'
 const PRECACHE = ['/manifest.webmanifest', '/icons/icon-192.png']
 
 self.addEventListener('install', (event) => {
@@ -82,7 +82,7 @@ async function navigation(request) {
       return new Response(
         '<!doctype html><title>Offline</title>' +
           '<body style="font:15px system-ui;padding:2rem"><h1>Offline</h1>' +
-          '<p>Subdue has not cached this page yet. Reconnect and visit it once more.</p></body>',
+          '<p>Frist has not cached this page yet. Reconnect and visit it once more.</p></body>',
         {
           status: 503,
           headers: { 'content-type': 'text/html; charset=utf-8' },

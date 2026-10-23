@@ -91,7 +91,7 @@ export const mcpResource =
     : 'http://localhost:3000/api/mcp')
 
 export const auth = betterAuth({
-  appName: 'Subdue',
+  appName: 'Frist',
   secret: resolveAuthSecret(),
   // Explicit when configured; otherwise every request's host is used, with
   // '*' allowing any of them (self-hosted instances get reached by many names).
@@ -150,7 +150,7 @@ export const auth = betterAuth({
         : {}),
     }),
     twoFactor({
-      issuer: 'Subdue',
+      issuer: 'Frist',
     }),
     categoriesPlugin(),
     channelsPlugin(),

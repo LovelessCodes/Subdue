@@ -17,7 +17,7 @@ export const Route = createFileRoute('/api/export/json')({
         return new Response(JSON.stringify(bundle, null, 2), {
           headers: {
             'content-type': 'application/json; charset=utf-8',
-            'content-disposition': `attachment; filename="subdue-export-${fileStamp()}.json"`,
+            'content-disposition': `attachment; filename="frist-export-${fileStamp()}.json"`,
             'cache-control': 'no-store',
           },
         })

@@ -70,7 +70,7 @@ describe('senders', () => {
     expect(JSON.parse(String(calls[0]?.init.body))).toEqual({
       title: 'T',
       body: 'B',
-      source: 'subdue',
+      source: 'frist',
     })
 
     const failing = createSenders({ fetchFn: recordingFetch([], 500) })

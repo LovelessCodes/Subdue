@@ -4,13 +4,13 @@ Status: accepted · 2026-10-19
 
 ## Context
 
-Subscriptions belong to exactly one user: every read filters `subscription.user_id`, and the payer's bank statement is the only record of the charge. People routinely split a family plan or a shared server, but Subdue cannot represent that without duplicating the subscription per person — which produces two sources of truth for price, renewal and cancellation.
+Subscriptions belong to exactly one user: every read filters `subscription.user_id`, and the payer's bank statement is the only record of the charge. People routinely split a family plan or a shared server, but Frist cannot represent that without duplicating the subscription per person — which produces two sources of truth for price, renewal and cancellation.
 
 The constraints:
 
 - One charge, one payer. Only the payer's statement carries it; a split must not double-count the charge in anyone's budget.
 - Registered and unregistered people both participate. Not everyone will make an account.
-- No system mailer. Invites cannot be emailed by Subdue today.
+- No system mailer. Invites cannot be emailed by Frist today.
 - Sign-up is open and email addresses are unverified. An invited email is a label, not proof of identity.
 - Notes and payment methods can hold family-plan credentials. Members must not inherit them.
 
@@ -66,7 +66,7 @@ visible(s, me) = s.user_id = me
 ### Invites
 
 - A placeholder is name-only: no account, no token, no access. It counts in the split immediately.
-- A registered invite is a one-time bearer token, hashed at rest, 7 days, revocable. The payer copies the link; Subdue does not send email.
+- A registered invite is a one-time bearer token, hashed at rest, 7 days, revocable. The payer copies the link; Frist does not send email.
 - The accept screen requires sign-in. The token is the authority; the email is a label.
 - Accepting links `user_id` and sets `status = 'active'`. The token is cleared.
 - Members can leave; the row is deleted and their notifications for that subscription are deleted in the same transaction. Their share returns to the owner.
@@ -87,7 +87,7 @@ The existing `notification` row is already per user, per subscription, per due d
 - The old free-text `payer` column is gone (migration `0023`): ownership plus shares already answer who pays, and the label only created a second, contradictory answer to the same question.
 - Export and the API need an explicit decision per field; they cannot reuse the owner query.
 - A member who already tracks the service gets a duplicate. Merging is a follow-up, not part of v1.
-- No email delivery means an invite is only as good as the link the payer sends. If Subdue ever gains a system mailer, the token flow does not change.
+- No email delivery means an invite is only as good as the link the payer sends. If Frist ever gains a system mailer, the token flow does not change.
 - Claim links for placeholders are a follow-up. In v1 a placeholder stays a label: no token, no access, removable at any time.
 - Deleting the owner cascades the subscription and every member's access; the UI should warn before that happens.
 

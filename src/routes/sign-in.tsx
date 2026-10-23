@@ -14,7 +14,7 @@ import { cn } from 'cn'
 import { Kbd } from '@/components/kbd'
 import { PasswordInput } from '@/components/password-input'
 import { ProviderMark } from '@/components/provider-mark'
-import { SubdueMark } from '@/components/subdue-mark'
+import { FristMark } from '@/components/frist-mark'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
@@ -240,9 +240,9 @@ function SignIn() {
         >
           <div className="flex items-center justify-between px-4 pt-3.5 pb-1">
             <span className={cn('flex items-center gap-2', fade)}>
-              <SubdueMark className="size-5" />
+              <FristMark className="size-5" />
               <span className="text-sm font-semibold tracking-tight">
-                Subdue
+                Frist
               </span>
             </span>
             <span className="text-xs text-muted-foreground">Sign in</span>

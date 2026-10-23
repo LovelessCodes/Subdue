@@ -3,7 +3,7 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 import { useLocale, useTranslations } from 'use-intl'
 import { Check, LoaderCircle, ShieldCheck } from 'lucide-react'
 import { ThemeToggle } from '@/components/theme-toggle'
-import { SubdueMark } from '@/components/subdue-mark'
+import { FristMark } from '@/components/frist-mark'
 import { Button } from '@/components/ui/button'
 import { acceptSharedInvite, getSharedInvite } from '@/lib/app.functions'
 import { formatDate, formatMinor } from '@/lib/money'
@@ -74,7 +74,7 @@ function ShareInvite() {
               nativeButton={false}
               render={<Link to="/subscriptions" />}
             >
-              {t('openSubdue')}
+              {t('openFrist')}
             </Button>
           }
         />
@@ -106,7 +106,7 @@ function ShareInvite() {
               <p className="text-xs font-medium tracking-[0.08em] text-muted-foreground uppercase">
                 {t('inviteEyebrow')}
               </p>
-              <SubdueMark className="size-5" />
+              <FristMark className="size-5" />
             </div>
             <h2 className="mt-2 text-xl font-semibold tracking-tight">
               {t('inviteTitle', { owner: invite.ownerName })}

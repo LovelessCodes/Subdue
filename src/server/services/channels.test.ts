@@ -13,7 +13,7 @@ describe('channel config', () => {
   it('fills sensible defaults and rejects bad input', () => {
     const email = parseChannelConfig('email', {
       host: 'smtp.example.com',
-      from: 'subdue@example.com',
+      from: 'frist@example.com',
       to: 'me@example.com',
     })
     expect(email.port).toBe(587)

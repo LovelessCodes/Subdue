@@ -98,7 +98,7 @@ function Consent() {
         <CardHeader>
           <CardTitle>Authorize {clientName ?? 'an application'}</CardTitle>
           <CardDescription>
-            {clientName ?? 'An application'} wants access to your Subdue data.
+            {clientName ?? 'An application'} wants access to your Frist data.
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">

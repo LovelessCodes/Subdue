@@ -27,7 +27,7 @@ export const Route = createRootRoute({
         content: 'width=device-width, initial-scale=1',
       },
       {
-        title: 'Subdue',
+        title: 'Frist',
       },
       {
         name: 'theme-color',
@@ -35,7 +35,7 @@ export const Route = createRootRoute({
       },
       {
         name: 'apple-mobile-web-app-title',
-        content: 'Subdue',
+        content: 'Frist',
       },
     ],
     links: [
@@ -82,7 +82,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <script
           dangerouslySetInnerHTML={{
             __html:
-              "try{var t=localStorage.getItem('subdue-theme')||'system';if(t==='dark'||(t==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark')}}catch(e){}",
+              "try{var t=localStorage.getItem('frist-theme')||'system';if(t==='dark'||(t==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark')}}catch(e){}",
           }}
         />
         <HeadContent />

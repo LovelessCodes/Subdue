@@ -1,7 +1,7 @@
 import { dirname, join, resolve } from 'node:path'
 
 export function resolveDatabasePath(): string {
-  return resolve(process.env.DATABASE_PATH?.trim() || './data/subdue.db')
+  return resolve(process.env.DATABASE_PATH?.trim() || './data/frist.db')
 }
 
 export function dataDir(): string {

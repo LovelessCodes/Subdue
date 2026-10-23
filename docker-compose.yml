@@ -1,7 +1,7 @@
 services:
-  subdue:
+  frist:
     # Builds this checkout. To run the released image instead, swap this for
-    # `image: ghcr.io/lovelesscodes/subdue:latest`.
+    # `image: ghcr.io/lovelesscodes/frist:latest`.
     build: .
     ports:
       - '3000:3000'

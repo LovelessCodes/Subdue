@@ -84,7 +84,7 @@ const TYPE_FIELDS: Record<string, FieldDef[]> = {
     {
       key: 'from',
       labelKey: 'fieldFrom',
-      placeholder: 'subdue@example.com',
+      placeholder: 'frist@example.com',
     },
     { key: 'to', labelKey: 'fieldTo', placeholder: 'you@example.com' },
   ],

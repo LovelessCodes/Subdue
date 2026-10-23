@@ -131,7 +131,7 @@ export function applyTheme(theme: string) {
       window.matchMedia('(prefers-color-scheme: dark)').matches)
   document.documentElement.classList.toggle('dark', dark)
   try {
-    localStorage.setItem('subdue-theme', theme)
+    localStorage.setItem('frist-theme', theme)
   } catch {
     // private mode: the theme still applies for this session
   }

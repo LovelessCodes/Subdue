@@ -26,7 +26,7 @@ export function repairSigningKeys(sqlite: SqliteDatabase.Database): void {
     if (!String(row.private_key ?? '').includes('"kty"')) {
       sqlite.prepare('DELETE FROM jwks WHERE id = ?').run(row.id)
       console.warn(
-        '[Subdue] Removed a signing key that was encrypted with a different secret; a replacement is generated on demand.',
+        '[Frist] Removed a signing key that was encrypted with a different secret; a replacement is generated on demand.',
       )
     }
   }

@@ -76,7 +76,7 @@ export function createSenders(
       const parsed = channelConfigSchemas.webhook.parse(config)
       await post(
         parsed.url,
-        { title: message.title, body: message.body, source: 'subdue' },
+        { title: message.title, body: message.body, source: 'frist' },
         parsed.secret ? { authorization: `Bearer ${parsed.secret}` } : {},
       )
     },

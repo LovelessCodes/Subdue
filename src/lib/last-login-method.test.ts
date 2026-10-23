@@ -8,7 +8,7 @@ describe('last login method', () => {
   let authApi: (typeof import('@/lib/auth'))['auth']['api']
 
   beforeAll(async () => {
-    dir = mkdtempSync(join(tmpdir(), 'subdue-last-method-'))
+    dir = mkdtempSync(join(tmpdir(), 'frist-last-method-'))
     process.env.DATABASE_PATH = join(dir, 'auth.db')
     const { auth } = await import('@/lib/auth')
     authApi = auth.api

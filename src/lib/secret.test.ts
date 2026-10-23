@@ -11,8 +11,8 @@ describe('auth secret resolution', () => {
   let dir: string
 
   beforeEach(() => {
-    dir = mkdtempSync(join(tmpdir(), 'subdue-secret-'))
-    process.env.DATABASE_PATH = join(dir, 'subdue.db')
+    dir = mkdtempSync(join(tmpdir(), 'frist-secret-'))
+    process.env.DATABASE_PATH = join(dir, 'frist.db')
     delete process.env.BETTER_AUTH_SECRET
   })
 

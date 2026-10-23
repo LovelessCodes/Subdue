@@ -9,7 +9,7 @@ describe('passkeys', () => {
   let sqlite: (typeof import('@/lib/db'))['sqlite']
 
   beforeAll(async () => {
-    dir = mkdtempSync(join(tmpdir(), 'subdue-passkey-'))
+    dir = mkdtempSync(join(tmpdir(), 'frist-passkey-'))
     process.env.DATABASE_PATH = join(dir, 'auth.db')
     const { auth } = await import('@/lib/auth')
     authApi = auth.api
