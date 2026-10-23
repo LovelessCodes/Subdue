@@ -160,7 +160,7 @@ Add `http://localhost:3000/api/ical/<token>` as a calendar subscription in anyth
 
 ## Install it
 
-Frist is a PWA: it installs from any modern browser (manifest, icons, theme color). Pages are cached network-first, so whenever the server is reachable the data is fresh; when it is not, the last-rendered copy appears with a banner naming the cache time. API calls are never cached. The reasoning and its trade-offs live in [docs/adr/0001-offline-behaviour.md](./docs/adr/0001-offline-behaviour.md).
+Frist is a PWA: it installs from any modern browser (manifest, icons, theme color). The service worker precaches the app shell and its assets on install, so the first offline visit is fully styled; pages stay network-first while the server is reachable, the last-rendered copy appears offline with a banner naming the cache time, and an unvisited page gets a branded offline screen. API calls are never cached. The reasoning and its trade-offs live in [docs/adr/0001-offline-behaviour.md](./docs/adr/0001-offline-behaviour.md).
 
 ## Two-factor authentication
 
